@@ -66,14 +66,14 @@ def main():
                         loss = criterion_mse(t * 300 + 100, data_t.signed_time.unsqueeze(1))
                         loss_test += loss.item()
                         test_count += 1
-                        if j > 3:
+                        if j > 10:
                             break
                     print('Epoch: %4d | Iter: %4d / %4d | Train Loss: %4.4f | '
                           'Test Loss: %4.4f | Best: %s' % (epoch, (i + 1), train_iter.__len__(),
                                                            loss_running / loss_count, loss_test / test_count,
                                                            'YES' if loss_test / test_iter.__len__() < best else 'NO'))
                     if loss_test / test_iter.__len__() < best:
-                        torch.save(model.state_dict(), 'model' + str(int(loss_test / test_iter.__len__())) + '.pkl')
+                        torch.save(model.state_dict(), 'model/model.pkl')
                         best = loss_test / test_iter.__len__()
                     loss_count = 0
                     loss_running = 0

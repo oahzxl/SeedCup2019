@@ -1,6 +1,5 @@
 import torch
-from torchtext.data import Field
-from torchtext.data import LabelField
+from torchtext.data import Field, LabelField
 from torchtext.data import Example
 from torchtext.data import Dataset
 from utils.util import *
