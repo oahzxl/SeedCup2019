@@ -4,4 +4,4 @@ SeedCup2019_pre
 .idea
 experiment.py
 __pycache__
-.pdf
+*.pdf
