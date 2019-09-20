@@ -5,3 +5,4 @@ SeedCup2019_pre
 experiment.py
 __pycache__
 *.pdf
+*.csv
