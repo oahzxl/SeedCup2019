@@ -1,6 +1,7 @@
 import torch
 from torch.nn import Module
 from torch import nn
+import torch.nn.functional as f
 
 
 class CNN(Module):
@@ -106,3 +107,115 @@ class CNN(Module):
         for i in range(inputs.size(0)):
             new[i, 0] = field.vocab.stoi[str(inputs[i, 0]) + '_' + idx]
         return new
+
+
+class CNNCell(Module):
+    def __init__(self):
+        super(CNNCell, self).__init__()
+        self.cnn1 = nn.Conv2d(in_channels=1, out_channels=16, kernel_size=(3, 3), stride=2, padding=0)
+        self.cnn2 = nn.Conv2d(in_channels=16, out_channels=64, kernel_size=(3, 3), stride=2, padding=0)
+        self.cnn3 = nn.Conv2d(in_channels=64, out_channels=16, kernel_size=(3, 3), stride=1, padding=0)
+
+    def forward(self, inputs):
+        inputs = self.cnn1(inputs)
+        inputs = self.cnn2(inputs)
+        inputs = self.cnn3(inputs)
+        inputs = f.relu(inputs)
+        return inputs
+
+
+class Simple(Module):
+    def __init__(self, num_embeddings, embedding_dim):
+        super(Simple, self).__init__()
+        self.embedding = nn.Embedding(num_embeddings=num_embeddings, embedding_dim=embedding_dim)
+        self.cnn = CNNCell()
+
+        self.fc_out_pre = 128
+        self.fc_pre = nn.Linear(in_features=144, out_features=self.fc_out_pre)
+        self.fc_lgst = nn.Linear(in_features=self.fc_out_pre, out_features=14)
+
+        self.fc_warehouse = nn.Linear(in_features=self.fc_out_pre, out_features=12)
+        self.fc_prov = nn.Linear(in_features=self.fc_out_pre, out_features=28)
+        self.fc_city = nn.Linear(in_features=self.fc_out_pre, out_features=120)
+
+        self.fc_t = nn.Linear(in_features=288, out_features=64)
+        self.fc_t4 = nn.Linear(in_features=64, out_features=4)
+        self.fc_t5 = nn.Linear(in_features=4, out_features=1)
+
+        self.double()
+
+    def forward(self, inputs, mode, field):
+        inputs = self.embedding(inputs).unsqueeze(1)
+
+        if mode == 'train':
+            # predict lost information
+            pred = inputs[:, :, :8, :]
+            pred = self.cnn(pred.view(pred.size(0), pred.size(1), -1, 32))
+            pred = f.relu(pred.view(inputs.size(0), -1))
+            pred = self.fc_pre(pred)
+            lgst = self.fc_lgst(pred)
+            warehouse = self.fc_warehouse(pred)
+            prov = self.fc_prov(pred)
+            city = self.fc_city(pred)
+
+            # predict final time
+            inputs = f.relu(self.cnn(inputs.view(inputs.size(0), inputs.size(1), -1, 32)))
+            inputs = inputs.view(inputs.size(0), -1)
+            inputs = self.fc_t(inputs)
+            t = self.fc_t4(inputs)
+            t4 = self.fc_t5(t)
+
+            return lgst, warehouse, prov, city, t[:, 0], t[:, 1], t[:, 2], t4
+
+        else:
+            pred = inputs[:, :, :8, :]
+            pred = f.relu(self.cnn(pred.view(pred.size(0), pred.size(1), -1, 32)))
+            pred = pred.view(inputs.size(0), -1)
+            pred = self.fc_pre(pred)
+            lgst = torch.argmax(self.fc_lgst(pred), dim=1).unsqueeze(1)
+            lgst = self.stoi(lgst, field, '12')
+            warehouse = torch.argmax(self.fc_warehouse(pred), dim=1).unsqueeze(1)
+            warehouse = self.stoi(warehouse, field, '13')
+            prov = torch.argmax(self.fc_prov(pred), dim=1).unsqueeze(1)
+            prov = self.stoi(prov, field, '14')
+            city = torch.argmax(self.fc_city(pred), dim=1).unsqueeze(1)
+            city = self.stoi(city, field, '15')
+            pred = torch.cat((lgst, warehouse, prov, city), dim=1)
+            pred = self.embedding(pred).unsqueeze(1)
+
+            inputs = torch.cat((inputs, pred), dim=2)
+            inputs = f.relu(self.cnn(inputs.view(inputs.size(0), inputs.size(1), -1, 32)))
+            inputs = inputs.view(inputs.size(0), -1)
+            inputs = self.fc_t(inputs)
+            t = self.fc_t4(inputs)
+            t4 = self.fc_t5(t)
+            return t4
+
+    @staticmethod
+    def stoi(inputs, field, idx):
+        new = torch.zeros_like(inputs)
+        for i in range(inputs.size(0)):
+            new[i, 0] = field.vocab.stoi[str(inputs[i, 0]) + '_' + idx]
+        return new
+
+
+class Test(Module):
+    def __init__(self, num_embeddings, embedding_dim):
+        super(Test, self).__init__()
+        self.embedding = nn.Embedding(num_embeddings=num_embeddings, embedding_dim=embedding_dim)
+        self.cnn = CNNCell()
+
+        self.fc_t1 = nn.Linear(in_features=640, out_features=128)
+        self.fc_t2 = nn.Linear(in_features=128, out_features=1)
+
+        self.double()
+
+    def forward(self, inputs, mode, field):
+        inputs = self.embedding(inputs).unsqueeze(1)
+
+        inputs = f.relu(self.cnn(inputs.view(inputs.size(0), inputs.size(1), -1, 32)))
+        inputs = inputs.view(inputs.size(0), -1)
+        inputs = self.fc_t1(inputs)
+        inputs = self.fc_t2(inputs)
+
+        return inputs

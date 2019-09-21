@@ -10,41 +10,50 @@ device = "cuda" if torch.cuda.is_available() else "cpu"
 
 
 def main():
-    train, test, field = dataset_reader()
-    field.build_vocab(train)
+    train, test, field = dataset_reader(train=True)
+    evl, _ = dataset_reader(train=False, fields=field)
+    field.build_vocab(train, evl)
+    del evl
     train_iter, test_iter = BucketIterator.splits(
         (train, test),
-        batch_sizes=(64, 64),
+        batch_sizes=(256, 256),
         device=device,
         sort_within_batch=False,
         repeat=False,
         sort=False
         )
 
-    model = CNN(num_embeddings=len(field.vocab), embedding_dim=128).to(device)
+    model = Test(num_embeddings=len(field.vocab), embedding_dim=128).to(device)
     criterion_ce = nn.CrossEntropyLoss()
     criterion_mse = nn.MSELoss()
-    optimizer = optim.Adam((model.parameters()), lr=0.03)
-    best = 999
+    optimizer = optim.Adam((model.parameters()), lr=0.003)
+    best = 9999
     loss_running = 0
     loss_count = 0
     for epoch in range(10000):
         for i, data in enumerate(train_iter):
+            # inputs = torch.cat((data.plat_form, data.biz_type, data.create_time, data.payed_time,
+            #                     data.cate1_id, data.cate2_id, data.preselling_shipped_time,
+            #                     data.seller_uid_field, data.company_name, data.rvcr_prov_name,
+            #                     data.rvcr_city_name, data.lgst_company, data.warehouse_id,
+            #                     data.shipped_prov_id, data.shipped_city_id), dim=1)
+            # lgst, warehouse, prov, city, t1, t2, t3, t4 = model(inputs, 'train', field)
+            #
+            # loss = (criterion_ce(lgst, data.lgst_company_label) +
+            #         criterion_ce(warehouse, data.warehouse_id_label) +
+            #         criterion_ce(prov, data.shipped_prov_id_label) +
+            #         criterion_ce(city, data.shipped_city_id_label) +
+            #         criterion_mse(t1.unsqueeze(1) * 200 + 50, data.shipped_time.unsqueeze(1)) / 50 +
+            #         criterion_mse(t2.unsqueeze(1) * 200 + 50, data.got_time.unsqueeze(1)) / 50 +
+            #         criterion_mse(t3.unsqueeze(1) * 200 + 50, data.dlved_time.unsqueeze(1)) / 50 +
+            #         criterion_mse(t4 * 200 + 50, data.signed_time.unsqueeze(1)) / 20)
             inputs = torch.cat((data.plat_form, data.biz_type, data.create_time, data.payed_time,
                                 data.cate1_id, data.cate2_id, data.preselling_shipped_time,
                                 data.seller_uid_field, data.company_name, data.rvcr_prov_name,
-                                data.rvcr_city_name, data.lgst_company, data.warehouse_id,
-                                data.shipped_prov_id, data.shipped_city_id), dim=1)
-            lgst, warehouse, prov, city, t1, t2, t3, t4 = model(inputs, 'train', field)
+                                data.rvcr_city_name), dim=1)
+            t = model(inputs, 'train', field)
 
-            loss = (criterion_ce(lgst, data.lgst_company_label) +
-                    criterion_ce(warehouse, data.warehouse_id_label) +
-                    criterion_ce(prov, data.shipped_prov_id_label) +
-                    criterion_ce(city, data.shipped_city_id_label) +
-                    criterion_mse(t1, (data.shipped_time.unsqueeze(1) - 100) / 300) +
-                    criterion_mse(t2, (data.got_time.unsqueeze(1) - 100) / 300) +
-                    criterion_mse(t3, (data.dlved_time.unsqueeze(1) - 100) / 300) +
-                    criterion_mse(t4, (data.signed_time.unsqueeze(1) - 100) / 300))
+            loss = criterion_mse(t * 200 + 50, data.signed_time.unsqueeze(1))
 
             loss.backward()
             optimizer.step()
@@ -53,7 +62,7 @@ def main():
             loss_running += loss.item()
             loss_count += 1
 
-            if (i + 1) % 100 == 0:
+            if (i + 1) % 200 == 0:
                 with torch.no_grad():
                     loss_test = 0
                     test_count = 0
@@ -63,11 +72,10 @@ def main():
                                             data_t.seller_uid_field, data_t.company_name, data_t.rvcr_prov_name,
                                             data_t.rvcr_city_name), dim=1)
                         t = model(inputs, 'test', field)
-                        loss = criterion_mse(t * 300 + 100, data_t.signed_time.unsqueeze(1))
+                        loss = criterion_mse((t * 200 + 50), data_t.signed_time.unsqueeze(1))
                         loss_test += loss.item()
                         test_count += 1
-                        if j > 10:
-                            break
+
                     print('Epoch: %4d | Iter: %4d / %4d | Train Loss: %4.4f | '
                           'Test Loss: %4.4f | Best: %s' % (epoch, (i + 1), train_iter.__len__(),
                                                            loss_running / loss_count, loss_test / test_count,
