@@ -93,7 +93,8 @@ def main():
 
                     print('Epoch: %4d | Iter: %4d / %4d | Loss: %4.4f | Rank: %4.4f | '
                           'Time: %.3f | Best: %s' % (epoch, (i + 1), train_iter.__len__(),
-                                                     loss_running / loss_count, loss_test / test_count,
+                                                     (loss_running / loss_count) ** 0.5,
+                                                     (loss_test / test_count) ** 0.5,
                                                      acc_count / acc_total,
                                                      'YES' if loss_test / test_iter.__len__() < best else 'NO'))
                     if loss_test / test_iter.__len__() < best:
