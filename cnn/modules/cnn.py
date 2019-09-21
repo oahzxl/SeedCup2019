@@ -214,7 +214,7 @@ class Test(Module):
 
         self.fc_t1 = nn.Linear(in_features=2240, out_features=128)
         self.fc_t2 = nn.Linear(in_features=128, out_features=1)
-
+        self.dropout = nn.Dropout(p=0.3)
         self.double()
 
     def forward(self, inputs, mode, field):
@@ -222,7 +222,7 @@ class Test(Module):
 
         inputs = self.cnn(inputs.view(inputs.size(0), inputs.size(1), -1, 60))
         inputs = inputs.view(inputs.size(0), -1)
-        inputs = self.fc_t1(inputs)
-        inputs = self.fc_t2(inputs)
+        inputs = self.fc_t1(self.dropout(inputs))
+        inputs = self.fc_t2(self.dropout(inputs))
 
         return inputs
