@@ -116,8 +116,11 @@ class CNNCell(Module):
         self.cnn1 = nn.Conv2d(in_channels=1, out_channels=32, kernel_size=(3, 3), stride=2, padding=0)
         self.cnn2 = nn.Conv2d(in_channels=32, out_channels=128, kernel_size=(3, 3), stride=1, padding=0)
         self.bn2 = nn.BatchNorm2d(128)
-        self.cnn3 = nn.Conv2d(in_channels=128, out_channels=64, kernel_size=(3, 3), stride=1, padding=0)
-        self.cnn4 = nn.Conv2d(in_channels=64, out_channels=16, kernel_size=(3, 3), stride=1, padding=0)
+        self.cnn3 = nn.Conv2d(in_channels=128, out_channels=256, kernel_size=(3, 3), stride=1, padding=0)
+        self.cnn4 = nn.Conv2d(in_channels=256, out_channels=256, kernel_size=(3, 3), stride=1, padding=0)
+        self.bn3 = nn.BatchNorm2d(256)
+        self.cnn5 = nn.Conv2d(in_channels=256, out_channels=128, kernel_size=(3, 3), stride=1, padding=0)
+        self.cnn6 = nn.Conv2d(in_channels=128, out_channels=32, kernel_size=(3, 3), stride=1, padding=0)
 
     def forward(self, inputs):
         inputs = self.bn1(inputs)
@@ -127,6 +130,10 @@ class CNNCell(Module):
         inputs = self.bn2(inputs)
         inputs = self.cnn3(inputs)
         inputs = self.cnn4(inputs)
+        inputs = f.relu(inputs)
+        inputs = self.bn3(inputs)
+        inputs = self.cnn5(inputs)
+        inputs = self.cnn6(inputs)
         inputs = f.relu(inputs)
         return inputs
 
@@ -212,7 +219,7 @@ class Test(Module):
         self.embedding = nn.Embedding(num_embeddings=num_embeddings, embedding_dim=embedding_dim)
         self.cnn = CNNCell()
 
-        self.fc_t1 = nn.Linear(in_features=2160, out_features=128)
+        self.fc_t1 = nn.Linear(in_features=32*11*5, out_features=128)
         self.fc_t2 = nn.Linear(in_features=128, out_features=1)
 
         self.double()
@@ -220,7 +227,7 @@ class Test(Module):
     def forward(self, inputs, mode, field):
         inputs = self.embedding(inputs).unsqueeze(1)
 
-        inputs = f.relu(self.cnn(inputs.view(inputs.size(0), inputs.size(1), -1, 32)))
+        inputs = self.cnn(inputs.view(inputs.size(0), inputs.size(1), -1, 32))
         inputs = inputs.view(inputs.size(0), -1)
         inputs = self.fc_t1(inputs)
         inputs = self.fc_t2(inputs)
