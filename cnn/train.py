@@ -27,7 +27,7 @@ def main():
     model = Test(num_embeddings=len(field.vocab), embedding_dim=300).to(device)
     criterion_ce = nn.CrossEntropyLoss()
     criterion_mse = nn.MSELoss()
-    optimizer = optim.Adam((model.parameters()), lr=0.003)
+    optimizer = optim.Adam((model.parameters()), lr=0.003, weight_decay=0.01)
     best = 9999
     loss_running = 0
     loss_count = 0
