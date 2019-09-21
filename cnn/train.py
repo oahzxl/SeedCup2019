@@ -88,7 +88,7 @@ def main():
                             pred_time = str(arrow.get(pred_time)).split('-')[2][:2]
                             signed_time = str(signed_time).split('-')[2][:2]
                             acc_total += 1
-                            if signed_time == pred_time:
+                            if int(signed_time) <= int(pred_time):
                                 acc_count += 1
 
                     print('Epoch: %4d | Iter: %4d / %4d | Loss: %4.4f | Rank: %4.4f | '
