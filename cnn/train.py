@@ -5,6 +5,7 @@ from torch import nn
 from torch import optim
 from torchtext.data import BucketIterator
 import tqdm
+import arrow
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
@@ -66,6 +67,8 @@ def main():
                 with torch.no_grad():
                     loss_test = 0
                     test_count = 0
+                    acc_count = 0
+                    acc_total = 0
                     for j, data_t in enumerate(test_iter):
                         inputs = torch.cat((data_t.plat_form, data_t.biz_type, data_t.create_time, data_t.payed_time,
                                             data_t.cate1_id, data_t.cate2_id, data_t.preselling_shipped_time,
@@ -76,10 +79,23 @@ def main():
                         loss_test += loss.item()
                         test_count += 1
 
-                    print('Epoch: %4d | Iter: %4d / %4d | Train Loss: %4.4f | '
-                          'Test Loss: %4.4f | Best: %s' % (epoch, (i + 1), train_iter.__len__(),
-                                                           loss_running / loss_count, loss_test / test_count,
-                                                           'YES' if loss_test / test_iter.__len__() < best else 'NO'))
+                        for b in range(t.size(0)):
+                            start = arrow.get('2019-03-01 00:00:00').timestamp
+                            create_time = field.vocab.itos[data.create_time[b, 0]].split('_')[0]
+                            signed_time = data.signed_time[b]
+                            signed_time = arrow.get(float(start) + float(signed_time) * 3600)
+                            pred_time = float(start) + (float(create_time) + float(t[b, 0]) * 200 + 50) * 3600
+                            pred_time = str(arrow.get(pred_time)).split('-')[2][:2]
+                            signed_time = str(signed_time).split('-')[2][:2]
+                            acc_total += 1
+                            if signed_time == pred_time:
+                                acc_count += 1
+
+                    print('Epoch: %4d | Iter: %4d / %4d | Loss: %4.4f | Rank: %4.4f | '
+                          'Time: %.3f | Best: %s' % (epoch, (i + 1), train_iter.__len__(),
+                                                     loss_running / loss_count, loss_test / test_count,
+                                                     acc_count / acc_total,
+                                                     'YES' if loss_test / test_iter.__len__() < best else 'NO'))
                     if loss_test / test_iter.__len__() < best:
                         torch.save(model.state_dict(), 'model/model.pkl')
                         best = loss_test / test_iter.__len__()

@@ -25,20 +25,21 @@ def main():
     with open('SeedCup2019_pre/result.txt', 'w+') as f:
         f.write('')
 
-    for i, data in enumerate(evl_iter):
-        inputs = torch.cat((data.plat_form, data.biz_type, data.create_time, data.payed_time,
-                            data.cate1_id, data.cate2_id, data.preselling_shipped_time,
-                            data.seller_uid_field, data.company_name, data.rvcr_prov_name,
-                            data.rvcr_city_name), dim=1)
-        t = model(inputs, 'train', field)
-        with open('SeedCup2019_pre/result.txt', 'a+') as f:
-            for b in range(t.size(0)):
-                start = arrow.get('2019-03-01 00:00:00').timestamp
-                create_time = field.vocab.itos[data.create_time[b, 0]].split('_')[0]
-                final = float(start) + (float(create_time) + float(t[b, 0])) * 3600
-                final = str(arrow.get(final)).split('T')
-                final = final[0] + ' ' + final[1][:2]
-                f.write(final + '\n')
+    with torch.no_grad():
+        for i, data in enumerate(evl_iter):
+            inputs = torch.cat((data.plat_form, data.biz_type, data.create_time, data.payed_time,
+                                data.cate1_id, data.cate2_id, data.preselling_shipped_time,
+                                data.seller_uid_field, data.company_name, data.rvcr_prov_name,
+                                data.rvcr_city_name), dim=1)
+            t = model(inputs, 'train', field)
+            with open('SeedCup2019_pre/result.txt', 'a+') as f:
+                for b in range(t.size(0)):
+                    start = arrow.get('2019-03-01 00:00:00').timestamp
+                    create_time = field.vocab.itos[data.create_time[b, 0]].split('_')[0]
+                    final = float(start) + (float(create_time) + float(t[b, 0]) * 200 + 50) * 3600 - 60 * 60 * 33
+                    final = str(arrow.get(final)).split('T')
+                    final = final[0] + ' ' + final[1][:2]
+                    f.write(final + '\n')
 
 
 if __name__ == '__main__':
