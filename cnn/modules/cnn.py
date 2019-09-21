@@ -212,7 +212,7 @@ class Test(Module):
         self.embedding = nn.Embedding(num_embeddings=num_embeddings, embedding_dim=embedding_dim)
         self.cnn = CNNCell()
 
-        self.fc_t1 = nn.Linear(in_features=1440, out_features=128)
+        self.fc_t1 = nn.Linear(in_features=2240, out_features=128)
         self.fc_t2 = nn.Linear(in_features=128, out_features=1)
 
         self.double()

@@ -17,7 +17,7 @@ def main():
     del evl
     train_iter, test_iter = BucketIterator.splits(
         (train, test),
-        batch_sizes=(256, 256),
+        batch_sizes=(128, 128),
         device=device,
         sort_within_batch=False,
         repeat=False,
@@ -51,7 +51,8 @@ def main():
             inputs = torch.cat((data.plat_form, data.biz_type, data.create_time, data.payed_time,
                                 data.cate1_id, data.cate2_id, data.preselling_shipped_time,
                                 data.seller_uid_field, data.company_name, data.rvcr_prov_name,
-                                data.rvcr_city_name), dim=1)
+                                data.rvcr_city_name, data.lgst_company, data.warehouse_id,
+                                data.shipped_prov_id, data.shipped_city_id), dim=1)
             t = model(inputs, 'train', field)
 
             loss = criterion_mse(t * 200 + 50, data.signed_time.unsqueeze(1))
