@@ -24,7 +24,7 @@ def main():
         )
 
     model = Simple(num_embeddings=len(field.vocab), embedding_dim=300).to(device)
-    criterion = RMSELoss(early=0.9, gap=5, late=1.5)
+    criterion = RMSELoss(gap=4, early=-0.2, late=0.4)
     optimizer = optim.Adam((model.parameters()), lr=0.003, weight_decay=0.03)
 
     best = 9999
