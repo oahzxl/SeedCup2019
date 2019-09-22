@@ -17,7 +17,7 @@ class RMSELoss(Module):
                     weight[r, 0] = self.early
                 else:
                     weight[r, 0] = self.late
-            inputs = inputs ** 2 * weight
+            inputs = (inputs * weight) ** 2
         else:
             inputs = (targets - inputs) ** 2
 
