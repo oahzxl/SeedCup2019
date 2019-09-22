@@ -53,7 +53,7 @@ def main():
             loss_train += loss.item()
             count_train += 1
 
-            if (i + 1) % 1 == 0:
+            if (i + 1) % 300 == 0:
                 model.eval()
                 with torch.no_grad():
                     loss_test = 0
@@ -73,13 +73,14 @@ def main():
                         # get time acc
                         for b in range(t.size(0)):
                             start = arrow.get('2019-03-01 00:00:00').timestamp
-                            signed_time = data_t.signed_time[b]
-                            signed_time = arrow.get(float(start) + float(signed_time) * 3600)
-                            signed_time = str(signed_time).split('-')[2][:2]
 
                             create_time = field.vocab.itos[data_t.create_time[b, 0]].split('_')[0]
-                            pred_time = float(start) + (float(create_time) + float(t[b, 0]) * 200 + 50) * 3600
+                            pred_time = float(start) + 3600 * (float(create_time) + float(t[b, 0] * 200 + 50))
                             pred_time = str(arrow.get(pred_time)).split('-')[2][:2]
+
+                            signed_time = data_t.signed_time[b]
+                            signed_time = float(start) + 3600 * (float(create_time) + float(signed_time))
+                            signed_time = str(arrow.get(signed_time)).split('-')[2][:2]
 
                             acc_total += 1
                             if int(pred_time) <= int(signed_time):
