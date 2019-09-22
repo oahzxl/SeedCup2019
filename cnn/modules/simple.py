@@ -12,7 +12,7 @@ class Simple(Module):
 
         self.fc_t1 = nn.Linear(in_features=1440, out_features=128)
         self.fc_t2 = nn.Linear(in_features=128, out_features=1)
-        self.dropout = nn.Dropout(p=0.3)
+        self.dropout = nn.Dropout(p=0.5)
         self.double()
 
     def forward(self, inputs, mode, field):
