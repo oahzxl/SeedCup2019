@@ -16,7 +16,7 @@ def main():
     del evl
     train_iter, test_iter = BucketIterator.splits(
         (train, test),
-        batch_sizes=(128, 128),
+        batch_sizes=(256, 256),
         device=device,
         sort_within_batch=False,
         repeat=False,
@@ -46,7 +46,7 @@ def main():
                                 data.rvcr_city_name), dim=1)
             t = model(inputs, 'train', field)
 
-            loss = criterion(t * 200 + 50, data.signed_time.unsqueeze(1))
+            loss = criterion(t * 200 + 50, data.signed_time.unsqueeze(1), train=True)
             loss.backward()
             optimizer.step()
             optimizer.zero_grad()
@@ -54,7 +54,7 @@ def main():
             loss_train += loss.item()
             count_train += 1
 
-            if (i + 1) % 10 == 0:
+            if (i + 1) % 200 == 0:
                 model.eval()
                 with torch.no_grad():
                     loss_test = 0
@@ -67,7 +67,7 @@ def main():
                                             data_t.seller_uid_field, data_t.company_name, data_t.rvcr_prov_name,
                                             data_t.rvcr_city_name), dim=1)
                         t = model(inputs, 'test', field)
-                        loss = criterion((t * 200 + 50), data_t.signed_time.unsqueeze(1))
+                        loss = criterion((t * 200 + 50), data_t.signed_time.unsqueeze(1), train=False)
                         loss_test += loss.item()
                         count_test += 1
 
