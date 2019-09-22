@@ -32,7 +32,7 @@ def main():
                                 data.cate1_id, data.cate2_id, data.preselling_shipped_time,
                                 data.seller_uid_field, data.company_name, data.rvcr_prov_name,
                                 data.rvcr_city_name), dim=1)
-            t = model(inputs, 'train', field)
+            t = model(inputs, 'test', field)
             with open('SeedCup2019_pre/result.txt', 'a+') as f:
                 for b in range(t.size(0)):
                     start = arrow.get('2019-03-01 00:00:00').timestamp

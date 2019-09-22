@@ -24,10 +24,10 @@ def main():
         )
 
     model = Simple(num_embeddings=len(field.vocab), embedding_dim=300).to(device)
-    criterion = RMSELoss(gap=3, early=0.8, late=4.5)
+    criterion = RMSELoss(gap=3, early=0, late=0.5)
     optimizer = optim.Adam((model.parameters()), lr=0.003, weight_decay=0.03)
 
-    best = 9999
+    best = 99
     loss_train = 0
     count_train = 0
 
@@ -88,7 +88,7 @@ def main():
                             if int(pred_time) <= int(signed_time):
                                 acc_count += 1
 
-                    print('Epoch: %4d | Iter: %4d / %4d | Loss: %4.4f | Rank: %4.4f | '
+                    print('Epoch: %3d | Iter: %4d / %4d | Loss: %.3f | Rank: %.3f | '
                           'Time: %.3f | Best: %s' % (epoch, (i + 1), train_iter.__len__(),
                                                      loss_train / count_train,
                                                      loss_test / count_test,
