@@ -24,7 +24,7 @@ def main():
         )
 
     model = Simple(num_embeddings=len(field.vocab), embedding_dim=300).to(device)
-    criterion = RMSELoss(early=0.9, late=1.3)
+    criterion = RMSELoss(early=0.9, gap=5, late=1.5)
     optimizer = optim.Adam((model.parameters()), lr=0.003, weight_decay=0.03)
 
     best = 9999
@@ -33,12 +33,14 @@ def main():
 
     for epoch in range(10000):
         for i, data in enumerate(train_iter):
+
             # inputs = torch.cat((data.plat_form, data.biz_type, data.create_time, data.payed_time,
             #                     data.cate1_id, data.cate2_id, data.preselling_shipped_time,
             #                     data.seller_uid_field, data.company_name, data.rvcr_prov_name,
             #                     data.rvcr_city_name, data.lgst_company, data.warehouse_id,
             #                     data.shipped_prov_id, data.shipped_city_id,
             #                     data.shipped_time, data.got_time, data.dlved_time), dim=1)
+
             inputs = torch.cat((data.plat_form, data.biz_type, data.create_time, data.payed_time,
                                 data.cate1_id, data.cate2_id, data.preselling_shipped_time,
                                 data.seller_uid_field, data.company_name, data.rvcr_prov_name,
