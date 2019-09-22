@@ -15,12 +15,10 @@ class RMSELoss(Module):
             weight = torch.zeros_like(inputs)
             for r in range(inputs.size(0)):
                 if inputs[r, 0] >= self.gap:
-                    weight[r, 0] = self.early + 2
+                    weight[r, 0] = self.early
                 elif inputs[r, 0] < 0:
-                    weight[r, 0] = self.late + 2
-                else:
-                    weight[r, 0] = 2
-            inputs = inputs ** weight
+                    weight[r, 0] = self.late
+            inputs = (inputs * weight) ** 2
         else:
             inputs = (targets - inputs) ** 2
 
