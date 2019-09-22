@@ -20,11 +20,12 @@ def main():
         sort=False
         )
 
-    model = Test(num_embeddings=len(field.vocab), embedding_dim=128).to(device)
+    model = Simple(num_embeddings=len(field.vocab), embedding_dim=128).to(device)
     model.load_state_dict(torch.load('model/model.pkl'))
     with open('SeedCup2019_pre/result.txt', 'w+') as f:
         f.write('')
 
+    model.eval()
     with torch.no_grad():
         for i, data in enumerate(evl_iter):
             inputs = torch.cat((data.plat_form, data.biz_type, data.create_time, data.payed_time,

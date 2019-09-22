@@ -1,3 +1,4 @@
-from modules.cnn import CNN
-from modules.cnn import Simple
-from modules.cnn import Test
+from modules.cnn import CNNCell
+from modules.simple import Simple
+from modules.decoder import Decoder
+from modules.rmse import RMSELoss
