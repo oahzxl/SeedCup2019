@@ -24,8 +24,8 @@ def main():
         )
 
     model = Simple(num_embeddings=len(field.vocab), embedding_dim=300).to(device)
-    criterion = RMSELoss(gap=3, early=1.2, late=4.8)
-    optimizer = optim.Adam((model.parameters()), lr=0.001, weight_decay=0.03)
+    criterion = RMSELoss(gap=3, early=1.2, late=7.8)
+    optimizer = optim.Adam((model.parameters()), lr=0.0001, weight_decay=0.03)
 
     best = 99
     loss_train = 0
@@ -93,8 +93,9 @@ def main():
                                                      loss_train / count_train,
                                                      loss_test / count_test,
                                                      acc_count / acc_total,
-                                                     'YES' if loss_test / count_test < best else 'NO'))
-                    if loss_test / count_test < best:
+                                                     ('YES' if loss_test / count_test < best and
+                                                     acc_count / acc_total >= 0.98 else 'NO')))
+                    if loss_test / count_test < best and acc_count / acc_total >= 0.98:
                         best = loss_test / count_test
                         torch.save(model.state_dict(), r'model/model_' + str(int(best)) + r'.pkl')
                     count_train = 0
