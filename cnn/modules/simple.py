@@ -10,8 +10,9 @@ class Simple(Module):
         self.embedding = nn.Embedding(num_embeddings=num_embeddings, embedding_dim=embedding_dim)
         self.cnn = CNNCell()   # with relu and bn
 
-        self.fc_t1 = nn.Linear(in_features=5168, out_features=256)
-        self.fc_t2 = nn.Linear(in_features=256, out_features=1)
+        self.fc_t1 = nn.Linear(in_features=1440, out_features=512)
+        self.fc_t2 = nn.Linear(in_features=512, out_features=256)
+        self.fc_t3 = nn.Linear(in_features=256, out_features=1)
         self.dropout = nn.Dropout(p=0.5)
         self.double()
 
@@ -22,5 +23,6 @@ class Simple(Module):
         inputs = inputs.view(inputs.size(0), -1)
         inputs = self.fc_t1(self.dropout(inputs))
         inputs = self.fc_t2(f.relu(self.dropout(inputs)))
+        inputs = self.fc_t3(f.relu(self.dropout(inputs)))
 
         return inputs
