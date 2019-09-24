@@ -36,7 +36,11 @@ def main():
             day, hour = model(inputs, 'test', field)
             with open('SeedCup2019_pre/result.txt', 'a+') as f:
                 for b in range(day.size(0)):
-                    final = '2019-03-' + ('%.0f' % (day * 8 + 4)).zfill(2) + ' ' + ('%.0f' % (hour * 10 + 15)).zfill(2)
+                    start_day = field.vocab.itos[data.create_time[b]][:2]
+                    day = int('%.0f' % (day[b] * 8 + 4)) + int(start_day)
+                    day = str(day).zfill(2)
+                    hour = ('%.0f' % (hour[b] * 10 + 15)).zfill(2)
+                    final = '2019-03-' + day + ' ' + hour
                     f.write(final + '\n')
 
 
