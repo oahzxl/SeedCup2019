@@ -1,7 +1,6 @@
 from utils import *
 from modules import *
 import torch
-import arrow
 from torchtext.data import BucketIterator
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
