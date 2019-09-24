@@ -28,8 +28,10 @@ def main():
     model.eval()
     with torch.no_grad():
         for i, data in enumerate(evl_iter):
-            inputs = torch.cat((data.plat_form, data.biz_type, data.create_time, data.payed_time,
-                                data.cate1_id, data.cate2_id, data.preselling_shipped_time,
+            inputs = torch.cat((data.plat_form, data.biz_type, data.create_time,
+                                data.create_hour, data.payed_day, data.payed_hour,
+                                data.cate1_id, data.cate2_id, data.cate3_id,
+                                data.preselling_shipped_day, data.preselling_shipped_hour,
                                 data.seller_uid_field, data.company_name, data.rvcr_prov_name,
                                 data.rvcr_city_name), dim=1)
             t = model(inputs, 'test', field)
