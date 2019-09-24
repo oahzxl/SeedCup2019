@@ -1,6 +1,5 @@
 from utils import *
 from modules import *
-import arrow
 import torch
 from torch import optim
 from torchtext.data import BucketIterator
@@ -26,13 +25,13 @@ def main():
     model = Simple(num_embeddings=len(field.vocab), embedding_dim=300).to(device)
     criterion_day = RMSELoss(gap=0, early=1, late=4)
     criterion_hour = RMSELoss(gap=0, early=1, late=1)
-    optimizer = optim.Adam((model.parameters()), lr=0.0003, weight_decay=0.05)
+    optimizer = optim.Adam((model.parameters()), lr=0.0001, weight_decay=0.05)
 
     best = 99
     loss_train = 0
     count_train = 0
 
-    for epoch in range(20):
+    for epoch in range(50):
         for i, data in enumerate(train_iter):
 
             inputs = torch.cat((data.plat_form, data.biz_type, data.create_time,

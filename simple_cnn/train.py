@@ -23,9 +23,9 @@ def main():
         )
 
     model = Simple(num_embeddings=len(field.vocab), embedding_dim=300).to(device)
-    criterion_day = RMSELoss(gap=0, early=1, late=4)
-    criterion_hour = RMSELoss(gap=0, early=1, late=1)
-    optimizer = optim.Adam((model.parameters()), lr=0.0003, weight_decay=0.05)
+    criterion_day = RMSELoss(gap=0, early=1, late=6)
+    criterion_hour = RMSELoss(gap=0, early=2, late=2)
+    optimizer = optim.Adam((model.parameters()), lr=0.0001, weight_decay=0)
 
     best = 99
     loss_train = 0

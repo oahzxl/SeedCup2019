@@ -14,7 +14,7 @@ def dataset_reader(train=True, fields=False, process=False):
     else:
         regular_field = Field(batch_first=True)
 
-    #
+    # define data types in iterator
     train_data_list = ['plat_form', 'biz_type', 'create_time', 'create_hour',
                        'payed_day', 'payed_hour', 'cate1_id', 'cate2_id',
                        'cate3_id', 'preselling_shipped_day',
@@ -50,6 +50,7 @@ def dataset_reader(train=True, fields=False, process=False):
         line = f.readline()
         while line:
             items = list(line.split(' '))
+            # process label data
             for i in (25, 26, 31, 32, 33, 34, 35, 36):
                 items[i] = float(items[i])
             for i in (27, 28, 29, 30):
