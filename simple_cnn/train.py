@@ -51,7 +51,7 @@ def main():
             loss_train += loss.item()
             count_train += 1
 
-            if (i + 1) % 300 == 0:
+            if (i + 1) % 1 == 0:
                 model.eval()
                 with torch.no_grad():
                     loss_test = 0
@@ -67,7 +67,7 @@ def main():
                                             data_t.rvcr_city_name), dim=1)
                         day, hour = model(inputs, 'test', field)
 
-                        loss = (criterion_day(day * 8 + 4, data_t.signed_day.unsqueeze(1), train=False) +
+                        loss = (criterion_day(day * 8 + 3, data_t.signed_day.unsqueeze(1), train=False) +
                                 criterion_hour(hour * 10 + 15, data_t.signed_hour.unsqueeze(1), train=False))
                         loss_test += loss.item()
                         count_test += 1
@@ -75,7 +75,7 @@ def main():
                         # get time acc
                         for b in range(day.size(0)):
                             acc_total += 1
-                            if int(day[b] * 8 + 4) <= int(data_t.signed_day[b]):
+                            if int('%.0f' % (day[b] * 8 + 3)) <= int(data_t.signed_day[b]):
                                 acc_count += 1
 
                     print('Epoch: %3d | Iter: %4d / %4d | Loss: %.3f | Rank: %.3f | '
