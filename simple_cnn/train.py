@@ -1,6 +1,5 @@
 from utils import *
 from modules import *
-import arrow
 import torch
 from torch import optim
 from torchtext.data import BucketIterator
@@ -32,7 +31,7 @@ def main():
     loss_train = 0
     count_train = 0
 
-    for epoch in range(20):
+    for epoch in range(50):
         for i, data in enumerate(train_iter):
 
             inputs = torch.cat((data.plat_form, data.biz_type, data.create_time,
