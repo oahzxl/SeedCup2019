@@ -34,14 +34,10 @@ def main():
                                 data.preselling_shipped_day, data.preselling_shipped_hour,
                                 data.seller_uid_field, data.company_name, data.rvcr_prov_name,
                                 data.rvcr_city_name), dim=1)
-            t = model(inputs, 'test', field)
+            day, hour = model(inputs, 'test', field)
             with open('SeedCup2019_pre/result.txt', 'a+') as f:
-                for b in range(t.size(0)):
-                    start = arrow.get('2019-03-01 00:00:00').timestamp
-                    create_time = field.vocab.itos[data.create_time[b, 0]].split('_')[0]
-                    final = float(start) + 3600 * (float(create_time) + float(t[b, 0]) * 200 + 50)
-                    final = str(arrow.get(final)).split('T')
-                    final = final[0] + ' ' + final[1][:2]
+                for b in range(day.size(0)):
+                    final = '2019-03-' + ('%.0f' % (day * 8 + 4)).zfill(2) + ' ' + ('%.0f' % (hour * 10 + 15)).zfill(2)
                     f.write(final + '\n')
 
 
