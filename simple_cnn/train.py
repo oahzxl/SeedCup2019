@@ -42,7 +42,7 @@ def main():
                                 data.rvcr_city_name), dim=1)
             day, hour = model(inputs, 'train', field)
 
-            loss = (criterion_day(day * 8 + 4, data.signed_day.unsqueeze(1), train=True) +
+            loss = (criterion_day(day * 8 + 3, data.signed_day.unsqueeze(1), train=True) +
                     criterion_hour(hour * 10 + 15, data.signed_hour.unsqueeze(1), train=True))
             loss.backward()
             optimizer.step()
@@ -51,7 +51,7 @@ def main():
             loss_train += loss.item()
             count_train += 1
 
-            if (i + 1) % 1 == 0:
+            if (i + 1) % 300 == 0:
                 model.eval()
                 with torch.no_grad():
                     loss_test = 0
