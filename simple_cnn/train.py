@@ -76,9 +76,9 @@ def main():
                                 acc += 1
 
                             # rank
-                            pred_time = arrow.get("2019-03-" + ('%.0f' % (day[b] * 8 + 3)).zfill(2) +
+                            pred_time = arrow.get("2019-03-" + ('%.0f' % (day[b] * 8 + 3 + 3)).zfill(2) +
                                                   ' ' + ('%.0f' % (hour[b] * 10 + 15)).zfill(2))
-                            sign_time = arrow.get("2019-03-" + str(int(data_t.signed_day[b])).zfill(2) + ' ' +
+                            sign_time = arrow.get("2019-03-" + str(int(data_t.signed_day[b]) + 3).zfill(2) + ' ' +
                                                   str(int(data_t.signed_hour[b])).zfill(2))
                             rank += int((pred_time - sign_time).seconds / 3600) ** 2
 
