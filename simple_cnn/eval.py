@@ -1,7 +1,9 @@
-from utils import *
-from modules import *
 import torch
+import tqdm
 from torchtext.data import BucketIterator
+
+from modules import *
+from utils import *
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
@@ -26,7 +28,7 @@ def main():
 
     model.eval()
     with torch.no_grad():
-        for i, data in enumerate(evl_iter):
+        for i, data in tqdm.tqdm(enumerate(evl_iter), total=evl_iter.__len__()):
             inputs = torch.cat((data.plat_form, data.biz_type, data.create_time,
                                 data.create_hour, data.payed_day, data.payed_hour,
                                 data.cate1_id, data.cate2_id, data.cate3_id,

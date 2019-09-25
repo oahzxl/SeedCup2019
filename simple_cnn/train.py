@@ -22,7 +22,7 @@ def main():
         )
 
     model = Simple(num_embeddings=len(field.vocab), embedding_dim=300).to(device)
-    criterion_day = RMSELoss(gap=0, early=1, late=8)
+    criterion_day = RMSELoss(gap=0, early=1, late=9)
     criterion_hour = RMSELoss(gap=0, early=2, late=2)
     optimizer = optim.Adam((model.parameters()), lr=0.0001, weight_decay=0.1)
 
@@ -30,7 +30,7 @@ def main():
     train_loss = 0
     train_count = 0
 
-    for epoch in range(50):
+    for epoch in range(30):
         for i, data in enumerate(train_iter):
 
             inputs = torch.cat((data.plat_form, data.biz_type, data.create_time,
@@ -57,8 +57,6 @@ def main():
                     acc = 0
                     count = 0
                     for j, data_t in enumerate(test_iter):
-                        if j > 50:
-                            break
 
                         inputs = torch.cat((data_t.plat_form, data_t.biz_type, data_t.create_time,
                                             data_t.create_hour, data_t.payed_day, data_t.payed_hour,
