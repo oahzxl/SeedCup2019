@@ -4,10 +4,9 @@ from torchtext.data import BucketIterator
 from modules import *
 from utils import *
 
-device = "cuda" if torch.cuda.is_available() else "cpu"
-
 
 def main():
+    device = "cuda" if torch.cuda.is_available() else "cpu"
     train, test, field = dataset_reader(train=True, process=False)
     evl, _ = dataset_reader(train=False, fields=field, process=False)
     field.build_vocab(train, evl)
@@ -23,13 +22,13 @@ def main():
         )
 
     model = Simple(num_embeddings=len(field.vocab), embedding_dim=300).to(device)
-    criterion_day = RMSELoss(gap=0, early=1, late=6)
+    criterion_day = RMSELoss(gap=0, early=1, late=8)
     criterion_hour = RMSELoss(gap=0, early=2, late=2)
-    optimizer = optim.Adam((model.parameters()), lr=0.0001, weight_decay=0)
+    optimizer = optim.Adam((model.parameters()), lr=0.0001, weight_decay=0.1)
 
     best = 99
-    loss_train = 0
-    count_train = 0
+    train_loss = 0
+    train_count = 0
 
     for epoch in range(50):
         for i, data in enumerate(train_iter):
@@ -48,8 +47,8 @@ def main():
             optimizer.step()
             optimizer.zero_grad()
 
-            loss_train += loss.item()
-            count_train += 1
+            train_loss += loss.item()
+            train_count += 1
 
             if (i + 1) % 300 == 0:
                 model.eval()
@@ -88,16 +87,14 @@ def main():
 
                     print('Epoch: %3d | Iter: %4d / %4d | Loss: %.3f | Rank: %.3f | '
                           'Time: %.3f | Best: %s' % (epoch, (i + 1), train_iter.__len__(),
-                                                     loss_train / count_train,
-                                                     rank,
-                                                     acc,
-                                                     ('YES' if rank < best and
-                                                     acc >= 0.981 else 'NO')))
+                                                     train_loss / train_count, rank, acc,
+                                                     ('YES' if rank < best and acc >= 0.981 else 'NO')))
                     if rank < best and acc >= 0.981:
                         best = rank
                         torch.save(model.state_dict(), r'model/model_' + str(int(best)) + r'.pkl')
-                    count_train = 0
-                    loss_train = 0
+
+                    train_count = 0
+                    train_loss = 0
                 model.train()
 
 
