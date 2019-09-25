@@ -1,9 +1,8 @@
-from utils import *
-from modules import *
-import torch
 from torch import optim
 from torchtext.data import BucketIterator
-import arrow
+
+from modules import *
+from utils import *
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
