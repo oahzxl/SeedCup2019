@@ -22,9 +22,9 @@ def main():
         )
 
     model = Simple(num_embeddings=len(field.vocab), embedding_dim=300).to(device)
-    criterion_day = RMSELoss(gap=0, early=1, late=9)
+    criterion_day = RMSELoss(gap=0, early=2, late=9)
     criterion_hour = RMSELoss(gap=0, early=2, late=2)
-    optimizer = optim.Adam((model.parameters()), lr=0.0001, weight_decay=0.1)
+    optimizer = optim.Adam((model.parameters()), lr=0.0001, weight_decay=0.03)
 
     best = 99
     train_loss = 0

@@ -1,4 +1,3 @@
-import torch
 import tqdm
 from torchtext.data import BucketIterator
 
@@ -21,7 +20,7 @@ def main():
         sort=False
         )
 
-    model = Simple(num_embeddings=len(field.vocab), embedding_dim=300).to(device)
+    model = TripleCNN(num_embeddings=len(field.vocab), embedding_dim=300).to(device)
     model.load_state_dict(torch.load('model/model.pkl'))
     with open('SeedCup2019_pre/result.txt', 'w+') as f:
         f.write('')

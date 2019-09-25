@@ -1,4 +1,3 @@
-import torch
 import tqdm
 from torchtext.data import BucketIterator
 

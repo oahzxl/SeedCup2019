@@ -13,7 +13,7 @@ def main():
     del evl
     train_iter, test_iter = BucketIterator.splits(
         (train, test),
-        batch_sizes=(256, 256),
+        batch_sizes=(4, 4),
         device=device,
         sort_within_batch=False,
         repeat=False,
@@ -21,7 +21,7 @@ def main():
         shuffle=True
         )
 
-    model = Simple(num_embeddings=len(field.vocab), embedding_dim=300).to(device)
+    model = TripleCNN(num_embeddings=len(field.vocab), embedding_dim=300).to(device)
     criterion_day = RMSELoss(gap=0, early=1, late=9)
     criterion_hour = RMSELoss(gap=0, early=2, late=2)
     optimizer = optim.Adam((model.parameters()), lr=0.0001, weight_decay=0.1)
@@ -33,12 +33,16 @@ def main():
     for epoch in range(30):
         for i, data in enumerate(train_iter):
 
-            inputs = torch.cat((data.plat_form, data.biz_type, data.create_time,
-                                data.create_hour, data.payed_day, data.payed_hour,
-                                data.cate1_id, data.cate2_id, data.cate3_id,
-                                data.preselling_shipped_day, data.preselling_shipped_hour,
-                                data.seller_uid_field, data.company_name, data.rvcr_prov_name,
-                                data.rvcr_city_name), dim=1)
+            inputs = torch.cat((data.plat_form, data.biz_type, data.create_time, data.create_hour,
+                                data.payed_day, data.payed_hour, data.cate1_id, data.cate2_id,
+                                data.cate3_id, data.preselling_shipped_day, data.preselling_shipped_hour,
+                                data.seller_uid_field, data.company_name,
+                                data.rvcr_prov_name, data.rvcr_city_name,
+                                data.lgst_company, data.warehouse_id,
+                                data.shipped_prov_id, data.shipped_city_id,
+                                data.shipped_day, data.shipped_hour,
+                                data.got_day, data.got_hour, data.dlved_day, data.dlved_hour
+                                ), dim=1)
             day, hour = model(inputs, 'train', field)
 
             loss = (criterion_day(day * 8 + 3, data.signed_day.unsqueeze(1), train=True) +

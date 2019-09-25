@@ -1,3 +1,3 @@
 from modules.cnn import CNNCell
-from modules.simple import Simple
+from modules.triplecnn import TripleCNN
 from modules.rmse import RMSELoss
