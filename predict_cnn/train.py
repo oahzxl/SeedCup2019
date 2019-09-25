@@ -23,9 +23,9 @@ def main():
         )
 
     model = Simple(num_embeddings=len(field.vocab), embedding_dim=300).to(device)
-    criterion_day = RMSELoss(gap=0, early=1, late=4)
-    criterion_hour = RMSELoss(gap=0, early=1, late=1)
-    optimizer = optim.Adam((model.parameters()), lr=0.0001, weight_decay=0.05)
+    criterion_day = RMSELoss(gap=0, early=1, late=6)
+    criterion_hour = RMSELoss(gap=0, early=2, late=2)
+    optimizer = optim.Adam((model.parameters()), lr=0.0001, weight_decay=0)
 
     best = 99
     loss_train = 0
@@ -42,7 +42,7 @@ def main():
                                 data.rvcr_city_name), dim=1)
             day, hour = model(inputs, 'train', field)
 
-            loss = (criterion_day(day * 8 + 4, data.signed_day.unsqueeze(1), train=True) +
+            loss = (criterion_day(day * 8 + 3, data.signed_day.unsqueeze(1), train=True) +
                     criterion_hour(hour * 10 + 15, data.signed_hour.unsqueeze(1), train=True))
             loss.backward()
             optimizer.step()
@@ -67,7 +67,7 @@ def main():
                                             data_t.rvcr_city_name), dim=1)
                         day, hour = model(inputs, 'test', field)
 
-                        loss = (criterion_day(day * 8 + 4, data_t.signed_day.unsqueeze(1), train=False) +
+                        loss = (criterion_day(day * 8 + 3, data_t.signed_day.unsqueeze(1), train=False) +
                                 criterion_hour(hour * 10 + 15, data_t.signed_hour.unsqueeze(1), train=False))
                         loss_test += loss.item()
                         count_test += 1
@@ -75,7 +75,7 @@ def main():
                         # get time acc
                         for b in range(day.size(0)):
                             acc_total += 1
-                            if int(day[b] * 8 + 4) <= int(data_t.signed_day[b]):
+                            if int('%.0f' % (day[b] * 8 + 3)) <= int(data_t.signed_day[b]):
                                 acc_count += 1
 
                     print('Epoch: %3d | Iter: %4d / %4d | Loss: %.3f | Rank: %.3f | '

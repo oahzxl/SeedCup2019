@@ -3,6 +3,7 @@ from modules import *
 import torch
 from torch import optim
 from torchtext.data import BucketIterator
+import arrow
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
@@ -54,11 +55,13 @@ def main():
             if (i + 1) % 300 == 0:
                 model.eval()
                 with torch.no_grad():
-                    loss_test = 0
-                    count_test = 0
-                    acc_count = 0
-                    acc_total = 0
+                    rank = 0
+                    acc = 0
+                    count = 0
                     for j, data_t in enumerate(test_iter):
+                        if j > 50:
+                            break
+
                         inputs = torch.cat((data_t.plat_form, data_t.biz_type, data_t.create_time,
                                             data_t.create_hour, data_t.payed_day, data_t.payed_hour,
                                             data_t.cate1_id, data_t.cate2_id, data_t.cate3_id,
@@ -67,26 +70,32 @@ def main():
                                             data_t.rvcr_city_name), dim=1)
                         day, hour = model(inputs, 'test', field)
 
-                        loss = (criterion_day(day * 8 + 3, data_t.signed_day.unsqueeze(1), train=False) +
-                                criterion_hour(hour * 10 + 15, data_t.signed_hour.unsqueeze(1), train=False))
-                        loss_test += loss.item()
-                        count_test += 1
-
-                        # get time acc
                         for b in range(day.size(0)):
-                            acc_total += 1
+                            # time
                             if int('%.0f' % (day[b] * 8 + 3)) <= int(data_t.signed_day[b]):
-                                acc_count += 1
+                                acc += 1
+
+                            # rank
+                            pred_time = arrow.get("2019-03-" + ('%.0f' % (day[b] * 8 + 3)).zfill(2) +
+                                                  ' ' + ('%.0f' % (hour[b] * 10 + 15)).zfill(2))
+                            sign_time = arrow.get("2019-03-" + str(data_t.signed_day[b]).zfill(2) + ' ' +
+                                                  str(data_t.signed_hour[b]).zfill(2))
+                            rank += int((pred_time - sign_time).seconds / 3600) ** 2
+
+                            count += 1
+
+                    acc = acc / count
+                    rank = (rank / count) ** 0.5
 
                     print('Epoch: %3d | Iter: %4d / %4d | Loss: %.3f | Rank: %.3f | '
                           'Time: %.3f | Best: %s' % (epoch, (i + 1), train_iter.__len__(),
                                                      loss_train / count_train,
-                                                     loss_test / count_test,
-                                                     acc_count / acc_total,
-                                                     ('YES' if loss_test / count_test < best and
-                                                     acc_count / acc_total >= 0.981 else 'NO')))
-                    if loss_test / count_test < best and acc_count / acc_total >= 0.981:
-                        best = loss_test / count_test
+                                                     rank,
+                                                     acc,
+                                                     ('YES' if rank < best and
+                                                     acc >= 0.981 else 'NO')))
+                    if rank < best and acc >= 0.981:
+                        best = rank
                         torch.save(model.state_dict(), r'model/model_' + str(int(best)) + r'.pkl')
                     count_train = 0
                     loss_train = 0
