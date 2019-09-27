@@ -18,10 +18,10 @@ class CNNCell(Module):
         inputs = self.bn1(inputs)
         inputs = self.cnn1(inputs)
         inputs = self.cnn2(inputs)
-        inputs = f.relu(inputs) + tmp   # residual
+        inputs = f.relu(inputs) + tmp
         tmp = inputs
         inputs = self.bn2(inputs)
         inputs = self.cnn3(inputs)
         inputs = self.cnn4(inputs)
-        inputs = f.relu(inputs) + tmp
-        return inputs
+        inputs = f.relu(inputs)
+        return inputs + tmp  # residual
