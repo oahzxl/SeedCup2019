@@ -59,6 +59,8 @@ def main():
                     acc = 0
                     count = 0
                     for j, data_t in enumerate(test_iter):
+                        if j > 50:
+                            break
 
                         inputs = torch.cat((data_t.plat_form, data_t.biz_type, data_t.create_time,
                                             data_t.create_hour, data_t.payed_day, data_t.payed_hour,
