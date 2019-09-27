@@ -1,7 +1,8 @@
 import torch
-from torchtext.data import Field, LabelField
-from torchtext.data import Example
 from torchtext.data import Dataset
+from torchtext.data import Example
+from torchtext.data import Field, LabelField
+
 from utils.util import *
 
 
@@ -51,9 +52,9 @@ def dataset_reader(train=True, fields=False, process=False):
         while line:
             items = list(line.split(' '))
             # process label data
-            for i in (25, 26, 31, 32, 33, 34, 35, 36):
+            for i in (31, 32, 33, 34, 35, 36):
                 items[i] = float(items[i])
-            for i in (27, 28, 29, 30):
+            for i in (25, 26, 27, 28, 29, 30):
                 items[i] = int(items[i])
 
             examples.append(Example.fromlist(items, field))
@@ -113,12 +114,12 @@ def process_data(train, path, path_store):
                     if i == 3:
                         start_date = get_day(data)
                         tmp_list.append(start_date + '_' + str(start))
-                        tmp_list.append(get_hour(data))
+                        tmp_list.append(get_hour(data) + '_h')
                     # pre sell time
                     elif i == 9:
                         if data != '0' and 0 < int(start_difference(data)) < 1000:
-                            tmp_list.append(day_difference(start_date, get_day(data)))
-                            tmp_list.append(get_hour(data))
+                            tmp_list.append(day_difference(start_date, get_day(data)) + '_d')
+                            tmp_list.append(get_hour(data) + '_h')
                         else:
                             tmp_list.append(str(-99))
                             tmp_list.append(str(-99))
@@ -126,10 +127,13 @@ def process_data(train, path, path_store):
                     elif data == '-99':
                         tmp_list.append(str(-99))
                         tmp_list.append(str(-99))
-                    # pay, shipped, got, dlved, signed
-                    else:
+                    elif i == 21:
                         tmp_list.append(day_difference(start_date, get_day(data)))
                         tmp_list.append(get_hour(data))
+                    # pay, shipped, got, dlved, signed
+                    else:
+                        tmp_list.append(day_difference(start_date, get_day(data)) + '_d')
+                        tmp_list.append(get_hour(data) + '_h')
 
                 # hidden data
                 elif i in (12, 13, 14, 15):
