@@ -1,8 +1,6 @@
 from torch import nn
 from torch import optim
 from torchtext.data import BucketIterator
-import torch
-from modules import *
 from utils import *
 from modules.first_cnn import FirstCNN
 
@@ -15,7 +13,7 @@ def main():
     del evl
     train_iter, test_iter = BucketIterator.splits(
         (train, test),
-        batch_sizes=(64, 64),
+        batch_sizes=(128, 128),
         device=device,
         sort_within_batch=False,
         repeat=False,
@@ -25,7 +23,7 @@ def main():
 
     model = FirstCNN(num_embeddings=len(field.vocab), embedding_dim=300).to(device)
     criterion_ce = nn.CrossEntropyLoss()
-    optimizer = optim.Adam((model.parameters()), lr=0.001, weight_decay=0.03)
+    optimizer = optim.Adam((model.parameters()), lr=0.001, weight_decay=0.1)
     optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.5, patience=4, verbose=False,
                                          threshold=0.0001, threshold_mode='rel', cooldown=0, min_lr=0, eps=1e-08)
 
@@ -55,7 +53,7 @@ def main():
             train_loss += loss.item()
             train_count += 1
 
-            if (i + 1) % 50 == 0:
+            if (i + 1) % 300 == 0:
                 model.eval()
                 with torch.no_grad():
                     acc = 0

@@ -12,12 +12,12 @@ class FirstCNN(Module):
         self.embedding = nn.Embedding(num_embeddings=num_embeddings, embedding_dim=embedding_dim)
         self.cnn = CNNCell()   # with relu and bn
 
-        self.fc_normal_1 = nn.Linear(in_features=2240, out_features=512)
-        self.fc_normal_2 = nn.Linear(in_features=512, out_features=256)
-        self.fc_pred_prov = nn.Linear(in_features=256, out_features=28)
-        self.fc_pred_city = nn.Linear(in_features=256, out_features=120)
-        self.fc_pred_lgst = nn.Linear(in_features=256, out_features=14)
-        self.fc_pred_warehouse = nn.Linear(in_features=256, out_features=12)
+        self.fc_normal_1 = nn.Linear(in_features=3072, out_features=1024)
+        self.fc_normal_2 = nn.Linear(in_features=1024, out_features=512)
+        self.fc_pred_prov = nn.Linear(in_features=512, out_features=28)
+        self.fc_pred_city = nn.Linear(in_features=512, out_features=120)
+        self.fc_pred_lgst = nn.Linear(in_features=512, out_features=14)
+        self.fc_pred_warehouse = nn.Linear(in_features=512, out_features=12)
 
         self.dropout = nn.Dropout(p=0.5)
         self.double()
