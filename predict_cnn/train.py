@@ -14,7 +14,7 @@ def main():
     del evl
     train_iter, test_iter = BucketIterator.splits(
         (train, test),
-        batch_sizes=(64, 64),
+        batch_sizes=(128, 128),
         device=device,
         sort_within_batch=False,
         repeat=False,
