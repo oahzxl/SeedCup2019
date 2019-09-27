@@ -81,14 +81,14 @@ def main():
 
                     print('Epoch: %3d | Iter: %4d / %4d | Loss: %.3f | Acc: %.3f | '
                           'Acc P: %.3f | Acc C: %.3f | Acc L: %.3f | '
-                          'Acc G: %.3f | Best: %s' % (epoch, (i + 1), train_iter.__len__(),
+                          'Acc W: %.3f | Best: %s' % (epoch, (i + 1), train_iter.__len__(),
                                                       train_loss / train_count, sum(acc) / count / 4,
                                                       acc[0] / count, acc[1] / count,
                                                       acc[2] / count, acc[3] / count,
                                                       ('YES' if sum(acc) / count > best else 'NO')))
-                    if sum(acc) / count > best:
-                        best = sum(acc) / count
-                        torch.save(model.state_dict(), r'model/model_' + str(int(best)) + r'.pkl')
+                    if sum(acc) / count / 4 > best:
+                        best = sum(acc) / count / 4
+                        torch.save(model.state_dict(), r'model/model.pkl')
 
                     train_count = 0
                     train_loss = 0

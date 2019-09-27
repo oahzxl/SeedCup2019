@@ -13,7 +13,7 @@ def main():
     del evl
     train_iter, test_iter = BucketIterator.splits(
         (train, test),
-        batch_sizes=(128, 128),
+        batch_sizes=(256, 256),
         device=device,
         sort_within_batch=False,
         repeat=False,
@@ -52,14 +52,14 @@ def main():
             train_loss += loss.item()
             train_count += 1
 
-            if (i + 1) % 300 == 0:
+            if (i + 1) % 100 == 0:
                 model.eval()
                 with torch.no_grad():
                     rank = 0
                     acc = 0
                     count = 0
                     for j, data_t in enumerate(test_iter):
-                        if j > 50:
+                        if j > 10:
                             break
 
                         inputs = torch.cat((data_t.plat_form, data_t.biz_type, data_t.create_time,
