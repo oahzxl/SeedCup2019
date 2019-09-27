@@ -82,7 +82,7 @@ def main():
                     print('Epoch: %3d | Iter: %4d / %4d | Loss: %.3f | Acc: %.3f | '
                           'Acc P: %.3f | Acc C: %.3f | Acc L: %.3f | '
                           'Acc G: %.3f | Best: %s' % (epoch, (i + 1), train_iter.__len__(),
-                                                      train_loss / train_count, sum(acc) / count,
+                                                      train_loss / train_count, sum(acc) / count / 4,
                                                       acc[0] / count, acc[1] / count,
                                                       acc[2] / count, acc[3] / count,
                                                       ('YES' if sum(acc) / count > best else 'NO')))
