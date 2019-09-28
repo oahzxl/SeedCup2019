@@ -1,3 +1,4 @@
+import torch
 from torch import nn
 from torch import optim
 from torchtext.data import BucketIterator
@@ -12,8 +13,8 @@ def main():
     evl, _ = dataset_reader(train=False, fields=field, process=False)
     field.build_vocab(train, evl)
     del evl
-    train_iter, test_iter = BucketIterator.splits(
-        (train, test),
+    evl_iter, test_iter = BucketIterator.splits(
+        (evl, test),
         batch_sizes=(256, 256),
         device=device,
         sort_within_batch=False,
@@ -23,17 +24,10 @@ def main():
         )
 
     model = FirstCNN(num_embeddings=len(field.vocab), embedding_dim=300).to(device)
-    criterion_ce = nn.CrossEntropyLoss()
-    optimizer = optim.Adam((model.parameters()), lr=0.001, weight_decay=0.1)
-    optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.5, patience=4, verbose=False,
-                                         threshold=0.0001, threshold_mode='rel', cooldown=0, min_lr=0, eps=1e-08)
-
-    best = 0
-    train_loss = 0
-    train_count = 0
+    model.load_state_dict(torch.load('model/model.pkl'))
 
     for epoch in range(100):
-        for i, data in enumerate(train_iter):
+        for i, data in enumerate(evl_iter):
 
             inputs = torch.cat((data.plat_form, data.biz_type, data.create_time, data.create_hour,
                                 data.payed_day, data.payed_hour, data.cate1_id, data.cate2_id,
@@ -81,7 +75,7 @@ def main():
 
                     print('Epoch: %3d | Iter: %4d / %4d | Loss: %.3f | Acc: %.3f | '
                           'Acc P: %.3f | Acc C: %.3f | Acc L: %.3f | '
-                          'Acc W: %.3f | Best: %s' % (epoch, (i + 1), train_iter.__len__(),
+                          'Acc W: %.3f | Best: %s' % (epoch, (i + 1), evl_iter.__len__(),
                                                       train_loss / train_count, sum(acc) / count / 4,
                                                       acc[0] / count, acc[1] / count,
                                                       acc[2] / count, acc[3] / count,
