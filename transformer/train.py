@@ -42,18 +42,24 @@ def main():
                                 data.seller_uid_field, data.company_name, data.rvcr_prov_name,
                                 data.rvcr_city_name, data.lgst_company, data.warehouse_id,
                                 data.shipped_prov_id, data.shipped_city_id), dim=1)
-            day, hour = model(inputs, 'train', field)
+            outputs = model(inputs, 'train', field)
 
-            loss = (criterion_day(day * 8 + 3, data.signed_day.unsqueeze(1), train=True) +
-                    criterion_hour(hour * 10 + 15, data.signed_hour.unsqueeze(1), train=True))
+            loss = (criterion_day(outputs[0] * 8 + 3, data.signed_day.unsqueeze(1), train=True) +
+                    criterion_hour(outputs[1] * 10 + 15, data.signed_hour.unsqueeze(1), train=True) +
+                    criterion_day(outputs[2] * 8 + 3, data.signed_day.unsqueeze(1), train=True) +
+                    criterion_hour(outputs[3] * 10 + 15, data.signed_hour.unsqueeze(1), train=True) +
+                    criterion_day(outputs[4] * 8 + 3, data.signed_day.unsqueeze(1), train=True) +
+                    criterion_hour(outputs[5] * 10 + 15, data.signed_hour.unsqueeze(1), train=True) +
+                    criterion_day(outputs[6] * 8 + 3, data.signed_day.unsqueeze(1), train=True) +
+                    criterion_hour(outputs[7] * 10 + 15, data.signed_hour.unsqueeze(1), train=True)
+                    )
             loss.backward()
             optimizer.step()
             optimizer.zero_grad()
-
             train_loss += loss.item()
             train_count += 1
 
-            if (i + 1) % 100 == 0:
+            if (i + 1) % 1 == 0:
                 model.eval()
                 with torch.no_grad():
                     rank = 0
@@ -70,16 +76,16 @@ def main():
                                             data_t.seller_uid_field, data_t.company_name, data_t.rvcr_prov_name,
                                             data_t.rvcr_city_name, data_t.lgst_company, data_t.warehouse_id,
                                             data_t.shipped_prov_id, data_t.shipped_city_id), dim=1)
-                        day, hour = model(inputs, 'test', field)
+                        outputs = model(inputs, 'test', field)
 
-                        for b in range(day.size(0)):
+                        for b in range(outputs[-1].size(0)):
                             # time
-                            if int('%.0f' % (day[b] * 8 + 3)) <= int(data_t.signed_day[b]):
+                            if int('%.0f' % (outputs[-2][b] * 8 + 3)) <= int(data_t.signed_day[b]):
                                 acc += 1
 
                             # rank
-                            pred_time = arrow.get("2019-03-" + ('%.0f' % (day[b] * 8 + 3 + 3)).zfill(2) +
-                                                  ' ' + ('%.0f' % (hour[b] * 10 + 15)).zfill(2))
+                            pred_time = arrow.get("2019-03-" + ('%.0f' % (outputs[-2][b] * 8 + 3 + 3)).zfill(2) +
+                                                  ' ' + ('%.0f' % (outputs[-1][b] * 10 + 15)).zfill(2))
                             sign_time = arrow.get("2019-03-" + str(int(data_t.signed_day[b]) + 3).zfill(2) + ' ' +
                                                   str(int(data_t.signed_hour[b])).zfill(2))
                             rank += int((pred_time - sign_time).seconds / 3600) ** 2
