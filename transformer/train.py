@@ -59,7 +59,7 @@ def main():
             train_loss += loss.item()
             train_count += 1
 
-            if (i + 1) % 1 == 0:
+            if (i + 1) % 100 == 0:
                 model.eval()
                 with torch.no_grad():
                     rank = 0
@@ -88,7 +88,7 @@ def main():
                                                   ' ' + ('%.0f' % (outputs[-1][b] * 10 + 15)).zfill(2))
                             sign_time = arrow.get("2019-03-" + str(int(data_t.signed_day[b]) + 3).zfill(2) + ' ' +
                                                   str(int(data_t.signed_hour[b])).zfill(2))
-                            rank += int((pred_time - sign_time).seconds / 3600) ** 2
+                            rank += int((pred_time.timestamp - sign_time.timestamp) / 3600) ** 2
 
                             count += 1
 
