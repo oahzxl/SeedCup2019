@@ -47,6 +47,10 @@ class Simple(Module):
 
     @staticmethod
     def time_to_idx(time, field, mode):
-        for b in range(time.size(0)):
-            time[b] = field.vocab.stoi['%.0f' % time[b] + '_' + mode]
+        if mode == 'd':
+            for b in range(time.size(0)):
+                time[b] = field.vocab.stoi['%.0f' % (time[b] * 8 + 3) + '_' + mode]
+        elif mode == 'h':
+            for b in range(time.size(0)):
+                time[b] = field.vocab.stoi['%.0f' % (time[b] * 10 + 15) + '_' + mode]
         return time
