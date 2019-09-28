@@ -13,7 +13,7 @@ def main():
     del evl
     train_iter, test_iter = BucketIterator.splits(
         (train, test),
-        batch_sizes=(256, 256),
+        batch_sizes=(4, 4),
         device=device,
         sort_within_batch=False,
         repeat=False,

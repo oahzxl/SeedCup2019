@@ -19,7 +19,7 @@ class Simple(Module):
         self.fc_t_day = nn.Linear(in_features=600, out_features=1)
         self.fc_t_hour = nn.Linear(in_features=600, out_features=1)
         self.decoder = nn.LSTMCell(input_size=600, hidden_size=600)
-        self.dropout = nn.Dropout(p=0.5)
+        self.dropout = nn.Dropout(p=0.8)
         self.double()
 
     def forward(self, inputs, mode, field):
@@ -48,9 +48,11 @@ class Simple(Module):
     @staticmethod
     def time_to_idx(time, field, mode):
         if mode == 'd':
+            time = time * 8 + 3
             for b in range(time.size(0)):
-                time[b] = field.vocab.stoi['%.0f' % (time[b] * 8 + 3) + '_' + mode]
+                time[b] = field.vocab.stoi['%.0f' % time[b] + '_' + mode]
         elif mode == 'h':
+            time = time * 10 + 15
             for b in range(time.size(0)):
-                time[b] = field.vocab.stoi['%.0f' % (time[b] * 10 + 15) + '_' + mode]
+                time[b] = field.vocab.stoi['%.0f' % time[b] + '_' + mode]
         return time
