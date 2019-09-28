@@ -13,7 +13,7 @@ def main():
     del evl
     train_iter, test_iter = BucketIterator.splits(
         (train, test),
-        batch_sizes=(4, 4),
+        batch_sizes=(256, 256),
         device=device,
         sort_within_batch=False,
         repeat=False,
@@ -24,7 +24,7 @@ def main():
     model = Simple(num_embeddings=len(field.vocab), embedding_dim=300).to(device)
     criterion_day = RMSELoss(gap=0, early=2, late=9)
     criterion_hour = RMSELoss(gap=0, early=2, late=2)
-    optimizer = optim.Adam((model.parameters()), lr=0.001, weight_decay=0.03)
+    optimizer = optim.Adam((model.parameters()), lr=0.0003, weight_decay=0.03)
     optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.5, patience=4, verbose=False,
                                          threshold=0.000001, threshold_mode='rel', cooldown=0, min_lr=0, eps=1e-08)
 
@@ -59,7 +59,7 @@ def main():
             train_loss += loss.item()
             train_count += 1
 
-            if (i + 1) % 100 == 0:
+            if (i + 1) % 300 == 0:
                 model.eval()
                 with torch.no_grad():
                     rank = 0

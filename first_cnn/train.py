@@ -42,10 +42,11 @@ def main():
                                 data.rvcr_prov_name, data.rvcr_city_name), dim=1)
             prov, city, lgst, warehouse = model(inputs, field, train=True)
 
-            loss = (criterion_ce(prov, data.shipped_prov_id_label.long()) +
-                    criterion_ce(city, data.shipped_city_id_label.long()) +
-                    criterion_ce(lgst, data.lgst_company_label.long()) +
-                    criterion_ce(warehouse, data.warehouse_id_label.long()))
+            # loss = (criterion_ce(prov, data.shipped_prov_id_label.long()) +
+            #         criterion_ce(city, data.shipped_city_id_label.long()) +
+            #         criterion_ce(lgst, data.lgst_company_label.long()) +
+            #         criterion_ce(warehouse, data.warehouse_id_label.long()))
+            loss = criterion_ce(lgst, data.lgst_company_label.long())
 
             loss.backward()
             optimizer.step()
@@ -72,10 +73,11 @@ def main():
                         prov, city, lgst, warehouse = model(inputs, field, train=False)
 
                         count += prov.size(0)
-                        for idx, (d, l) in enumerate([(prov, data_t.shipped_prov_id_label),
-                                                     (city, data_t.shipped_city_id_label),
-                                                     (lgst, data_t.lgst_company_label),
-                                                     (warehouse, data_t.warehouse_id_label)]):
+                        # for idx, (d, l) in enumerate([(prov, data_t.shipped_prov_id_label),
+                        #                              (city, data_t.shipped_city_id_label),
+                        #                              (lgst, data_t.lgst_company_label),
+                        #                              (warehouse, data_t.warehouse_id_label)]):
+                        for idx, (d, l) in enumerate([(lgst, data_t.lgst_company_label)]):
                             d = torch.argmax(d, dim=1)
                             acc[idx] += float(torch.sum(d == l.long()))
 
