@@ -1,7 +1,7 @@
 from torch import nn
 from torch import optim
 from torchtext.data import BucketIterator
-
+import tqdm
 from modules.first_cnn import FirstCNN
 from utils import *
 
@@ -33,7 +33,7 @@ def main():
     train_count = 0
 
     for epoch in range(100):
-        for i, data in enumerate(train_iter):
+        for i, data in tqdm.tqdm(enumerate(train_iter), total=300):
 
             inputs = torch.cat((data.plat_form, data.biz_type, data.create_time, data.create_hour,
                                 data.payed_day, data.payed_hour, data.cate1_id, data.cate2_id,
