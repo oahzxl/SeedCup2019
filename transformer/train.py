@@ -59,56 +59,56 @@ def main():
             train_loss += loss.item()
             train_count += 1
 
-            model.eval()
-            with torch.no_grad():
-                rank = 0
-                acc = 0
-                count = 0
-                for j, data_t in enumerate(test_iter):
+        model.eval()
+        with torch.no_grad():
+            rank = 0
+            acc = 0
+            count = 0
+            for j, data_t in enumerate(test_iter):
 
-                    inputs = torch.cat((data_t.plat_form, data_t.biz_type, data_t.create_time,
-                                        data_t.create_hour, data_t.payed_day, data_t.payed_hour,
-                                        data_t.cate1_id, data_t.cate2_id, data_t.cate3_id,
-                                        data_t.preselling_shipped_day, data_t.preselling_shipped_hour,
-                                        data_t.seller_uid_field, data_t.company_name, data_t.rvcr_prov_name,
-                                        data_t.rvcr_city_name, data_t.lgst_company, data_t.warehouse_id,
-                                        data_t.shipped_prov_id, data_t.shipped_city_id), dim=1)
-                    outputs = model(inputs, 'test', field)
+                inputs = torch.cat((data_t.plat_form, data_t.biz_type, data_t.create_time,
+                                    data_t.create_hour, data_t.payed_day, data_t.payed_hour,
+                                    data_t.cate1_id, data_t.cate2_id, data_t.cate3_id,
+                                    data_t.preselling_shipped_day, data_t.preselling_shipped_hour,
+                                    data_t.seller_uid_field, data_t.company_name, data_t.rvcr_prov_name,
+                                    data_t.rvcr_city_name, data_t.lgst_company, data_t.warehouse_id,
+                                    data_t.shipped_prov_id, data_t.shipped_city_id), dim=1)
+                outputs = model(inputs, 'test', field)
 
-                    for b in range(outputs[-1].size(0)):
-                        # time
-                        if int('%.0f' % (outputs[-2][b] * 8 + 3)) <= int(data_t.signed_day[b]):
-                            acc += 1
+                for b in range(outputs[-1].size(0)):
+                    # time
+                    if int('%.0f' % (outputs[-2][b] * 8 + 3)) <= int(data_t.signed_day[b]):
+                        acc += 1
 
-                        # rank
-                        pred_time = arrow.get("2019-03-" + ('%.0f' % (outputs[-2][b] * 8 + 3 + 3)).zfill(2) +
-                                              ' ' + ('%.0f' % (outputs[-1][b] * 10 + 15)).zfill(2))
-                        sign_time = arrow.get("2019-03-" + str(int(data_t.signed_day[b]) + 3).zfill(2) + ' ' +
-                                              str(int(data_t.signed_hour[b])).zfill(2))
-                        rank += int((pred_time.timestamp - sign_time.timestamp) / 3600) ** 2
+                    # rank
+                    pred_time = arrow.get("2019-03-" + ('%.0f' % (outputs[-2][b] * 8 + 3 + 3)).zfill(2) +
+                                          ' ' + ('%.0f' % (outputs[-1][b] * 10 + 15)).zfill(2))
+                    sign_time = arrow.get("2019-03-" + str(int(data_t.signed_day[b]) + 3).zfill(2) + ' ' +
+                                          str(int(data_t.signed_hour[b])).zfill(2))
+                    rank += int((pred_time.timestamp - sign_time.timestamp) / 3600) ** 2
 
-                        count += 1
+                    count += 1
 
-                acc = acc / count
-                rank = (rank / count) ** 0.5
+            acc = acc / count
+            rank = (rank / count) ** 0.5
 
-                print('Epoch: %3d | Loss: %.3f | Rank: %.3f | '
-                      'Time: %.3f | Best: %s' % (epoch,
-                                                 train_loss / train_count, rank, acc,
-                                                 ('YES' if rank < best and acc >= 0.982 else 'NO')))
-                if rank < best and acc >= 0.982:
-                    best = rank
-                    torch.save(model.state_dict(), r'model/model_' + str(int(best)) + r'.pkl')
+            print('Epoch: %3d | Loss: %.3f | Rank: %.3f | '
+                  'Time: %.3f | Best: %s' % (epoch,
+                                             train_loss / train_count, rank, acc,
+                                             ('YES' if rank < best and acc >= 0.982 else 'NO')))
+            if rank < best and acc >= 0.982:
+                best = rank
+                torch.save(model.state_dict(), r'model/model_' + str(int(best)) + r'.pkl')
 
-                with open(r"model/log.txt", "a+") as f:
-                    f.write('Epoch: %3d | Loss: %.3f | Rank: %.3f | '
-                            'Time: %.3f | Best: %s\n' % (epoch,
-                                                         train_loss / train_count, rank, acc,
-                                                         ('YES' if rank < best and acc >= 0.982 else 'NO')))
+            with open(r"model/log.txt", "a+") as f:
+                f.write('Epoch: %3d | Loss: %.3f | Rank: %.3f | '
+                        'Time: %.3f | Best: %s\n' % (epoch,
+                                                     train_loss / train_count, rank, acc,
+                                                     ('YES' if rank < best and acc >= 0.982 else 'NO')))
 
-                train_count = 0
-                train_loss = 0
-            model.train()
+            train_count = 0
+            train_loss = 0
+        model.train()
 
 
 if __name__ == '__main__':
