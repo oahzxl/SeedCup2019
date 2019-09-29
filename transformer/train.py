@@ -33,7 +33,7 @@ def main():
     train_count = 0
 
     for epoch in range(50):
-        for i, data in tqdm.tqdm(enumerate(train_iter), total=300):
+        for i, data in enumerate(train_iter):
 
             inputs = torch.cat((data.plat_form, data.biz_type, data.create_time,
                                 data.create_hour, data.payed_day, data.payed_hour,
