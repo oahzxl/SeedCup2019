@@ -33,8 +33,11 @@ def main():
                                 data.cate1_id, data.cate2_id, data.cate3_id,
                                 data.preselling_shipped_day, data.preselling_shipped_hour,
                                 data.seller_uid_field, data.company_name, data.rvcr_prov_name,
-                                data.rvcr_city_name), dim=1)
-            day, hour = model(inputs, 'test', field)
+                                data.rvcr_city_name, data.lgst_company, data.warehouse_id,
+                                data.shipped_prov_id, data.shipped_city_id), dim=1)
+            outputs = model(inputs, 'test', field)
+            day = outputs[-2]
+            hour = outputs[-1]
             with open('SeedCup2019_pre/result.txt', 'a+') as f:
                 for b in range(day.size(0)):
                     start_day = field.vocab.itos[data.create_time[b]][:2]

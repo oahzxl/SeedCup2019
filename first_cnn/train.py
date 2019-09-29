@@ -25,8 +25,8 @@ def main():
     model = FirstCNN(num_embeddings=len(field.vocab), embedding_dim=300).to(device)
     criterion_ce = nn.CrossEntropyLoss()
     optimizer = optim.Adam((model.parameters()), lr=0.001, weight_decay=0.1)
-    optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.5, patience=4, verbose=False,
-                                         threshold=0.0001, threshold_mode='rel', cooldown=0, min_lr=0, eps=1e-08)
+    optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.3, patience=2, verbose=False,
+                                         threshold=0.000001, threshold_mode='rel', cooldown=0, min_lr=0, eps=1e-08)
 
     best = 0
     train_loss = 0
@@ -60,7 +60,7 @@ def main():
                     acc = [0, 0, 0, 0]
                     count = 0
                     for j, data_t in enumerate(test_iter):
-                        if j > 30:
+                        if j > 50:
                             break
 
                         inputs = torch.cat((data_t.plat_form, data_t.biz_type, data_t.create_time, data_t.create_hour,
@@ -85,7 +85,7 @@ def main():
                                                       train_loss / train_count, sum(acc) / count / 4,
                                                       acc[0] / count, acc[1] / count,
                                                       acc[2] / count, acc[3] / count,
-                                                      ('YES' if sum(acc) / count > best else 'NO')))
+                                                      ('YES' if sum(acc) / count / 4 > best else 'NO')))
                     if sum(acc) / count / 4 > best:
                         best = sum(acc) / count / 4
                         torch.save(model.state_dict(), r'model/model.pkl')

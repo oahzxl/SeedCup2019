@@ -25,7 +25,7 @@ def main():
     criterion_day = RMSELoss(gap=0, early=2, late=9)
     criterion_hour = RMSELoss(gap=0, early=2, late=2)
     optimizer = optim.Adam((model.parameters()), lr=0.0003, weight_decay=0.03)
-    optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.5, patience=4, verbose=False,
+    optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.3, patience=2, verbose=False,
                                          threshold=0.000001, threshold_mode='rel', cooldown=0, min_lr=0, eps=1e-08)
 
     best = 99
@@ -66,7 +66,7 @@ def main():
                     acc = 0
                     count = 0
                     for j, data_t in enumerate(test_iter):
-                        if j > 10:
+                        if j > 50:
                             break
 
                         inputs = torch.cat((data_t.plat_form, data_t.biz_type, data_t.create_time,
