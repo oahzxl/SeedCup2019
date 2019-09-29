@@ -13,7 +13,7 @@ def main():
     field.build_vocab(train, evl)
     _, evl_iter = BucketIterator.splits(
         (train, evl),
-        batch_sizes=(256, 256),
+        batch_sizes=(512, 512),
         device=device,
         sort_within_batch=False,
         repeat=False,
