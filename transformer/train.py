@@ -1,6 +1,5 @@
 from torch import optim
 from torchtext.data import BucketIterator
-import tqdm
 from modules import *
 from utils import *
 
@@ -20,7 +19,8 @@ def main():
         sort=False,
         shuffle=True
         )
-
+    with open(r"model/log.txt", "w+") as f:
+        f.write('')
     model = Simple(num_embeddings=len(field.vocab), embedding_dim=300).to(device)
     criterion_day = RMSELoss(gap=0, early=2, late=9)
     criterion_hour = RMSELoss(gap=0, early=2, late=2)
@@ -98,10 +98,16 @@ def main():
                     print('Epoch: %3d | Iter: %4d / %4d | Loss: %.3f | Rank: %.3f | '
                           'Time: %.3f | Best: %s' % (epoch, (i + 1), train_iter.__len__(),
                                                      train_loss / train_count, rank, acc,
-                                                     ('YES' if rank < best and acc >= 0.981 else 'NO')))
-                    if rank < best and acc >= 0.981:
+                                                     ('YES' if rank < best and acc >= 0.982 else 'NO')))
+                    if rank < best and acc >= 0.982:
                         best = rank
                         torch.save(model.state_dict(), r'model/model_' + str(int(best)) + r'.pkl')
+
+                    with open(r"model/log.txt", "a+") as f:
+                        f.write('Epoch: %3d | Iter: %4d / %4d | Loss: %.3f | Rank: %.3f | '
+                                'Time: %.3f | Best: %s\n' % (epoch, (i + 1), train_iter.__len__(),
+                                                             train_loss / train_count, rank, acc,
+                                                             ('YES' if rank < best and acc >= 0.982 else 'NO')))
 
                     train_count = 0
                     train_loss = 0
