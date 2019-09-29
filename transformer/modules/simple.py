@@ -16,10 +16,12 @@ class Simple(Module):
         # self.cnn = ResNet(layers=[2, 2, 2, 2])
 
         self.fc_1 = nn.Linear(in_features=2560, out_features=600)
-        self.fc_t_day = nn.Linear(in_features=600, out_features=1)
-        self.fc_t_hour = nn.Linear(in_features=600, out_features=1)
+        self.fc_t_day = nn.Linear(in_features=600, out_features=600)
+        self.fc_t_day2 = nn.Linear(in_features=600, out_features=1)
+        self.fc_t_hour = nn.Linear(in_features=600, out_features=600)
+        self.fc_t_hour2 = nn.Linear(in_features=600, out_features=1)
         self.decoder = nn.LSTMCell(input_size=600, hidden_size=600)
-        self.dropout = nn.Dropout(p=0.8)
+        self.dropout = nn.Dropout(p=0.4)
         self.double()
 
     def forward(self, inputs, mode, field):
@@ -27,15 +29,17 @@ class Simple(Module):
 
         inputs = self.cnn(inputs.view(inputs.size(0), inputs.size(1), -1, 60))
         inputs = inputs.view(inputs.size(0), -1)
-        inputs = self.fc_1(inputs)
+        inputs = self.fc_1(self.dropout(inputs))
 
         outputs = []
         hx = torch.zeros_like(inputs)
         cx = torch.zeros_like(inputs)
         for i in range(4):
             hx, cx = self.decoder(inputs, (hx, cx))
-            day = self.fc_t_day(hx)
-            hour = self.fc_t_hour(hx)
+            day = self.fc_t_day(self.dropout(f.relu(hx)))
+            day = self.fc_t_day2(self.dropout(f.relu(day)))
+            hour = self.fc_t_hour(self.dropout(f.relu(hx)))
+            hour = self.fc_t_hour2(self.dropout(f.relu(hour)))
             outputs.append(day)
             outputs.append(hour)
 
