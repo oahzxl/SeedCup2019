@@ -6,11 +6,11 @@ import os
 class Config(object):
     def __init__(self):
         self.USE_CUDA           =       torch.cuda.is_available()
-        self.NUM_EPOCHS         =       20
+        self.NUM_EPOCHS         =       50
 
-        self.TRAIN_BATCH_SIZE   =       64
-        self.VAL_BATCH_SIZE     =       64
-        self.TEST_BATCH_SIZE    =       64
+        self.TRAIN_BATCH_SIZE   =       128
+        self.VAL_BATCH_SIZE     =       128
+        self.TEST_BATCH_SIZE    =       128
         self.TRAIN_FILE         =       './data/SeedCup_pre_train.csv'
         self.VAL_FILE           =       './data/SeedCup_pre_train.csv'
         self.TEST_FILE          =       './data/SeedCup_pre_test.csv'
@@ -22,7 +22,7 @@ class Config(object):
         self.MODEL_SAVE_PATH    =       self.MODEL_SAVE_FOLDER + self.MODEL_FILE_NAME
         self.LR                 =       1e-3  # default learning rate
 
-        self.EMBEDDING_DIM      =       100
+        self.EMBEDDING_DIM      =       300
         self.LINER_HID_SIZE     =       1024
         self.INPUT_SIZE         =       11
         

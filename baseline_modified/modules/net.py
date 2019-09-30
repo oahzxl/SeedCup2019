@@ -57,96 +57,96 @@ class Network(nn.Module):
             nn.Linear(600, 1)
         )
 
-        self.FC_2_1 = nn.Sequential(
-            #  TODO change input dimension
-            nn.Linear(10 * opt.EMBEDDING_DIM, 400),
-            nn.BatchNorm1d(400),
-            nn.ReLU(inplace=True),
-            nn.Dropout(0.5),
+        # self.FC_2_1 = nn.Sequential(
+        #     #  TODO change input dimension
+        #     nn.Linear(10 * opt.EMBEDDING_DIM, 400),
+        #     nn.BatchNorm1d(400),
+        #     nn.ReLU(inplace=True),
+        #     nn.Dropout(0.5),
+        # 
+        #     nn.Linear(400, 600),
+        #     nn.BatchNorm1d(600),
+        #     nn.ReLU(inplace=True),
+        #     nn.Dropout(0.5),
+        # 
+        #     nn.Linear(600, opt.OUTPUT_TIME_INTERVAL_2)
+        # )
 
-            nn.Linear(400, 600),
-            nn.BatchNorm1d(600),
-            nn.ReLU(inplace=True),
-            nn.Dropout(0.5),
-
-            nn.Linear(600, opt.OUTPUT_TIME_INTERVAL_2)
-        )
-
-        self.FC_2_2 = nn.Sequential(
-            #  TODO change input dimension
-            nn.Linear(10 * opt.EMBEDDING_DIM, 400),
-            nn.BatchNorm1d(400),
-            nn.ReLU(inplace=True),
-            nn.Dropout(0.5),
-
-            nn.Linear(400, 600),
-            nn.BatchNorm1d(600),
-            nn.ReLU(inplace=True),
-            nn.Dropout(0.5),
-
-            nn.Linear(600, opt.OUTPUT_TIME_INTERVAL_2)
-        )
+        # self.FC_2_2 = nn.Sequential(
+        #     #  TODO change input dimension
+        #     nn.Linear(10 * opt.EMBEDDING_DIM, 400),
+        #     nn.BatchNorm1d(400),
+        #     nn.ReLU(inplace=True),
+        #     nn.Dropout(0.5),
+        #
+        #     nn.Linear(400, 600),
+        #     nn.BatchNorm1d(600),
+        #     nn.ReLU(inplace=True),
+        #     nn.Dropout(0.5),
+        #
+        #     nn.Linear(600, opt.OUTPUT_TIME_INTERVAL_2)
+        # )
 
 
-        self.FC_3_1 = nn.Sequential(
-            #  TODO change input dimension
-            nn.Linear(10 * opt.EMBEDDING_DIM, 400),
-            nn.BatchNorm1d(400),
-            nn.ReLU(inplace=True),
-            nn.Dropout(0.5),
+        # self.FC_3_1 = nn.Sequential(
+        #     #  TODO change input dimension
+        #     nn.Linear(10 * opt.EMBEDDING_DIM, 400),
+        #     nn.BatchNorm1d(400),
+        #     nn.ReLU(inplace=True),
+        #     nn.Dropout(0.5),
+        # 
+        #     nn.Linear(400, 600),
+        #     nn.BatchNorm1d(600),
+        #     nn.ReLU(inplace=True),
+        #     nn.Dropout(0.5),
+        #
+        #     nn.Linear(600, opt.OUTPUT_TIME_INTERVAL_3)
+        # )
 
-            nn.Linear(400, 600),
-            nn.BatchNorm1d(600),
-            nn.ReLU(inplace=True),
-            nn.Dropout(0.5),
+        # self.FC_3_2 = nn.Sequential(
+        #     #  TODO change input dimension
+        #     nn.Linear(10 * opt.EMBEDDING_DIM, 400),
+        #     nn.BatchNorm1d(400),
+        #     nn.ReLU(inplace=True),
+        #     nn.Dropout(0.5),
+        # 
+        #     nn.Linear(400, 600),
+        #     nn.BatchNorm1d(600),
+        #     nn.ReLU(inplace=True),
+        #     nn.Dropout(0.5),
+        #
+        #     nn.Linear(600, opt.OUTPUT_TIME_INTERVAL_3)
+        # )
 
-            nn.Linear(600, opt.OUTPUT_TIME_INTERVAL_3)
-        )
+        # self.FC_4_1 = nn.Sequential(
+        #     #  TODO change input dimension
+        #     nn.Linear(10 * opt.EMBEDDING_DIM, 400),
+        #     nn.BatchNorm1d(400),
+        #     nn.ReLU(inplace=True),
+        #     nn.Dropout(0.5),
+        # 
+        #     nn.Linear(400, 600),
+        #     nn.BatchNorm1d(600),
+        #     nn.ReLU(inplace=True),
+        #     nn.Dropout(0.5),
+        # 
+        #     nn.Linear(600, opt.OUTPUT_TIME_INTERVAL_4)
+        # )
 
-        self.FC_3_2 = nn.Sequential(
-            #  TODO change input dimension
-            nn.Linear(10 * opt.EMBEDDING_DIM, 400),
-            nn.BatchNorm1d(400),
-            nn.ReLU(inplace=True),
-            nn.Dropout(0.5),
-
-            nn.Linear(400, 600),
-            nn.BatchNorm1d(600),
-            nn.ReLU(inplace=True),
-            nn.Dropout(0.5),
-
-            nn.Linear(600, opt.OUTPUT_TIME_INTERVAL_3)
-        )
-
-        self.FC_4_1 = nn.Sequential(
-            #  TODO change input dimension
-            nn.Linear(10 * opt.EMBEDDING_DIM, 400),
-            nn.BatchNorm1d(400),
-            nn.ReLU(inplace=True),
-            nn.Dropout(0.5),
-
-            nn.Linear(400, 600),
-            nn.BatchNorm1d(600),
-            nn.ReLU(inplace=True),
-            nn.Dropout(0.5),
-
-            nn.Linear(600, opt.OUTPUT_TIME_INTERVAL_4)
-        )
-
-        self.FC_4_2 = nn.Sequential(
-            #  TODO change input dimension
-            nn.Linear(10 * opt.EMBEDDING_DIM, 400),
-            nn.BatchNorm1d(400),
-            nn.ReLU(inplace=True),
-            nn.Dropout(0.5),
-
-            nn.Linear(400, 600),
-            nn.BatchNorm1d(600),
-            nn.ReLU(inplace=True),
-            nn.Dropout(0.5),
-
-            nn.Linear(600, opt.OUTPUT_TIME_INTERVAL_4)
-        )
+        # self.FC_4_2 = nn.Sequential(
+        #     #  TODO change input dimension
+        #     nn.Linear(10 * opt.EMBEDDING_DIM, 400),
+        #     nn.BatchNorm1d(400),
+        #     nn.ReLU(inplace=True),
+        #     nn.Dropout(0.5),
+        #
+        #     nn.Linear(400, 600),
+        #     nn.BatchNorm1d(600),
+        #     nn.ReLU(inplace=True),
+        #     nn.Dropout(0.5),
+        # 
+        #     nn.Linear(600, opt.OUTPUT_TIME_INTERVAL_4)
+        # )
 
     def forward(self, x):
 
@@ -179,14 +179,14 @@ class Network(nn.Module):
         you can attempt muti-task through uncommenting the following code and modifying related code in train()
         '''
         output_FC_1_1 = self.FC_1_1(concat_encoder_output)
-        output_FC_2_1 = self.FC_2_1(concat_encoder_output)
-        output_FC_3_1 = self.FC_3_1(concat_encoder_output)
-        output_FC_4_1 = self.FC_4_1(concat_encoder_output)
+        # output_FC_2_1 = self.FC_2_1(concat_encoder_output)
+        # output_FC_3_1 = self.FC_3_1(concat_encoder_output)
+        # output_FC_4_1 = self.FC_4_1(concat_encoder_output)
 
         output_FC_1_2 = self.FC_1_2(concat_encoder_output)
-        output_FC_2_2 = self.FC_2_1(concat_encoder_output)
-        output_FC_3_2 = self.FC_3_1(concat_encoder_output)
-        output_FC_4_2 = self.FC_4_1(concat_encoder_output)
+        # output_FC_2_2 = self.FC_2_1(concat_encoder_output)
+        # output_FC_3_2 = self.FC_3_1(concat_encoder_output)
+        # output_FC_4_2 = self.FC_4_1(concat_encoder_output)
 
-        return (output_FC_1_1, output_FC_2_1, output_FC_3_1, output_FC_4_1, output_FC_1_2, output_FC_2_2, output_FC_3_2, output_FC_4_2)
-        # return (output_FC_1_1, output_FC_1_2)
+        # return (output_FC_1_1, output_FC_2_1, output_FC_3_1, output_FC_4_1, output_FC_1_2, output_FC_2_2, output_FC_3_2, output_FC_4_2)
+        return (output_FC_1_1, output_FC_1_2)
