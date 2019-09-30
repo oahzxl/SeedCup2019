@@ -11,7 +11,7 @@ class CNNCell(Module):
         self.cnn2 = nn.Conv2d(in_channels=64, out_channels=128, kernel_size=(3, 3), stride=2, padding=0)
         self.bn2 = nn.BatchNorm2d(128)
         self.cnn3 = nn.Conv2d(in_channels=128, out_channels=256, kernel_size=(3, 3), stride=2, padding=0)
-        self.cnn4 = nn.Conv2d(in_channels=256, out_channels=256, kernel_size=(3, 3), stride=2, padding=0)
+        self.cnn4 = nn.Conv2d(in_channels=256, out_channels=256, kernel_size=(3, 3), stride=1, padding=0)
 
     def forward(self, inputs):
         inputs = self.bn1(inputs)

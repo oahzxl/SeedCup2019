@@ -15,13 +15,14 @@ class Simple(Module):
         self.cnn = CNNCell()   # with relu and bn
         # self.cnn = ResNet(layers=[2, 2, 2, 2])
 
-        self.fc_1 = nn.Linear(in_features=2560, out_features=600)
+        self.fc_1 = nn.Linear(in_features=9216, out_features=2048)
+        self.fc_2 = nn.Linear(in_features=2048, out_features=600)
         self.fc_t_day = nn.Linear(in_features=600, out_features=600)
         self.fc_t_day2 = nn.Linear(in_features=600, out_features=1)
         self.fc_t_hour = nn.Linear(in_features=600, out_features=600)
         self.fc_t_hour2 = nn.Linear(in_features=600, out_features=1)
         self.decoder = nn.LSTMCell(input_size=600, hidden_size=600)
-        self.dropout = nn.Dropout(p=0.4)
+        self.dropout = nn.Dropout(p=0.5)
         self.double()
 
     def forward(self, inputs, mode, field):
@@ -30,6 +31,7 @@ class Simple(Module):
         inputs = self.cnn(inputs.view(inputs.size(0), inputs.size(1), -1, 60))
         inputs = inputs.view(inputs.size(0), -1)
         inputs = f.relu(self.dropout(self.fc_1(self.dropout(inputs))))
+        inputs = f.relu(self.dropout(self.fc_2(self.dropout(inputs))))
 
         outputs = []
         hx = torch.zeros_like(inputs)
