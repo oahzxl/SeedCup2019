@@ -29,7 +29,7 @@ class Simple(Module):
 
         inputs = self.cnn(inputs.view(inputs.size(0), inputs.size(1), -1, 60))
         inputs = inputs.view(inputs.size(0), -1)
-        inputs = self.relu(self.dropout(self.fc_1(self.dropout(inputs))))
+        inputs = f.relu(self.dropout(self.fc_1(self.dropout(inputs))))
 
         outputs = []
         hx = torch.zeros_like(inputs)
