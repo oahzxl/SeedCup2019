@@ -29,16 +29,16 @@ class Simple(Module):
 
         inputs = self.cnn(inputs.view(inputs.size(0), inputs.size(1), -1, 60))
         inputs = inputs.view(inputs.size(0), -1)
-        inputs = self.dropout(self.fc_1(inputs))
+        inputs = self.relu(self.dropout(self.fc_1(self.dropout(inputs))))
 
         outputs = []
         hx = torch.zeros_like(inputs)
         cx = torch.zeros_like(inputs)
         for i in range(4):
             hx, cx = self.decoder(inputs, (hx, cx))
-            day = self.fc_t_day(hx)
+            day = self.fc_t_day(f.relu(self.dropout(hx)))
             day = self.fc_t_day2(f.relu(self.dropout(day)))
-            hour = self.fc_t_hour(hx)
+            hour = self.fc_t_hour(f.relu(self.dropout(hx)))
             hour = self.fc_t_hour2(f.relu(self.dropout(hour)))
             outputs.append(day)
             outputs.append(hour)
