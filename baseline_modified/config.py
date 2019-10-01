@@ -8,9 +8,9 @@ class Config(object):
         self.USE_CUDA           =       torch.cuda.is_available()
         self.NUM_EPOCHS         =       50
 
-        self.TRAIN_BATCH_SIZE   =       128
-        self.VAL_BATCH_SIZE     =       128
-        self.TEST_BATCH_SIZE    =       128
+        self.TRAIN_BATCH_SIZE   =       64
+        self.VAL_BATCH_SIZE     =       64
+        self.TEST_BATCH_SIZE    =       64
         self.TRAIN_FILE         =       './data/SeedCup_pre_train.csv'
         self.VAL_FILE           =       './data/SeedCup_pre_train.csv'
         self.TEST_FILE          =       './data/SeedCup_pre_test.csv'
@@ -22,7 +22,7 @@ class Config(object):
         self.MODEL_SAVE_PATH    =       self.MODEL_SAVE_FOLDER + self.MODEL_FILE_NAME
         self.LR                 =       1e-3  # default learning rate
 
-        self.EMBEDDING_DIM      =       300
+        self.EMBEDDING_DIM      =       100
         self.LINER_HID_SIZE     =       1024
         self.INPUT_SIZE         =       11
         
@@ -46,7 +46,7 @@ class Config(object):
 
         self.val_step             =   1
         self.Dataset_Normorlize   =   True
-        self.Train_Val_ratio      =   0.95
+        self.Train_Val_ratio      =   0.9
         self.Train_rankScore_threshold = 70
         self.Train_onTimePercent_threshold = 0.90
 

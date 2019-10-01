@@ -39,8 +39,10 @@ def main():
         cudnn.benchmark = True
 
     # set criterion (loss function)
-    criterion_1 = MSELoss(gap=0, early=2, late=9)
-    criterion_2 = MSELoss(gap=0, early=2, late=2)
+    # criterion_1 = MSELoss(gap=0, early=2, late=9)
+    # criterion_2 = MSELoss(gap=0, early=2, late=2)
+    criterion_1 = MSELoss()
+    criterion_2 = MSELoss()
 
     # you can choose metric in [accuracy, MSE, RankScore]
     highest_metrics = 100
