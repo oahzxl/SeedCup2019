@@ -45,7 +45,7 @@ def main():
     criterion_2 = MSELoss()
 
     # you can choose metric in [accuracy, MSE, RankScore]
-    highest_metrics = 100
+    highest_metrics = 50
 
     for epoch in range(opt.NUM_EPOCHS):
         net.train()

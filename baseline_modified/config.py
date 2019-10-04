@@ -45,7 +45,7 @@ class Config(object):
         self.rvcr_city_name_range =   370
 
         self.val_step             =   1
-        self.Dataset_Normorlize   =   True
+        self.Dataset_Normorlize   =   False
         self.Train_Val_ratio      =   0.9
         self.Train_rankScore_threshold = 70
         self.Train_onTimePercent_threshold = 0.90

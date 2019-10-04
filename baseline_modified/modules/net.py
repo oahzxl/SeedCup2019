@@ -21,43 +21,51 @@ class Network(nn.Module):
 
         self.encoder_cate1_id = nn.Embedding(opt.cate1_id_range, opt.EMBEDDING_DIM)
         self.encoder_cate2_id = nn.Embedding(opt.cate2_id_range, opt.EMBEDDING_DIM)
-        self.encoder_cate3_id = nn.Embedding(opt.cate3_id_range, opt.EMBEDDING_DIM)
+        # self.encoder_cate3_id = nn.Embedding(opt.cate3_id_range, opt.EMBEDDING_DIM)
 
         self.encoder_seller_uid = nn.Embedding(opt.seller_uid_range, opt.EMBEDDING_DIM)
         self.encoder_company_name = nn.Embedding(opt.company_name_range, opt.EMBEDDING_DIM)
         self.encoder_rvcr_prov_name = nn.Embedding(opt.rvcr_prov_name_range, opt.EMBEDDING_DIM)
         self.encoder_rvcr_city_name = nn.Embedding(opt.rvcr_city_name_range, opt.EMBEDDING_DIM)
 
-        self.cnn = CNNCell()
-
         self.FC_1_1 = nn.Sequential(
             #  TODO change input dimension
-            nn.Linear(10 * opt.EMBEDDING_DIM, 400),
-            nn.BatchNorm1d(400),
+            nn.Linear(9 * opt.EMBEDDING_DIM, 512),
+            nn.BatchNorm1d(512),
             nn.ReLU(inplace=True),
             nn.Dropout(0.5),
 
-            nn.Linear(400, 600),
-            nn.BatchNorm1d(600),
+            nn.Linear(512, 256),
+            nn.BatchNorm1d(256),
             nn.ReLU(inplace=True),
             nn.Dropout(0.5),
 
-            nn.Linear(600, 1)
+            nn.Linear(256, 128),
+            nn.BatchNorm1d(128),
+            nn.ReLU(inplace=True),
+            nn.Dropout(0.5),
+
+            nn.Linear(128, 1)
         )
 
         self.FC_1_2 = nn.Sequential(
             #  TODO change input dimension
-            nn.Linear(10 * opt.EMBEDDING_DIM, 400),
-            nn.BatchNorm1d(400),
+            nn.Linear(9 * opt.EMBEDDING_DIM, 512),
+            nn.BatchNorm1d(512),
             nn.ReLU(inplace=True),
             nn.Dropout(0.5),
 
-            nn.Linear(400, 600),
-            nn.BatchNorm1d(600),
+            nn.Linear(512, 256),
+            nn.BatchNorm1d(256),
             nn.ReLU(inplace=True),
             nn.Dropout(0.5),
 
-            nn.Linear(600, 1)
+            nn.Linear(256, 128),
+            nn.BatchNorm1d(128),
+            nn.ReLU(inplace=True),
+            nn.Dropout(0.5),
+
+            nn.Linear(128, 1)
         )
 
         self.FC_2_1 = nn.Sequential(
@@ -162,7 +170,7 @@ class Network(nn.Module):
 
         output_encoder_cate1_id = self.encoder_cate1_id(x[:,4].long())
         output_encoder_cate2_id = self.encoder_cate2_id(x[:,5].long())
-        output_encoder_cate3_id = self.encoder_cate3_id(x[:,6].long())
+        # output_encoder_cate3_id = self.encoder_cate3_id(x[:,6].long())
         output_encoder_seller_uid = self.encoder_seller_uid(x[:,7].long())
 
         output_encoder_company_name = self.encoder_company_name(x[:,8].long())
@@ -172,7 +180,7 @@ class Network(nn.Module):
         concat_encoder_output = torch.cat((output_encoder_plat_form, 
         output_encoder_biz_type, output_encoder_product_id, 
         output_encoder_cate1_id, output_encoder_cate2_id,
-        output_encoder_cate3_id, output_encoder_seller_uid,
+        output_encoder_seller_uid,
         output_encoder_company_name, output_encoder_rvcr_prov_name,
         output_encoder_rvcr_city_name
         ), dim=1)
@@ -181,13 +189,12 @@ class Network(nn.Module):
         Fully Connected layers
         you can attempt muti-task through uncommenting the following code and modifying related code in train()
         '''
-        print(concat_encoder_output.shape)
-        output_FC_1_1 = self.FC_1_1(concat_encoder_output)
+        output_FC_1_1 = self.FC_1_1(concat_encoder_output.view(concat_encoder_output.size(0), -1))
         # output_FC_2_1 = self.FC_2_1(concat_encoder_output)
         # output_FC_3_1 = self.FC_3_1(concat_encoder_output)
         # output_FC_4_1 = self.FC_4_1(concat_encoder_output)
 
-        output_FC_1_2 = self.FC_1_2(concat_encoder_output)
+        output_FC_1_2 = self.FC_1_2(concat_encoder_output.view(concat_encoder_output.size(0), -1))
         # output_FC_2_2 = self.FC_2_1(concat_encoder_output)
         # output_FC_3_2 = self.FC_3_1(concat_encoder_output)
         # output_FC_4_2 = self.FC_4_1(concat_encoder_output)

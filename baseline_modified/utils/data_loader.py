@@ -65,12 +65,12 @@ class TrainSet(Dataset):
                 
                 # build inputs and targets
                 if opt.Dataset_Normorlize:
-                    temp_input = [float(data[0])/opt.uid_range, float(data[1])/opt.plat_form_range, 
-                                float(data[2])/opt.biz_type_range, float(data[5])/opt.product_id_range, 
-                                float(data[6])/opt.cate1_id_range, float(data[7])/opt.cate2_id_range, 
-                                float(data[8])/opt.cate3_id_range, float(data[10])/opt.seller_uid_range,
-                                float(data[11])/opt.company_name_range, float(data[16])/opt.rvcr_prov_name_range, 
-                                float(data[17])/opt.rvcr_city_name_range]
+                    temp_input = [(float(data[0])/opt.uid_range - 0.5)*2, (float(data[1])/opt.plat_form_range - 0.5)*2, 
+                                (float(data[2])/opt.biz_type_range - 0.5)*2, (float(data[5])/opt.product_id_range - 0.5)*2, 
+                                (float(data[6])/opt.cate1_id_range - 0.5)*2, (float(data[7])/opt.cate2_id_range - 0.5)*2, 
+                                (float(data[8])/opt.cate3_id_range - 0.5)*2, (float(data[10])/opt.seller_uid_range - 0.5)*2,
+                                (float(data[11])/opt.company_name_range - 0.5)*2, (float(data[16])/opt.rvcr_prov_name_range - 0.5)*2, 
+                                (float(data[17])/opt.rvcr_city_name_range - 0.5)*2]
                 else:
                     temp_input = [float(data[0]), float(data[1]), 
                                 float(data[2]), float(data[5]), 
@@ -157,12 +157,12 @@ class ValSet(Dataset):
                     continue
 
                 if opt.Dataset_Normorlize:
-                    temp_input = [float(data[0])/opt.uid_range, float(data[1])/opt.plat_form_range, 
-                                float(data[2])/opt.biz_type_range, float(data[5])/opt.product_id_range, 
-                                float(data[6])/opt.cate1_id_range, float(data[7])/opt.cate2_id_range, 
-                                float(data[8])/opt.cate3_id_range, float(data[10])/opt.seller_uid_range,
-                                float(data[11])/opt.company_name_range, float(data[16])/opt.rvcr_prov_name_range, 
-                                float(data[17])/opt.rvcr_city_name_range]
+                    temp_input = [(float(data[0])/opt.uid_range - 0.5)*2, (float(data[1])/opt.plat_form_range - 0.5)*2, 
+                                (float(data[2])/opt.biz_type_range - 0.5)*2, (float(data[5])/opt.product_id_range - 0.5)*2, 
+                                (float(data[6])/opt.cate1_id_range - 0.5)*2, (float(data[7])/opt.cate2_id_range - 0.5)*2, 
+                                (float(data[8])/opt.cate3_id_range - 0.5)*2, (float(data[10])/opt.seller_uid_range - 0.5)*2,
+                                (float(data[11])/opt.company_name_range - 0.5)*2, (float(data[16])/opt.rvcr_prov_name_range - 0.5)*2, 
+                                (float(data[17])/opt.rvcr_city_name_range - 0.5)*2]
                 else:
                     temp_input = [float(data[0]), float(data[1]), 
                                 float(data[2]), float(data[5]), 
@@ -224,12 +224,12 @@ class TestSet(Dataset):
                 data = next(reader)[0].split('\t')
 
                 if opt.Dataset_Normorlize:
-                    temp_input = [float(data[0])/opt.uid_range, float(data[1])/opt.plat_form_range, 
-                                float(data[2])/opt.biz_type_range, float(data[5])/opt.product_id_range, 
-                                float(data[6])/opt.cate1_id_range, float(data[7])/opt.cate2_id_range, 
-                                float(data[8])/opt.cate3_id_range, float(data[10])/opt.seller_uid_range,
-                                float(data[11])/opt.company_name_range, float(data[12])/opt.rvcr_prov_name_range, 
-                                float(data[13])/opt.rvcr_city_name_range]
+                    temp_input = [(float(data[0])/opt.uid_range - 0.5)*2, (float(data[1])/opt.plat_form_range - 0.5)*2, 
+                                (float(data[2])/opt.biz_type_range - 0.5)*2, (float(data[5])/opt.product_id_range - 0.5)*2, 
+                                (float(data[6])/opt.cate1_id_range - 0.5)*2, (float(data[7])/opt.cate2_id_range - 0.5)*2, 
+                                (float(data[8])/opt.cate3_id_range - 0.5)*2, (float(data[10])/opt.seller_uid_range - 0.5)*2,
+                                (float(data[11])/opt.company_name_range - 0.5)*2, (float(data[16])/opt.rvcr_prov_name_range - 0.5)*2, 
+                                (float(data[17])/opt.rvcr_city_name_range - 0.5)*2]
                 else:
                     temp_input = [float(data[0]), float(data[1]), 
                                 float(data[2]), float(data[5]), 
