@@ -1,7 +1,7 @@
-from torch.nn import Module
-from torch import nn
 import torch
 import torch.nn.functional as f
+from torch import nn
+from torch.nn import Module
 
 
 class Simple(Module):

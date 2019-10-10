@@ -1,6 +1,6 @@
-from torch.nn import Module
-from torch import nn
 import torch.nn.functional as f
+from torch import nn
+from torch.nn import Module
 
 
 class CNNCell(Module):

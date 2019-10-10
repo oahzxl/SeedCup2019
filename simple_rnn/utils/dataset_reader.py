@@ -78,7 +78,6 @@ def dataset_reader(train=True, fields=False, process=False):
 
 
 def process_data(train, path, path_store):
-    c = 0
 
     if train:
         print("Loading train data")

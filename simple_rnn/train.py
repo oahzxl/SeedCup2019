@@ -1,5 +1,4 @@
 from torch import optim
-from torch import nn
 from torchtext.data import BucketIterator
 
 from modules import *
@@ -87,10 +86,10 @@ def main():
                                 acc += 1
 
                             # rank
-                            pred_time = arrow.get("2019-03-" + ('%.0f' % (day[b] * 8 + 3 + 3)).zfill(2) +
+                            pred_time = arrow.get("2019-03-" + ('%.0f' % (day[b] * 4 + 2.5 + 10)).zfill(2) +
                                                   ' ' + ('%.0f' % (hour[b] * 10 + 15)).zfill(2))
                             print(str(int(data_t.signed_day[b]) + 3))
-                            sign_time = arrow.get("2019-03-" + str(int(data_t.signed_day[b]) + 3).zfill(2) + ' ' +
+                            sign_time = arrow.get("2019-03-" + str(int(data_t.signed_day[b]) + 10).zfill(2) + ' ' +
                                                   str(int(data_t.signed_hour[b])).zfill(2))
                             rank += int((pred_time - sign_time).seconds / 3600) ** 2
 
