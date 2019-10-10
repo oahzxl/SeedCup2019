@@ -46,11 +46,13 @@ def main():
             outputs = model(inputs, 'train', field)
             loss = (criterion_hour(outputs[0] * 4 + 3, data.shipped_day_label.unsqueeze(1), train=True) +
                     # criterion_hour(outputs[1] * 5 + 15, data.shipped_hour_label.unsqueeze(1), train=True) +
-                    criterion_hour(outputs[2] * 4 + 3, data.got_day_label.unsqueeze(1), train=True) +
+                    criterion_hour(outputs[0] * 4 + 3 + outputs[2] * 4 + 3, data.got_day_label.unsqueeze(1), train=True) +
                     # criterion_hour(outputs[3] * 5 + 15, data.got_hour_label.unsqueeze(1), train=True) +
-                    criterion_hour(outputs[4] * 4 + 3, data.dlved_day_label.unsqueeze(1), train=True) +
+                    criterion_hour(outputs[0] * 4 + 3 + outputs[2] * 4 + 3 + outputs[4] * 4 + 3,
+                                   data.dlved_day_label.unsqueeze(1), train=True) +
                     # criterion_hour(outputs[5] * 5 + 15, data.dlved_hour_label.unsqueeze(1), train=True) +
-                    8 * criterion_day(outputs[6] * 4 + 3, data.signed_day.unsqueeze(1), train=True)
+                    criterion_day(outputs[0] * 4 + 3 + outputs[2] * 4 + 3 + outputs[4] * 4 + 3 + outputs[6] * 4 + 3,
+                                  data.signed_day.unsqueeze(1), train=True)
                     # criterion_hour(outputs[7] * 5 + 15, data.signed_hour.unsqueeze(1), train=True)
                     )
             loss.backward()
@@ -77,7 +79,7 @@ def main():
                                             data_t.seller_uid_field, data_t.company_name, data_t.rvcr_prov_name,
                                             data_t.rvcr_city_name), dim=1)
                         outputs = model(inputs, 'test', field)
-                        day = outputs[-2]
+                        day = (outputs[0] + outputs[2] + outputs[4] + outputs[6]) * 4 + 3
                         hour = outputs[-1]
 
                         for b in range(day.size(0)):
