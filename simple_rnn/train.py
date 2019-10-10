@@ -23,7 +23,7 @@ def main():
         )
 
     model = Simple(num_embeddings=len(field.vocab), embedding_dim=300).to(device)
-    criterion_day = RMSELoss(gap=0, early=1, late=1)
+    criterion_day = RMSELoss(gap=0, early=1, late=5)
     criterion_hour = RMSELoss(gap=2, early=1, late=1)
     optimizer = optim.Adam((model.parameters()), lr=0.0001, weight_decay=0.03)
     optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.5, patience=4, verbose=False,

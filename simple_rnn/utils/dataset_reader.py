@@ -63,8 +63,8 @@ def dataset_reader(train=True, fields=False, process=False):
                 items[i] = float(items[i])
             for i in (25, 26, 27, 28, 29, 30):
                 items[i] = int(items[i])
-            if record.n > 100:
-                break
+            # if record.n > 100:
+            #     break
             examples.append(Example.fromlist(items, field))
             line = f.readline()
 
@@ -80,12 +80,20 @@ def dataset_reader(train=True, fields=False, process=False):
 def process_data(train, path, path_store):
     c = 0
 
+    if train:
+        print("Loading train data")
+        record = tqdm.tqdm(total=3597728)
+    else:
+        print("Loading test data")
+        record = tqdm.tqdm(total=300000)
+
     with open(path_store, "w+") as f:
         f.write('')
     with open(path) as f:
         _ = f.readline()
         line = f.readline()
         while line:
+            record.update()
             tmp_list = []
             start = 0
             items = line.split('\t')
@@ -169,8 +177,6 @@ def process_data(train, path, path_store):
                 context = context[:-1] + '\n'
                 txt.write(context)
 
-            c += 1
-            print(c)
             line = f.readline()
 
 
