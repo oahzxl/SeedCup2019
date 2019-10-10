@@ -53,6 +53,7 @@ def main():
                     criterion_day(outputs[6] * 4 + 3, data.signed_day.unsqueeze(1), train=True) +
                     criterion_hour(outputs[7] * 5 + 15, data.signed_hour.unsqueeze(1), train=True)
                     )
+            print(outputs[6][0] * 4 + 3, data.signed_day[0])
             loss.backward()
             optimizer.step()
             optimizer.zero_grad()

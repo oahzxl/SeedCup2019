@@ -67,6 +67,7 @@ def dataset_reader(train=True, fields=False, process=False):
                 break
             examples.append(Example.fromlist(items, field))
             line = f.readline()
+    record.close()
 
     if train:
         length = examples.__len__()
