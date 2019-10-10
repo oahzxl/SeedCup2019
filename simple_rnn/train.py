@@ -79,7 +79,7 @@ def main():
                                             data_t.seller_uid_field, data_t.company_name, data_t.rvcr_prov_name,
                                             data_t.rvcr_city_name), dim=1)
                         outputs = model(inputs, 'test', field)
-                        day = (outputs[0] + outputs[2] + outputs[4] + outputs[6]) * 4 + 3
+                        day = outputs[0] * 4 + 3 + outputs[2] * 4 + 3 + outputs[4] * 4 + 3 + outputs[6] * 4 + 3
                         hour = outputs[-1]
 
                         for b in range(day.size(0)):
@@ -87,9 +87,9 @@ def main():
                             # rank
                             if int(data_t.signed_day[b]) < 0:
                                 continue
-                            pred_time = arrow.get("2019-03-" + ('%.0f' % (day[b] * 4 + 3 + 7)).zfill(2) +
+                            pred_time = arrow.get("2019-03-" + ('%.0f' % (day[b] * 4 + 3 + 5)).zfill(2) +
                                                   ' ' + ('%.0f' % (hour[b] * 5 + 15)).zfill(2))
-                            sign_time = arrow.get("2019-03-" + str(int(data_t.signed_day[b]) + 7).zfill(2) + ' ' +
+                            sign_time = arrow.get("2019-03-" + str(int(data_t.signed_day[b]) + 5).zfill(2) + ' ' +
                                                   str(int(data_t.signed_hour[b])).zfill(2))
                             rank += int((pred_time.timestamp - sign_time.timestamp) / 3600) ** 2
 
