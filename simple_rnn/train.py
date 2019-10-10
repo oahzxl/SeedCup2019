@@ -92,7 +92,7 @@ def main():
                             rank += int((pred_time.timestamp - sign_time.timestamp) / 3600) ** 2
 
                             # time
-                            if int('%.0f' % (day[b] * 8 + 3)) <= int(data_t.signed_day[b]):
+                            if int('%.0f' % (day[b] * 4 + 3)) <= int(data_t.signed_day[b]):
                                 acc += 1
 
                             count += 1
