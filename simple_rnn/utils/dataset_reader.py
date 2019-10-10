@@ -63,8 +63,8 @@ def dataset_reader(train=True, fields=False, process=False):
                 items[i] = float(items[i])
             for i in (25, 26, 27, 28, 29, 30):
                 items[i] = int(items[i])
-            # if record.n > 100:
-            #     break
+            if record.n > 100000:
+                break
             examples.append(Example.fromlist(items, field))
             line = f.readline()
 

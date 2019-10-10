@@ -81,17 +81,19 @@ def main():
                         hour = outputs[-1]
 
                         for b in range(day.size(0)):
-                            # time
-                            if int('%.0f' % (day[b] * 8 + 3)) <= int(data_t.signed_day[b]):
-                                acc += 1
 
                             # rank
+                            if int(data_t.signed_day[b]) < 0:
+                                continue
                             pred_time = arrow.get("2019-03-" + ('%.0f' % (day[b] * 4 + 2.5 + 10)).zfill(2) +
-                                                  ' ' + ('%.0f' % (hour[b] * 10 + 15)).zfill(2))
-                            print(str(int(data_t.signed_day[b]) + 3))
+                                                  ' ' + ('%.0f' % (hour[b] * 20 + 15)).zfill(2))
                             sign_time = arrow.get("2019-03-" + str(int(data_t.signed_day[b]) + 10).zfill(2) + ' ' +
                                                   str(int(data_t.signed_hour[b])).zfill(2))
                             rank += int((pred_time - sign_time).seconds / 3600) ** 2
+
+                            # time
+                            if int('%.0f' % (day[b] * 8 + 3)) <= int(data_t.signed_day[b]):
+                                acc += 1
 
                             count += 1
 
