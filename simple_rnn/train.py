@@ -44,12 +44,12 @@ def main():
                                 data.rvcr_city_name), dim=1)
 
             outputs = model(inputs, 'train', field)
-            loss = (criterion_day(outputs[0] * 4 + 3, data.signed_day.unsqueeze(1), train=True) +
-                    criterion_hour(outputs[1] * 5 + 15, data.signed_hour.unsqueeze(1), train=True) +
-                    criterion_day(outputs[2] * 4 + 3, data.signed_day.unsqueeze(1), train=True) +
-                    criterion_hour(outputs[3] * 5 + 15, data.signed_hour.unsqueeze(1), train=True) +
-                    criterion_day(outputs[4] * 4 + 3, data.signed_day.unsqueeze(1), train=True) +
-                    criterion_hour(outputs[5] * 5 + 15, data.signed_hour.unsqueeze(1), train=True) +
+            loss = (criterion_day(outputs[0] * 4 + 3, data.shipped_day_label.unsqueeze(1), train=True) +
+                    criterion_hour(outputs[1] * 5 + 15, data.shipped_hour_label.unsqueeze(1), train=True) +
+                    criterion_day(outputs[2] * 4 + 3, data.got_day_label.unsqueeze(1), train=True) +
+                    criterion_hour(outputs[3] * 5 + 15, data.got_hour_label.unsqueeze(1), train=True) +
+                    criterion_day(outputs[4] * 4 + 3, data.dlved_day_label.unsqueeze(1), train=True) +
+                    criterion_hour(outputs[5] * 5 + 15, data.dlved_hour_label.unsqueeze(1), train=True) +
                     criterion_day(outputs[6] * 4 + 3, data.signed_day.unsqueeze(1), train=True) +
                     criterion_hour(outputs[7] * 5 + 15, data.signed_hour.unsqueeze(1), train=True)
                     )
@@ -60,7 +60,7 @@ def main():
             train_loss += loss.item()
             train_count += 1
 
-            if (i + 1) % 100 == 0:
+            if (i + 1) % 50 == 0:
                 model.eval()
                 with torch.no_grad():
                     rank = 0
@@ -85,9 +85,9 @@ def main():
                             # rank
                             if int(data_t.signed_day[b]) < 0:
                                 continue
-                            pred_time = arrow.get("2019-03-" + ('%.0f' % (day[b] * 4 + 3 + 5)).zfill(2) +
+                            pred_time = arrow.get("2019-03-" + ('%.0f' % (day[b] * 4 + 3 + 7)).zfill(2) +
                                                   ' ' + ('%.0f' % (hour[b] * 5 + 15)).zfill(2))
-                            sign_time = arrow.get("2019-03-" + str(int(data_t.signed_day[b]) + 5).zfill(2) + ' ' +
+                            sign_time = arrow.get("2019-03-" + str(int(data_t.signed_day[b]) + 7).zfill(2) + ' ' +
                                                   str(int(data_t.signed_hour[b])).zfill(2))
                             rank += int((pred_time.timestamp - sign_time.timestamp) / 3600) ** 2
 

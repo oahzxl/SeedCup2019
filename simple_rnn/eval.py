@@ -36,7 +36,7 @@ def main():
             outputs = model(inputs, 'test', field)
             day = outputs[-2]
             hour = outputs[-1]
-            with open('SeedCup2019_pre/result.txt', 'a+') as f:
+            with open('data/result.txt', 'a+') as f:
                 for b in range(day.size(0)):
                     start_day = field.vocab.itos[data.create_time[b]][:2]
                     sign_day = int('%.0f' % (day[b] * 4 + 3)) + int(start_day)
