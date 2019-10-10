@@ -87,14 +87,14 @@ def main():
                             # rank
                             if int(data_t.signed_day[b]) < 0:
                                 continue
-                            pred_time = arrow.get("2019-03-" + ('%.0f' % (day[b] * 4 + 3 + 5)).zfill(2) +
+                            pred_time = arrow.get("2019-03-" + ('%.0f' % (day[b] + 5)).zfill(2) +
                                                   ' ' + ('%.0f' % (hour[b] * 5 + 15)).zfill(2))
                             sign_time = arrow.get("2019-03-" + str(int(data_t.signed_day[b]) + 5).zfill(2) + ' ' +
                                                   str(int(data_t.signed_hour[b])).zfill(2))
                             rank += int((pred_time.timestamp - sign_time.timestamp) / 3600) ** 2
 
                             # time
-                            if int('%.0f' % (day[b] * 4 + 3)) <= int(data_t.signed_day[b]):
+                            if int('%.0f' % day[b]) <= int(data_t.signed_day[b]):
                                 acc += 1
 
                             count += 1
