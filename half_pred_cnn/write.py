@@ -1,7 +1,7 @@
 import os
 from torchtext.data import BucketIterator
 
-from modules.first_cnn import FirstCNN
+from modules.half_pred_cnn import FirstCNN
 from utils import *
 
 
@@ -22,9 +22,9 @@ def main():
     c = 0
     model = FirstCNN(num_embeddings=len(field.vocab), embedding_dim=300).to(device)
     model.load_state_dict(torch.load('model/model.pkl'))
-    data_path = r"SeedCup2019_pre/data_test.txt"
-    store_path = r"SeedCup2019_pre/data_tmp1.txt"
-    new_path = r"SeedCup2019_pre/data_tmp2.txt"
+    data_path = r"data/data_test.txt"
+    store_path = r"data/data_tmp1.txt"
+    new_path = r"data/data_tmp2.txt"
     with open(store_path, "w+") as f:
         f.write('')
     with open(new_path, "w+") as f:

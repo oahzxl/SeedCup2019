@@ -2,7 +2,7 @@ import torch
 from torchtext.data import Dataset
 from torchtext.data import Example
 from torchtext.data import Field, LabelField
-
+import tqdm
 from utils.util import *
 
 
@@ -37,26 +37,34 @@ def dataset_reader(train=True, fields=False, process=False):
         field.append((d, label_field))
 
     if train:
-        path = r"SeedCup2019_pre/SeedCup_pre_train.csv"
-        path_store = r"SeedCup2019_pre/data_train.txt"
+        path = r"data/SeedCup_final_train.csv"
+        path_store = r"data/data_train.txt"
     else:
-        path = r"SeedCup2019_pre/SeedCup_pre_test.csv"
-        path_store = r"SeedCup2019_pre/data_test.txt"
+        path = r"data/SeedCup_final_test.csv"
+        path_store = r"data/data_test.txt"
 
     if process:
         process_data(train, path, path_store)
 
     examples = []
+    if train:
+        print("Loading train data")
+        record = tqdm.tqdm(total=3597728)
+    else:
+        print("Loading test data")
+        record = tqdm.tqdm(total=300000)
     with open(path_store, "r") as f:
         line = f.readline()
         while line:
+            record.update()
             items = list(line.split(' '))
             # process label data
             for i in (31, 32, 33, 34, 35, 36):
                 items[i] = float(items[i])
             for i in (25, 26, 27, 28, 29, 30):
                 items[i] = int(items[i])
-
+            # if record.n > 100:
+            #     break
             examples.append(Example.fromlist(items, field))
             line = f.readline()
 
@@ -117,7 +125,7 @@ def process_data(train, path, path_store):
                         tmp_list.append(get_hour(data) + '_h')
                     # pre sell time
                     elif i == 9:
-                        if data != '0' and 0 < int(start_difference(data)) < 1000:
+                        if data != '0' and len(data) and 0 < int(start_difference(data)) < 1000:
                             tmp_list.append(day_difference(start_date, get_day(data)) + '_d')
                             tmp_list.append(get_hour(data) + '_h')
                         else:

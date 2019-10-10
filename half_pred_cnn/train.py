@@ -1,7 +1,7 @@
 from torch import nn
 from torch import optim
 from torchtext.data import BucketIterator
-from modules.first_cnn import FirstCNN
+from modules.half_pred_cnn import FirstCNN
 from utils import *
 
 

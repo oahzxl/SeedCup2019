@@ -4,13 +4,15 @@ from torch import nn
 from torch.nn import Module
 
 from modules.cnn import CNNCell
+from modules.restnet import ResNet
 
 
 class FirstCNN(Module):
     def __init__(self, num_embeddings, embedding_dim):
         super(FirstCNN, self).__init__()
         self.embedding = nn.Embedding(num_embeddings=num_embeddings, embedding_dim=embedding_dim)
-        self.cnn = CNNCell()   # with relu and bn
+        # self.cnn = CNNCell()   # with relu and bn
+        self.cnn = ResNet(layers=[2, 2, 2, 2])
 
         self.fc_normal_1 = nn.Linear(in_features=6144, out_features=2048)
         self.fc_normal_2 = nn.Linear(in_features=2048, out_features=512)
@@ -27,7 +29,7 @@ class FirstCNN(Module):
 
         normal_data = self.embedding(inputs).unsqueeze(1)
         normal_data = self.cnn(normal_data.view(normal_data.size(0), normal_data.size(1), -1, 60))
-        normal_data = normal_data.view(normal_data.size(0), -1)
+        normal_data = self.dropout(normal_data.view(normal_data.size(0), -1))
         normal_data = f.relu(self.dropout(self.fc_normal_1(normal_data)))
         normal_data = f.relu(self.dropout(self.fc_normal_2(normal_data)))
         prov = self.fc_pred_prov(normal_data)
