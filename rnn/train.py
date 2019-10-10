@@ -22,9 +22,9 @@ def main():
     with open(r"model/log.txt", "w+") as f:
         f.write('')
     model = Simple(num_embeddings=len(field.vocab), embedding_dim=300).to(device)
-    criterion_day = RMSELoss(gap=0, early=2, late=10)
-    criterion_hour = RMSELoss(gap=0, early=2, late=2)
-    optimizer = optim.Adam((model.parameters()), lr=0.0003, weight_decay=0.06)
+    criterion_day = RMSELoss(gap=0, early=1, late=10)
+    criterion_hour = RMSELoss(gap=0, early=2, late=3)
+    optimizer = optim.Adam((model.parameters()), lr=0.0001, weight_decay=0.06)
     optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.3, patience=4, verbose=False,
                                          threshold=0.000001, threshold_mode='rel', cooldown=0, min_lr=0, eps=1e-08)
 

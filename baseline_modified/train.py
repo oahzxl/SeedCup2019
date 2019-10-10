@@ -39,11 +39,13 @@ def main():
         cudnn.benchmark = True
 
     # set criterion (loss function)
-    criterion_1 = MSELoss(gap=0, early=2, late=9)
-    criterion_2 = MSELoss(gap=0, early=2, late=2)
+    # criterion_1 = MSELoss(gap=0, early=2, late=9)
+    # criterion_2 = MSELoss(gap=0, early=2, late=2)
+    criterion_1 = MSELoss()
+    criterion_2 = MSELoss()
 
     # you can choose metric in [accuracy, MSE, RankScore]
-    highest_metrics = 100
+    highest_metrics = 50
 
     for epoch in range(opt.NUM_EPOCHS):
         net.train()
@@ -73,30 +75,33 @@ def main():
 
             optimizer.zero_grad()
 
-            (output_FC_1_1, output_FC_2_1, output_FC_3_1, output_FC_4_1, output_FC_1_2, output_FC_2_2, output_FC_3_2, output_FC_4_2) = net(inputs.float())
+            # (output_FC_1_1, output_FC_2_1, output_FC_3_1, output_FC_4_1, output_FC_1_2, output_FC_2_2, output_FC_3_2, output_FC_4_2) = net(inputs.float())
+            (output_FC_1_1, output_FC_1_2) = net(inputs.float())
                     
             output_FC_1_1 = output_FC_1_1.reshape(-1)
-            output_FC_2_1 = output_FC_2_1.reshape(-1)
-            output_FC_3_1 = output_FC_3_1.reshape(-1)
-            output_FC_4_1 = output_FC_4_1.reshape(-1)
+            # output_FC_2_1 = output_FC_2_1.reshape(-1)
+            # output_FC_3_1 = output_FC_3_1.reshape(-1)
+            # output_FC_4_1 = output_FC_4_1.reshape(-1)
             
             output_FC_1_2 = output_FC_1_2.reshape(-1)
-            output_FC_2_2 = output_FC_2_2.reshape(-1)
-            output_FC_3_2 = output_FC_3_2.reshape(-1)
-            output_FC_4_2 = output_FC_4_2.reshape(-1)
+            # output_FC_2_2 = output_FC_2_2.reshape(-1)
+            # output_FC_3_2 = output_FC_3_2.reshape(-1)
+            # output_FC_4_2 = output_FC_4_2.reshape(-1)
 
             loss_1_1 = criterion_1.forward(output_FC_1_1, targets_sign_day)
-            loss_2_1 = criterion_1.forward(output_FC_2_1, targets_ship_day)
-            loss_3_1 = criterion_1.forward(output_FC_3_1, targets_got_day)
-            loss_4_1 = criterion_1.forward(output_FC_4_1, targets_dlved_day)
+            # loss_2_1 = criterion_1.forward(output_FC_2_1, targets_ship_day)
+            # loss_3_1 = criterion_1.forward(output_FC_3_1, targets_got_day)
+            # loss_4_1 = criterion_1.forward(output_FC_4_1, targets_dlved_day)
             
             loss_1_2 = criterion_2.forward(output_FC_1_2, targets_sign_hour)
-            loss_2_2 = criterion_2.forward(output_FC_2_2, targets_ship_hour)
-            loss_3_2 = criterion_2.forward(output_FC_3_2, targets_got_hour)
-            loss_4_2 = criterion_2.forward(output_FC_4_2, targets_dlved_hour)
+            # loss_2_2 = criterion_2.forward(output_FC_2_2, targets_ship_hour)
+            # loss_3_2 = criterion_2.forward(output_FC_3_2, targets_got_hour)
+            # loss_4_2 = criterion_2.forward(output_FC_4_2, targets_dlved_hour)
 
-            loss_day  = loss_1_1 + loss_2_1 + loss_3_1 + loss_4_1
-            loss_hour = loss_1_2 + loss_2_2 + loss_3_2 + loss_4_2
+            # loss_day  = loss_1_1 + loss_2_1 + loss_3_1 + loss_4_1
+            # loss_hour = loss_1_2 + loss_2_2 + loss_3_2 + loss_4_2
+            loss_day = loss_1_1
+            loss_hour = loss_1_2
 
             loss = loss_day + loss_hour
             loss.backward()
@@ -117,7 +122,8 @@ def main():
                     inputs = inputs.cuda()
 
                 inputs = torch.autograd.Variable(inputs)
-                (output_FC_1_1, output_FC_2_1, output_FC_3_1, output_FC_4_1, output_FC_1_2, output_FC_2_2, output_FC_3_2, output_FC_4_2) = net(inputs.float())
+                # (output_FC_1_1, output_FC_2_1, output_FC_3_1, output_FC_4_1, output_FC_1_2, output_FC_2_2, output_FC_3_2, output_FC_4_2) = net(inputs.float())
+                (output_FC_1_1, output_FC_1_2) = net(inputs.float())
                 
                 # calculate pred_signed_time via output
                 for i in range(len(inputs)):
