@@ -22,9 +22,9 @@ def main():
         )
 
     model = Simple(num_embeddings=len(field.vocab), embedding_dim=300).to(device)
-    criterion_day = RMSELoss(gap=0, early=1, late=5)
+    criterion_day = RMSELoss(gap=0, early=1, late=2)
     criterion_hour = RMSELoss(gap=2, early=1, late=1)
-    optimizer = optim.Adam((model.parameters()), lr=0.0001, weight_decay=0.03)
+    optimizer = optim.Adam((model.parameters()), lr=0.00001, weight_decay=0.03)
     optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.5, patience=4, verbose=False,
                                          threshold=0.000001, threshold_mode='rel', cooldown=0, min_lr=0, eps=1e-08)
     with open(r"model/log.txt", "w+") as f:
@@ -45,13 +45,13 @@ def main():
 
             outputs = model(inputs, 'train', field)
             loss = (criterion_day(outputs[0] * 4 + 3, data.signed_day.unsqueeze(1), train=True) +
-                    criterion_hour(outputs[1] * 10 + 15, data.signed_hour.unsqueeze(1), train=True) +
+                    criterion_hour(outputs[1] * 5 + 15, data.signed_hour.unsqueeze(1), train=True) +
                     criterion_day(outputs[2] * 4 + 3, data.signed_day.unsqueeze(1), train=True) +
-                    criterion_hour(outputs[3] * 10 + 15, data.signed_hour.unsqueeze(1), train=True) +
+                    criterion_hour(outputs[3] * 5 + 15, data.signed_hour.unsqueeze(1), train=True) +
                     criterion_day(outputs[4] * 4 + 3, data.signed_day.unsqueeze(1), train=True) +
-                    criterion_hour(outputs[5] * 10 + 15, data.signed_hour.unsqueeze(1), train=True) +
+                    criterion_hour(outputs[5] * 5 + 15, data.signed_hour.unsqueeze(1), train=True) +
                     criterion_day(outputs[6] * 4 + 3, data.signed_day.unsqueeze(1), train=True) +
-                    criterion_hour(outputs[7] * 10 + 15, data.signed_hour.unsqueeze(1), train=True)
+                    criterion_hour(outputs[7] * 5 + 15, data.signed_hour.unsqueeze(1), train=True)
                     )
             loss.backward()
             optimizer.step()
@@ -85,9 +85,9 @@ def main():
                             # rank
                             if int(data_t.signed_day[b]) < 0:
                                 continue
-                            pred_time = arrow.get("2019-03-" + ('%.0f' % (day[b] * 4 + 3 + 10)).zfill(2) +
-                                                  ' ' + ('%.0f' % (hour[b] * 20 + 15)).zfill(2))
-                            sign_time = arrow.get("2019-03-" + str(int(data_t.signed_day[b]) + 10).zfill(2) + ' ' +
+                            pred_time = arrow.get("2019-03-" + ('%.0f' % (day[b] * 4 + 3 + 5)).zfill(2) +
+                                                  ' ' + ('%.0f' % (hour[b] * 5 + 15)).zfill(2))
+                            sign_time = arrow.get("2019-03-" + str(int(data_t.signed_day[b]) + 5).zfill(2) + ' ' +
                                                   str(int(data_t.signed_hour[b])).zfill(2))
                             rank += int((pred_time.timestamp - sign_time.timestamp) / 3600) ** 2
 
