@@ -41,9 +41,9 @@ def main():
             with open('SeedCup2019_pre/result.txt', 'a+') as f:
                 for b in range(day.size(0)):
                     start_day = field.vocab.itos[data.create_time[b]][:2]
-                    sign_day = int('%.0f' % (day[b] * 8 + 3)) + int(start_day)
+                    sign_day = int('%.0f' % (day[b] * 4 + 3)) + int(start_day)
                     sign_day = str(sign_day).zfill(2)
-                    sign_hour = ('%.0f' % (hour[b] * 10 + 15)).zfill(2)
+                    sign_hour = ('%.0f' % (hour[b] * 5 + 15)).zfill(2)
                     final = '2019-03-' + sign_day + ' ' + sign_hour
                     f.write(final + '\n')
 

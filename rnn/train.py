@@ -22,7 +22,7 @@ def main():
     with open(r"model/log.txt", "w+") as f:
         f.write('')
     model = Simple(num_embeddings=len(field.vocab), embedding_dim=300).to(device)
-    criterion_day = RMSELoss(gap=0, early=1, late=10)
+    criterion_day = RMSELoss(gap=0, early=1, late=8)
     criterion_hour = RMSELoss(gap=0, early=2, late=3)
     optimizer = optim.Adam((model.parameters()), lr=0.0001, weight_decay=0.06)
     optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.3, patience=4, verbose=False,
@@ -44,14 +44,14 @@ def main():
                                 data.shipped_prov_id, data.shipped_city_id), dim=1)
             outputs = model(inputs, 'train', field)
 
-            loss = (criterion_day(outputs[0] * 8 + 3, data.signed_day.unsqueeze(1), train=True) +
-                    criterion_hour(outputs[1] * 10 + 15, data.signed_hour.unsqueeze(1), train=True) +
-                    criterion_day(outputs[2] * 8 + 3, data.signed_day.unsqueeze(1), train=True) +
-                    criterion_hour(outputs[3] * 10 + 15, data.signed_hour.unsqueeze(1), train=True) +
-                    criterion_day(outputs[4] * 8 + 3, data.signed_day.unsqueeze(1), train=True) +
-                    criterion_hour(outputs[5] * 10 + 15, data.signed_hour.unsqueeze(1), train=True) +
-                    criterion_day(outputs[6] * 8 + 3, data.signed_day.unsqueeze(1), train=True) +
-                    criterion_hour(outputs[7] * 10 + 15, data.signed_hour.unsqueeze(1), train=True)
+            loss = (criterion_hour(outputs[0] * 4 + 3, data.shipped_day_label.unsqueeze(1), train=True) +
+                    criterion_hour(outputs[1] * 5 + 15, data.shipped_hour_label.unsqueeze(1), train=True) +
+                    criterion_hour(outputs[2] * 4 + 3, data.got_day_label.unsqueeze(1), train=True) +
+                    criterion_hour(outputs[3] * 5 + 15, data.got_hour_label.unsqueeze(1), train=True) +
+                    criterion_hour(outputs[4] * 4 + 3, data.dlved_day_label.unsqueeze(1), train=True) +
+                    criterion_hour(outputs[5] * 5 + 15, data.dlved_hour_label.unsqueeze(1), train=True) +
+                    criterion_day(outputs[6] * 4 + 3, data.signed_day.unsqueeze(1), train=True) +
+                    criterion_hour(outputs[7] * 5 + 15, data.signed_hour.unsqueeze(1), train=True)
                     )
             loss.backward()
             optimizer.step()
@@ -77,12 +77,12 @@ def main():
 
                 for b in range(outputs[-1].size(0)):
                     # time
-                    if int('%.0f' % (outputs[-2][b] * 8 + 3)) <= int(data_t.signed_day[b]):
+                    if int('%.0f' % (outputs[-2][b] * 4 + 3)) <= int(data_t.signed_day[b]):
                         acc += 1
 
                     # rank
-                    pred_time = arrow.get("2019-03-" + ('%.0f' % (outputs[-2][b] * 8 + 3 + 3)).zfill(2) +
-                                          ' ' + ('%.0f' % (outputs[-1][b] * 10 + 15)).zfill(2))
+                    pred_time = arrow.get("2019-03-" + ('%.0f' % (outputs[-2][b] * 4 + 3 + 3)).zfill(2) +
+                                          ' ' + ('%.0f' % (outputs[-1][b] * 5 + 15)).zfill(2))
                     sign_time = arrow.get("2019-03-" + str(int(data_t.signed_day[b]) + 3).zfill(2) + ' ' +
                                           str(int(data_t.signed_hour[b])).zfill(2))
                     rank += int((pred_time.timestamp - sign_time.timestamp) / 3600) ** 2
