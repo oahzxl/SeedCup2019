@@ -1,8 +1,9 @@
 import torch
+import tqdm
 from torchtext.data import Dataset
 from torchtext.data import Example
 from torchtext.data import Field, LabelField
-import tqdm
+
 from utils.util import *
 
 
@@ -81,10 +82,10 @@ def dataset_reader(train=True, fields=False, process=False):
 def process_data(train, path, path_store):
 
     if train:
-        print("Loading train data")
+        print("Processing train data")
         record = tqdm.tqdm(total=3597728)
     else:
-        print("Loading test data")
+        print("Processing test data")
         record = tqdm.tqdm(total=300000)
 
     with open(path_store, "w+") as f:
@@ -178,6 +179,7 @@ def process_data(train, path, path_store):
                 txt.write(context)
 
             line = f.readline()
+    record.close()
 
 
 if __name__ == '__main__':
