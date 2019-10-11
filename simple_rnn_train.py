@@ -22,9 +22,9 @@ def main():
         )
 
     model = SimpleRNN(num_embeddings=len(field.vocab), embedding_dim=300).to(device)
-    criterion_day = RMSELoss(gap=0, early=1, late=1)
+    criterion_day = RMSELoss(gap=0, early=2, late=4)
     criterion_hour = RMSELoss(gap=0, early=1, late=1)
-    optimizer = optim.Adam((model.parameters()), lr=0.00001, weight_decay=0.0)
+    optimizer = optim.Adam((model.parameters()), lr=0.0001, weight_decay=0.0)
     optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.5, patience=4, verbose=False,
                                          threshold=0.000001, threshold_mode='rel', cooldown=0, min_lr=0, eps=1e-08)
     with open(r"model/simple_rnn_log.txt", "w+") as f:
@@ -45,15 +45,15 @@ def main():
 
             outputs = model(inputs, 'train', field)
             loss = (criterion_hour(outputs[0] + 0.5, data.shipped_day_label.unsqueeze(1), train=True) +
-                    # criterion_hour(outputs[1] * 5 + 15, data.shipped_hour_label.unsqueeze(1), train=True) +
+                    criterion_hour(outputs[1] * 5 + 15, data.shipped_hour_label.unsqueeze(1), train=True) +
                     criterion_hour(outputs[0] + 0.5 + outputs[2] + 0.5, data.got_day_label.unsqueeze(1), train=True) +
-                    # criterion_hour(outputs[3] * 5 + 15, data.got_hour_label.unsqueeze(1), train=True) +
+                    criterion_hour(outputs[3] * 5 + 15, data.got_hour_label.unsqueeze(1), train=True) +
                     criterion_hour(outputs[0] + 0.5 + outputs[2] + 0.5 + outputs[4] + 1,
                                    data.dlved_day_label.unsqueeze(1), train=True) +
-                    # criterion_hour(outputs[5] * 5 + 15, data.dlved_hour_label.unsqueeze(1), train=True) +
+                    criterion_hour(outputs[5] * 5 + 15, data.dlved_hour_label.unsqueeze(1), train=True) +
                     criterion_day(outputs[0] + 0.5 + outputs[2] + 0.5 + outputs[4] + 1 + outputs[6] + 1,
-                                  data.signed_day.unsqueeze(1), train=True)
-                    # criterion_hour(outputs[7] * 5 + 15, data.signed_hour.unsqueeze(1), train=True)
+                                  data.signed_day.unsqueeze(1), train=True) +
+                    criterion_hour(outputs[7] * 5 + 15, data.signed_hour.unsqueeze(1), train=True)
                     )
             loss.backward()
             optimizer.step()
