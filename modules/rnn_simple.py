@@ -41,8 +41,9 @@ class SimpleRNN(Module):
                 with torch.no_grad():
                     day = self.time_to_idx(day, field, 'd', i).long()
                     hour = self.time_to_idx(hour, field, 'h').long()
-                    inputs = torch.cat((day, hour), dim=1)
-                inputs = self.embedding(inputs)
+                day = self.embedding(day)
+                hour = self.embedding(hour)
+                inputs = torch.cat((day, hour), dim=1)
 
         return outputs
 
