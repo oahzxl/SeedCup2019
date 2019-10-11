@@ -27,8 +27,8 @@ class SimpleRNN(Module):
         inputs = self.embedding(inputs[:, :15])
         inputs, (_, _) = self.encoder(inputs)
         inputs = inputs[:, -1, :]
-        inputs = self.fc_t_day(f.relu(self.dropout(inputs)))
-        inputs = self.fc_t_day2(f.relu(self.dropout(inputs)))
+        inputs = self.fc_1(f.relu(self.dropout(inputs)))
+        inputs = self.fc_2(f.relu(self.dropout(inputs)))
 
         outputs = []
         hx = torch.zeros_like(inputs)
