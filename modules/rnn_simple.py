@@ -37,14 +37,14 @@ class SimpleRNN(Module):
             outputs.append(day)
             outputs.append(hour)
 
-            day = self.embedding(self.time_to_idx(day, field, 'd').long()).squeeze(1)
+            day = self.embedding(self.time_to_idx(day, field, 'd', i).long()).squeeze(1)
             hour = self.embedding(self.time_to_idx(hour, field, 't').long()).squeeze(1)
             inputs = torch.cat((day, hour), dim=1)
 
         return outputs
 
     @staticmethod
-    def time_to_idx(time, field, mode):
+    def time_to_idx(time, field, mode, idx=0):
         if mode == 'd':
             time = time + 1
             for b in range(time.size(0)):

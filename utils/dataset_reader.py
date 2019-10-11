@@ -144,10 +144,11 @@ def process_data(train, path, path_store):
                     elif data == '-99':
                         tmp_list.append(str(-99))
                         tmp_list.append(str(-99))
+                    # signed
                     elif i == 21:
                         tmp_list.append(day_difference(start_date, get_date(data)))
                         tmp_list.append(get_hour(data))
-                    # pay, shipped, got, dlved, signed
+                    # pay, shipped, got, dlved
                     else:
                         tmp_list.append(day_difference(start_date, get_date(data)) + '_d')
                         tmp_list.append(get_hour(data) + '_h')

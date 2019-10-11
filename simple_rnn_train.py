@@ -24,7 +24,7 @@ def main():
     model = SimpleRNN(num_embeddings=len(field.vocab), embedding_dim=300).to(device)
     criterion_day = RMSELoss(gap=0, early=2, late=5)
     criterion_hour = RMSELoss(gap=0, early=1, late=1)
-    optimizer = optim.Adam((model.parameters()), lr=0.0001, weight_decay=0.0)
+    optimizer = optim.Adam((model.parameters()), lr=0.00003, weight_decay=0.0)
     optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.5, patience=4, verbose=False,
                                          threshold=0.000001, threshold_mode='rel', cooldown=0, min_lr=0, eps=1e-08)
     with open(r"model/simple_rnn_log.txt", "w+") as f:
@@ -78,7 +78,7 @@ def main():
                     acc = 0
                     count = 0
                     for j, data_t in enumerate(test_iter):
-                        if j > 10:
+                        if j > 5:
                             break
 
                         inputs = torch.cat((data_t.plat_form, data_t.biz_type, data_t.create_time,
@@ -97,9 +97,9 @@ def main():
                             # rank
                             if int(data_t.signed_day[b]) < 0:
                                 continue
-                            pred_time = arrow.get("2019-03-" + ('%.0f' % (day[b] + 5)).zfill(2) +
+                            pred_time = arrow.get("2019-03-" + ('%.0f' % (day[b] + 3)).zfill(2) +
                                                   ' ' + ('%.0f' % (hour[b] * 5 + 15)).zfill(2))
-                            sign_time = arrow.get("2019-03-" + str(int(data_t.signed_day[b]) + 5).zfill(2) + ' ' +
+                            sign_time = arrow.get("2019-03-" + str(int(data_t.signed_day[b]) + 3).zfill(2) + ' ' +
                                                   str(int(data_t.signed_hour[b])).zfill(2))
                             rank += int((pred_time.timestamp - sign_time.timestamp) / 3600) ** 2
 
