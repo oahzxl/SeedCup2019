@@ -22,10 +22,10 @@ def main():
         shuffle=True
         )
     model = SimpleRNN(num_embeddings=len(field.vocab), embedding_dim=300).to(device)
-    criterion_day = RMSELoss(gap=0, early=1, late=2)
-    criterion_last_day = RMSELoss(gap=0, early=1, late=7)
+    criterion_day = RMSELoss(gap=0, early=2, late=2)
+    criterion_last_day = RMSELoss(gap=0, early=3, late=7)
     criterion_hour = RMSELoss(gap=0, early=1, late=1)
-    optimizer = optim.Adam(model.parameters(), lr=0.00006, weight_decay=0.03)
+    optimizer = optim.Adam(model.parameters(), lr=0.00003, weight_decay=0.03)
     optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.5, patience=4, verbose=False,
                                          threshold=0.000001, threshold_mode='rel', cooldown=0, min_lr=0, eps=1e-08)
     with open(r"model/simple_rnn_log.txt", "w+") as f:
@@ -59,7 +59,7 @@ def main():
                     0.1 * criterion_hour(outputs[3] * 5 + 15, data.got_hour_label.unsqueeze(1), train=True) +
                     criterion_day(outputs[4] * 2 + 1, data.dlved_day_label.unsqueeze(1), train=True) +
                     0.1 * criterion_hour(outputs[5] * 5 + 15, data.dlved_hour_label.unsqueeze(1), train=True) +
-                    6 * criterion_last_day(outputs[6] * 3 + 3, data.signed_day.unsqueeze(1), train=True) +
+                    9 * criterion_last_day(outputs[6] * 3 + 3, data.signed_day.unsqueeze(1), train=True) +
                     0.3 * criterion_hour(outputs[7] * 5 + 15, data.signed_hour.unsqueeze(1), train=True)
                     )
             loss.backward()
