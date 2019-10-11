@@ -14,7 +14,7 @@ def time_difference(time1, time2):
 
 
 def get_day(time):
-    day = time[8:10]
+    day = time[5:10]
     return day
 
 
@@ -24,4 +24,11 @@ def get_hour(time):
 
 
 def day_difference(time1, time2):
-    return str(int(time2) - int(time1))
+    time1 = arrow.get(time1).timestamp
+    time2 = arrow.get(time2).timestamp
+    return str(int((time2 - time1) / 24 / 60 / 60))
+
+
+def get_date(time):
+    time = time[:10]
+    return time

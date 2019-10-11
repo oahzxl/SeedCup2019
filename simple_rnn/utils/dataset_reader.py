@@ -128,13 +128,13 @@ def process_data(train, path, path_store):
                 elif i in (3, 4, 9, 18, 19, 20, 21):
                     # start day
                     if i == 3:
-                        start_date = get_day(data)
-                        tmp_list.append(start_date + '_' + str(start))
+                        start_date = get_date(data)
+                        tmp_list.append(get_day(data) + '_' + str(start))
                         tmp_list.append(get_hour(data) + '_h')
                     # pre sell time
                     elif i == 9:
-                        if data != '0' and len(data) and 0 < int(start_difference(data)) < 1000:
-                            tmp_list.append(day_difference(start_date, get_day(data)) + '_d')
+                        if data != '0' and len(data) and 0 < int(day_difference(start_date, get_date(data))) < 1000:
+                            tmp_list.append(day_difference(start_date, get_date(data)) + '_d')
                             tmp_list.append(get_hour(data) + '_h')
                         else:
                             tmp_list.append(str(-99))
@@ -144,11 +144,11 @@ def process_data(train, path, path_store):
                         tmp_list.append(str(-99))
                         tmp_list.append(str(-99))
                     elif i == 21:
-                        tmp_list.append(day_difference(start_date, get_day(data)))
+                        tmp_list.append(day_difference(start_date, get_date(data)))
                         tmp_list.append(get_hour(data))
                     # pay, shipped, got, dlved, signed
                     else:
-                        tmp_list.append(day_difference(start_date, get_day(data)) + '_d')
+                        tmp_list.append(day_difference(start_date, get_date(data)) + '_d')
                         tmp_list.append(get_hour(data) + '_h')
 
                 # hidden data
@@ -167,7 +167,7 @@ def process_data(train, path, path_store):
                         tmp_list.append(str(-99))
                         tmp_list.append(str(-99))
                     else:
-                        tmp_list.append(int(day_difference(start_date, get_day(items[i]))))
+                        tmp_list.append(int(day_difference(start_date, get_date(items[i]))))
                         tmp_list.append(int(get_hour(items[i])))
 
             with open(path_store, "a+") as txt:
