@@ -54,7 +54,12 @@ class SimpleRNN(Module):
 
             time = time * mul_list[idx] + plus_list[idx]
             for b in range(time.size(0)):
-                time[b] = field.vocab.stoi['%.0f' % time[b] + '_' + mode]
+                if time[b] < 0:
+                    time[b] = field.vocab.stoi['0' + '_' + mode]
+                elif time[b] > 15:
+                    time[b] = field.vocab.stoi['15' + '_' + mode]
+                else:
+                    time[b] = field.vocab.stoi['%.0f' % time[b] + '_' + mode]
         elif mode == 'h':
             time = time * 5 + 15
             for b in range(time.size(0)):
