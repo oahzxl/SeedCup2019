@@ -89,7 +89,7 @@ def main():
                                             data_t.rvcr_city_name), dim=1)
                         outputs = model(inputs, 'test', field)
                         # day = outputs[0] + 0.5 + outputs[2] + 0.4 + outputs[4] + 0.4 + outputs[6] * 2 + 1
-                        day = outputs[6] + 1
+                        day = outputs[6] * 3 + 3
                         hour = outputs[-1]
 
                         for b in range(day.size(0)):
