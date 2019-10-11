@@ -12,10 +12,13 @@ class SimpleRNN(Module):
         self.encoder = nn.LSTM(input_size=300, hidden_size=300, bidirectional=True, batch_first=True)
         self.decoder = nn.LSTMCell(input_size=600, hidden_size=600)
 
-        self.fc_t_day = nn.Linear(in_features=600, out_features=1024)
-        self.fc_t_day2 = nn.Linear(in_features=1024, out_features=1)
-        self.fc_t_hour = nn.Linear(in_features=600, out_features=1024)
-        self.fc_t_hour2 = nn.Linear(in_features=1024, out_features=1)
+        self.fc_1 = nn.Linear(in_features=600, out_features=2048)
+        self.fc_2 = nn.Linear(in_features=2048, out_features=600)
+
+        self.fc_t_day = nn.Linear(in_features=600, out_features=2048)
+        self.fc_t_day2 = nn.Linear(in_features=2048, out_features=1)
+        self.fc_t_hour = nn.Linear(in_features=600, out_features=2048)
+        self.fc_t_hour2 = nn.Linear(in_features=2048, out_features=1)
 
         self.dropout = nn.Dropout(p=0.5)
         self.double()
@@ -24,6 +27,8 @@ class SimpleRNN(Module):
         inputs = self.embedding(inputs[:, :15])
         inputs, (_, _) = self.encoder(inputs)
         inputs = inputs[:, -1, :]
+        inputs = self.fc_t_day(f.relu(self.dropout(inputs)))
+        inputs = self.fc_t_day2(f.relu(self.dropout(inputs)))
 
         outputs = []
         hx = torch.zeros_like(inputs)
@@ -41,8 +46,8 @@ class SimpleRNN(Module):
                 with torch.no_grad():
                     day = self.time_to_idx(day, field, 'd', i).long()
                     hour = self.time_to_idx(hour, field, 'h').long()
-                day = self.embedding(day)
-                hour = self.embedding(hour)
+                day = self.embedding(day).squeeze(1)
+                hour = self.embedding(hour).squeeze(1)
                 inputs = torch.cat((day, hour), dim=1)
 
         return outputs
@@ -57,12 +62,7 @@ class SimpleRNN(Module):
 
             time = time * mul_list[idx] + plus_list[idx]
             for b in range(time.size(0)):
-                if time[b] < 0:
-                    time[b] = field.vocab.stoi['0' + '_' + mode]
-                elif time[b] > 15:
-                    time[b] = field.vocab.stoi['15' + '_' + mode]
-                else:
-                    time[b] = field.vocab.stoi['%.0f' % time[b] + '_' + mode]
+                time[b] = field.vocab.stoi['%.0f' % time[b] + '_' + mode]
         elif mode == 'h':
             time = time * 5 + 15
             for b in range(time.size(0)):

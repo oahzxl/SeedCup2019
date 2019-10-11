@@ -13,7 +13,7 @@ def main():
     del evl
     train_iter, test_iter = BucketIterator.splits(
         (train, test),
-        batch_sizes=(512, 512),
+        batch_sizes=(128, 128),
         device=device,
         sort_within_batch=False,
         repeat=False,
@@ -43,7 +43,10 @@ def main():
                                 data.preselling_shipped_day, data.preselling_shipped_hour,
                                 data.seller_uid_field, data.company_name, data.rvcr_prov_name,
                                 data.rvcr_city_name,
-                                data.shipped_day, data.got_day, data.dlved_day, data.signed_day.unsqueeze(1).long()), dim=1)
+                                data.shipped_day, data.shipped_hour, data.got_day, data.got_hour,
+                                data.dlved_day, data.dlved_hour,
+                                data.signed_day.unsqueeze(1).long(), data.signed_hour.unsqueeze(1).long()
+                                ), dim=1)
 
             outputs = model(inputs)
 
