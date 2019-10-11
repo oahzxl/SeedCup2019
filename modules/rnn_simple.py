@@ -50,7 +50,7 @@ class SimpleRNN(Module):
             # plus_list = [0.5, 0.4, 0.4]
             # mul_list = [1, 1, 1]
             plus_list = [1, 1, 1]
-            mul_list = [1, 1, 1]
+            mul_list = [2, 2, 2]
 
             time = time * mul_list[idx] + plus_list[idx]
             for b in range(time.size(0)):
