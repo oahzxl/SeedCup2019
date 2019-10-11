@@ -45,8 +45,10 @@ class SimpleRNN(Module):
 
     @staticmethod
     def time_to_idx(time, field, mode, idx=0):
+        plus_list = [0.5, 0.4, 0.4, 1]
+        mul_list = [1, 1, 1, 2]
         if mode == 'd':
-            time = time + 1
+            time = time * mul_list[idx] + plus_list[idx]
             for b in range(time.size(0)):
                 time[b] = field.vocab.stoi['%.0f' % time[b] + '_' + mode]
         elif mode == 'h':
