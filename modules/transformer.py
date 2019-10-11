@@ -9,10 +9,10 @@ class Transformer(Module):
         super(Transformer, self).__init__()
         self.embedding = nn.Embedding(num_embeddings=num_embeddings, embedding_dim=embedding_dim)
 
-        encoder_layer = nn.TransformerEncoderLayer(d_model=300, nhead=1)
-        self.transformer_encoder = nn.TransformerEncoder(encoder_layer, num_layers=1)
-        decoder_layer = nn.TransformerDecoderLayer(d_model=300, nhead=1)
-        self.transformer_decoder = nn.TransformerDecoder(decoder_layer, num_layers=1)
+        encoder_layer = nn.TransformerEncoderLayer(d_model=300, nhead=2)
+        self.transformer_encoder = nn.TransformerEncoder(encoder_layer, num_layers=2)
+        decoder_layer = nn.TransformerDecoderLayer(d_model=300, nhead=2)
+        self.transformer_decoder = nn.TransformerDecoder(decoder_layer, num_layers=2)
 
         self.double()
 
@@ -22,6 +22,3 @@ class Transformer(Module):
         src = self.transformer_encoder(src)
         out = self.transformer_decoder(tgt, src)
         return out
-
-
-a = Transformer()

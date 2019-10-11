@@ -9,7 +9,8 @@ class SimpleRNN(Module):
         super(SimpleRNN, self).__init__()
         self.embedding = nn.Embedding(num_embeddings=num_embeddings, embedding_dim=embedding_dim)
 
-        self.encoder = nn.LSTM(input_size=300, hidden_size=300, bidirectional=True, batch_first=True, dropout=0.1)
+        self.encoder = nn.LSTM(input_size=300, hidden_size=300, bidirectional=True, batch_first=True,
+                               dropout=0.1, num_layers=2)
         self.decoder = nn.LSTMCell(input_size=600, hidden_size=600)
 
         self.fc_t_day = nn.Linear(in_features=600, out_features=1024)
