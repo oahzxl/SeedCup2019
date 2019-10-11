@@ -36,23 +36,26 @@ class SimpleRNN(Module):
             hour = self.fc_t_hour2(f.relu(self.dropout(hour)))
             outputs.append(day)
             outputs.append(hour)
-
-            day = self.embedding(self.time_to_idx(day, field, 'd', i).long()).squeeze(1)
-            hour = self.embedding(self.time_to_idx(hour, field, 't').long()).squeeze(1)
-            inputs = torch.cat((day, hour), dim=1)
+            
+            if i != 3:
+                day = self.embedding(self.time_to_idx(day, field, 'd', i).long()).squeeze(1)
+                hour = self.embedding(self.time_to_idx(hour, field, 't').long()).squeeze(1)
+                inputs = torch.cat((day, hour), dim=1)
 
         return outputs
 
     @staticmethod
     def time_to_idx(time, field, mode, idx=0):
-        plus_list = [0.5, 0.4, 0.4, 1]
-        mul_list = [1, 1, 1, 2]
+        # plus_list = [0.5, 0.4, 0.4]
+        # mul_list = [1, 1, 1]
+        plus_list = [1, 1, 1]
+        mul_list = [1, 1, 1]
         if mode == 'd':
             time = time * mul_list[idx] + plus_list[idx]
             for b in range(time.size(0)):
                 time[b] = field.vocab.stoi['%.0f' % time[b] + '_' + mode]
         elif mode == 'h':
-            time = time * 10 + 15
+            time = time * 5 + 15
             for b in range(time.size(0)):
                 time[b] = field.vocab.stoi['%.0f' % time[b] + '_' + mode]
         return time

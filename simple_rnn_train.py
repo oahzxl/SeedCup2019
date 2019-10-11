@@ -22,7 +22,7 @@ def main():
         )
 
     model = SimpleRNN(num_embeddings=len(field.vocab), embedding_dim=300).to(device)
-    criterion_day = RMSELoss(gap=0, early=2, late=6)
+    criterion_day = RMSELoss(gap=0, early=2, late=5)
     criterion_hour = RMSELoss(gap=0, early=1, late=1)
     optimizer = optim.Adam((model.parameters()), lr=0.00003, weight_decay=0.0)
     optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.5, patience=4, verbose=False,
@@ -46,24 +46,22 @@ def main():
             outputs = model(inputs, 'train', field)
             # loss = (criterion_hour(outputs[0] + 0.5, data.shipped_day_label.unsqueeze(1), train=True) +
             #         criterion_hour(outputs[1] * 5 + 15, data.shipped_hour_label.unsqueeze(1), train=True) +
-            #         criterion_hour(outputs[0] + 0.5 + outputs[2] + 0.5, data.got_day_label.unsqueeze(1), train=True) +
+            #         criterion_hour(outputs[0] + 0.5 + outputs[2] + 0.4, data.got_day_label.unsqueeze(1), train=True) +
             #         criterion_hour(outputs[3] * 5 + 15, data.got_hour_label.unsqueeze(1), train=True) +
-            #         criterion_hour(outputs[0] + 0.5 + outputs[2] + 0.5 + outputs[4] + 1,
+            #         criterion_hour(outputs[0] + 0.5 + outputs[2] + 0.4 + outputs[4] + 0.4,
             #                        data.dlved_day_label.unsqueeze(1), train=True) +
             #         criterion_hour(outputs[5] * 5 + 15, data.dlved_hour_label.unsqueeze(1), train=True) +
-            #         criterion_day(outputs[0] + 0.5 + outputs[2] + 0.5 + outputs[4] + 1 + outputs[6] + 1,
+            #         criterion_day(outputs[0] + 0.5 + outputs[2] + 0.4 + outputs[4] + 0.4 + outputs[6] * 2 + 1,
             #                       data.signed_day.unsqueeze(1), train=True) +
             #         criterion_hour(outputs[7] * 5 + 15, data.signed_hour.unsqueeze(1), train=True)
             #         )
-            loss = (criterion_hour(outputs[0] + 0.5, data.shipped_day_label.unsqueeze(1), train=True) +
+            loss = (criterion_hour(outputs[0] + 1, data.shipped_day_label.unsqueeze(1), train=True) +
                     criterion_hour(outputs[1] * 5 + 15, data.shipped_hour_label.unsqueeze(1), train=True) +
-                    criterion_hour(outputs[0] + 0.5 + outputs[2] + 0.4, data.got_day_label.unsqueeze(1), train=True) +
+                    criterion_hour(outputs[2] + 1, data.got_day_label.unsqueeze(1), train=True) +
                     criterion_hour(outputs[3] * 5 + 15, data.got_hour_label.unsqueeze(1), train=True) +
-                    criterion_hour(outputs[0] + 0.5 + outputs[2] + 0.4 + outputs[4] + 0.4,
-                                   data.dlved_day_label.unsqueeze(1), train=True) +
+                    criterion_hour(outputs[4] + 1, data.dlved_day_label.unsqueeze(1), train=True) +
                     criterion_hour(outputs[5] * 5 + 15, data.dlved_hour_label.unsqueeze(1), train=True) +
-                    criterion_day(outputs[0] + 0.5 + outputs[2] + 0.4 + outputs[4] + 0.4 + outputs[6] * 2 + 1,
-                                  data.signed_day.unsqueeze(1), train=True) +
+                    criterion_day(outputs[6] * 3 + 3, data.signed_day.unsqueeze(1), train=True) +
                     criterion_hour(outputs[7] * 5 + 15, data.signed_hour.unsqueeze(1), train=True)
                     )
             loss.backward()
@@ -90,8 +88,8 @@ def main():
                                             data_t.seller_uid_field, data_t.company_name, data_t.rvcr_prov_name,
                                             data_t.rvcr_city_name), dim=1)
                         outputs = model(inputs, 'test', field)
-                        # day = outputs[0] + 0.5 + outputs[2] + 0.5 + outputs[4] + 1 + outputs[6] + 1
-                        day = outputs[0] + 0.5 + outputs[2] + 0.4 + outputs[4] + 0.4 + outputs[6] * 2 + 1
+                        # day = outputs[0] + 0.5 + outputs[2] + 0.4 + outputs[4] + 0.4 + outputs[6] * 2 + 1
+                        day = outputs[6] + 1
                         hour = outputs[-1]
 
                         for b in range(day.size(0)):
