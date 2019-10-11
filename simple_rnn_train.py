@@ -22,8 +22,8 @@ def main():
         )
 
     model = SimpleRNN(num_embeddings=len(field.vocab), embedding_dim=300).to(device)
-    criterion_day = RMSELoss(gap=0, early=1, late=3)
-    criterion_last_day = RMSELoss(gap=0, early=2, late=7)
+    criterion_day = RMSELoss(gap=0, early=1, late=4)
+    criterion_last_day = RMSELoss(gap=0, early=2, late=8)
     criterion_hour = RMSELoss(gap=0, early=1, late=1)
     optimizer = optim.Adam((model.parameters()), lr=0.00003, weight_decay=0.0)
     optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.5, patience=4, verbose=False,
@@ -72,14 +72,14 @@ def main():
             train_loss += loss.item()
             train_count += 1
 
-            if (i + 1) % 50 == 0:
+            if (i + 1) % 100 == 0:
                 model.eval()
                 with torch.no_grad():
                     rank = 0
                     acc = 0
                     count = 0
                     for j, data_t in enumerate(test_iter):
-                        if j > 5:
+                        if j > 10:
                             break
 
                         inputs = torch.cat((data_t.plat_form, data_t.biz_type, data_t.create_time,
