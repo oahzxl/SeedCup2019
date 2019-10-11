@@ -57,12 +57,12 @@ def main():
             #         criterion_hour(outputs[7] * 5 + 15, data.signed_hour.unsqueeze(1), train=True)
             #         )
             loss = (criterion_day(outputs[0] * 2 + 1, data.shipped_day_label.unsqueeze(1), train=True) +
-                    criterion_hour(outputs[1] * 5 + 15, data.shipped_hour_label.unsqueeze(1), train=True) +
+                    # criterion_hour(outputs[1] * 5 + 15, data.shipped_hour_label.unsqueeze(1), train=True) +
                     criterion_day(outputs[2] * 2 + 1, data.got_day_label.unsqueeze(1), train=True) +
-                    criterion_hour(outputs[3] * 5 + 15, data.got_hour_label.unsqueeze(1), train=True) +
+                    # criterion_hour(outputs[3] * 5 + 15, data.got_hour_label.unsqueeze(1), train=True) +
                     criterion_day(outputs[4] * 2 + 1, data.dlved_day_label.unsqueeze(1), train=True) +
-                    criterion_hour(outputs[5] * 5 + 15, data.dlved_hour_label.unsqueeze(1), train=True) +
-                    criterion_last_day(outputs[6] * 3 + 3, data.signed_day.unsqueeze(1), train=True) +
+                    # criterion_hour(outputs[5] * 5 + 15, data.dlved_hour_label.unsqueeze(1), train=True) +
+                    4 * criterion_last_day(outputs[6] * 3 + 3, data.signed_day.unsqueeze(1), train=True) +
                     criterion_hour(outputs[7] * 5 + 15, data.signed_hour.unsqueeze(1), train=True)
                     )
             loss.backward()
