@@ -9,7 +9,7 @@ class SimpleRNN(Module):
         super(SimpleRNN, self).__init__()
         self.embedding = nn.Embedding(num_embeddings=num_embeddings, embedding_dim=embedding_dim)
 
-        self.encoder = nn.LSTM(input_size=300, hidden_size=300, bidirectional=True, batch_first=True)
+        self.encoder = nn.LSTM(input_size=300, hidden_size=300, bidirectional=True, batch_first=True, dropout=0.1)
         self.decoder = nn.LSTMCell(input_size=600, hidden_size=600)
 
         self.fc_t_day = nn.Linear(in_features=600, out_features=1024)
@@ -21,7 +21,8 @@ class SimpleRNN(Module):
         self.double()
 
     def forward(self, inputs, mode, field):
-        inputs = self.embedding(inputs)
+        ip = inputs
+        inputs = self.embedding(inputs[:, :15])
         inputs, (_, _) = self.encoder(inputs)
         inputs = inputs[:, -1, :]
 
@@ -38,8 +39,12 @@ class SimpleRNN(Module):
             outputs.append(hour)
 
             if i != 3:
-                day = self.embedding(self.time_to_idx(day, field, 'd', i).long()).squeeze(1)
-                hour = self.embedding(self.time_to_idx(hour, field, 't').long()).squeeze(1)
+                if mode == 'train':
+                    day = self.embedding(ip[:, 15 + 2 * i])
+                    hour = self.embedding(ip[:, 15 + 2 * i + 1])
+                else:
+                    day = self.embedding(self.time_to_idx(day, field, 'd', i).long()).squeeze(1)
+                    hour = self.embedding(self.time_to_idx(hour, field, 't').long()).squeeze(1)
                 inputs = torch.cat((day, hour), dim=1)
 
         return outputs

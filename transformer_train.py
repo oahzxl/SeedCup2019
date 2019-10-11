@@ -13,7 +13,7 @@ def main():
     del evl
     train_iter, test_iter = BucketIterator.splits(
         (train, test),
-        batch_sizes=(1024, 1024),
+        batch_sizes=(512, 512),
         device=device,
         sort_within_batch=False,
         repeat=False,
@@ -22,13 +22,13 @@ def main():
         )
 
     model = SimpleRNN(num_embeddings=len(field.vocab), embedding_dim=300).to(device)
-    criterion_day = RMSELoss(gap=0, early=1, late=2)
-    criterion_last_day = RMSELoss(gap=0, early=1, late=7)
+    criterion_day = RMSELoss(gap=0, early=1, late=4)
+    criterion_last_day = RMSELoss(gap=0, early=2, late=8)
     criterion_hour = RMSELoss(gap=0, early=1, late=1)
-    optimizer = optim.Adam((model.parameters()), lr=0.00003, weight_decay=0.03)
+    optimizer = optim.Adam((model.parameters()), lr=0.00003, weight_decay=0.0)
     optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.5, patience=4, verbose=False,
                                          threshold=0.000001, threshold_mode='rel', cooldown=0, min_lr=0, eps=1e-08)
-    with open(r"model/simple_rnn_log.txt", "w+") as f:
+    with open(r"model/transformer_log.txt", "w+") as f:
         f.write('')
     best = 99
     train_loss = 0
@@ -43,21 +43,10 @@ def main():
                                 data.preselling_shipped_day, data.preselling_shipped_hour,
                                 data.seller_uid_field, data.company_name, data.rvcr_prov_name,
                                 data.rvcr_city_name,
-                                data.shipped_day, data.shipped_hour,
-                                data.got_day, data.got_hour, data.dlved_day, data.dlved_hour), dim=1)
+                                data.shipped_day, data.got_day, data.dlved_day), dim=1)
 
             outputs = model(inputs, 'train', field)
-            # loss = (criterion_hour(outputs[0] + 0.5, data.shipped_day_label.unsqueeze(1), train=True) +
-            #         criterion_hour(outputs[1] * 5 + 15, data.shipped_hour_label.unsqueeze(1), train=True) +
-            #         criterion_hour(outputs[0] + 0.5 + outputs[2] + 0.4, data.got_day_label.unsqueeze(1), train=True) +
-            #         criterion_hour(outputs[3] * 5 + 15, data.got_hour_label.unsqueeze(1), train=True) +
-            #         criterion_hour(outputs[0] + 0.5 + outputs[2] + 0.4 + outputs[4] + 0.4,
-            #                        data.dlved_day_label.unsqueeze(1), train=True) +
-            #         criterion_hour(outputs[5] * 5 + 15, data.dlved_hour_label.unsqueeze(1), train=True) +
-            #         criterion_day(outputs[0] + 0.5 + outputs[2] + 0.4 + outputs[4] + 0.4 + outputs[6] * 2 + 1,
-            #                       data.signed_day.unsqueeze(1), train=True) +
-            #         criterion_hour(outputs[7] * 5 + 15, data.signed_hour.unsqueeze(1), train=True)
-            #         )
+
             loss = (criterion_day(outputs[0] * 2 + 1, data.shipped_day_label.unsqueeze(1), train=True) +
                     0.1 * criterion_hour(outputs[1] * 5 + 15, data.shipped_hour_label.unsqueeze(1), train=True) +
                     criterion_day(outputs[2] * 2 + 1, data.got_day_label.unsqueeze(1), train=True) +
@@ -119,14 +108,14 @@ def main():
                           'Time: %.3f | Best: %s' % (epoch, (i + 1), train_iter.__len__(),
                                                      train_loss / train_count, rank, acc,
                                                      ('YES' if rank < best and acc >= 0.981 else 'NO')))
-                    with open(r"model/simple_rnn_log.txt", "a+") as f:
+                    with open(r"model/transformer_log.txt", "a+") as f:
                         f.write('Epoch: %3d | Iter: %4d / %4d | Loss: %.3f | Rank: %.3f | '
                                 'Time: %.3f | Best: %s' % (epoch, (i + 1), train_iter.__len__(),
                                                            train_loss / train_count, rank, acc,
                                                            ('YES' if rank < best and acc >= 0.981 else 'NO')))
                     if rank < best and acc >= 0.981:
                         best = rank
-                        torch.save(model.state_dict(), r'model/simple_rnn_model_' + str(int(best)) + r'.pkl')
+                        torch.save(model.state_dict(), r'model/transformer_model_' + str(int(best)) + r'.pkl')
 
                     train_count = 0
                     train_loss = 0
