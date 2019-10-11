@@ -9,8 +9,7 @@ class SimpleRNN(Module):
         super(SimpleRNN, self).__init__()
         self.embedding = nn.Embedding(num_embeddings=num_embeddings, embedding_dim=embedding_dim)
 
-        self.encoder = nn.LSTM(input_size=300, hidden_size=300, bidirectional=True, batch_first=True,
-                               dropout=0.1, num_layers=2)
+        self.encoder = nn.LSTM(input_size=300, hidden_size=300, bidirectional=True, batch_first=True)
         self.decoder = nn.LSTMCell(input_size=600, hidden_size=600)
 
         self.fc_t_day = nn.Linear(in_features=600, out_features=1024)
@@ -22,7 +21,6 @@ class SimpleRNN(Module):
         self.double()
 
     def forward(self, inputs, mode, field):
-        ip = inputs
         inputs = self.embedding(inputs[:, :15])
         inputs, (_, _) = self.encoder(inputs)
         inputs = inputs[:, -1, :]
@@ -56,9 +54,6 @@ class SimpleRNN(Module):
 
             time = time * mul_list[idx] + plus_list[idx]
             for b in range(time.size(0)):
-                if not isinstance(time, list) or len(time) == 0:
-                    print('\nerror\n')
-                    break
                 if time[b] < 0:
                     time[b] = field.vocab.stoi['0' + '_' + mode]
                 elif time[b] > 15:
