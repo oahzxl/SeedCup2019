@@ -40,12 +40,8 @@ class SimpleRNN(Module):
             outputs.append(hour)
 
             if i != 3:
-                if mode == 'train':
-                    day = self.embedding(ip[:, 15 + 2 * i])
-                    hour = self.embedding(ip[:, 15 + 2 * i + 1])
-                else:
-                    day = self.embedding(self.time_to_idx(day, field, 'd', i).long()).squeeze(1)
-                    hour = self.embedding(self.time_to_idx(hour, field, 't').long()).squeeze(1)
+                day = self.embedding(self.time_to_idx(day, field, 'd', i).long()).squeeze(1)
+                hour = self.embedding(self.time_to_idx(hour, field, 'h').long()).squeeze(1)
                 inputs = torch.cat((day, hour), dim=1)
 
         return outputs
@@ -60,6 +56,9 @@ class SimpleRNN(Module):
 
             time = time * mul_list[idx] + plus_list[idx]
             for b in range(time.size(0)):
+                if not isinstance(time, list) or len(time) == 0:
+                    print('\nerror\n')
+                    break
                 if time[b] < 0:
                     time[b] = field.vocab.stoi['0' + '_' + mode]
                 elif time[b] > 15:

@@ -5,3 +5,4 @@ from modules.restnet import ResNet
 from modules.rmse import RMSELoss
 from modules.rnn_cnn import CNNRNN
 from modules.rnn_simple import SimpleRNN
+from modules.transformer import Transformer

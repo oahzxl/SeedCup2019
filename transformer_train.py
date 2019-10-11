@@ -21,7 +21,7 @@ def main():
         shuffle=True
         )
 
-    model = SimpleRNN(num_embeddings=len(field.vocab), embedding_dim=300).to(device)
+    model = Transformer(num_embeddings=len(field.vocab), embedding_dim=300).to(device)
     criterion_day = RMSELoss(gap=0, early=1, late=4)
     criterion_last_day = RMSELoss(gap=0, early=2, late=8)
     criterion_hour = RMSELoss(gap=0, early=1, late=1)
@@ -45,7 +45,7 @@ def main():
                                 data.rvcr_city_name,
                                 data.shipped_day, data.got_day, data.dlved_day), dim=1)
 
-            outputs = model(inputs, 'train', field)
+            outputs = model(inputs)
 
             loss = (criterion_day(outputs[0] * 2 + 1, data.shipped_day_label.unsqueeze(1), train=True) +
                     criterion_day(outputs[2] * 2 + 1, data.got_day_label.unsqueeze(1), train=True) +
@@ -75,7 +75,7 @@ def main():
                                             data_t.preselling_shipped_day, data_t.preselling_shipped_hour,
                                             data_t.seller_uid_field, data_t.company_name, data_t.rvcr_prov_name,
                                             data_t.rvcr_city_name), dim=1)
-                        outputs = model(inputs, 'test', field)
+                        outputs = model(inputs)
                         # day = outputs[0] + 0.5 + outputs[2] + 0.4 + outputs[4] + 0.4 + outputs[6] * 2 + 1
                         day = outputs[6] * 3 + 3
                         hour = outputs[-1]

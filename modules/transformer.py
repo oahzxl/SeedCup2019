@@ -14,11 +14,19 @@ class Transformer(Module):
         decoder_layer = nn.TransformerDecoderLayer(d_model=300, nhead=2)
         self.transformer_decoder = nn.TransformerDecoder(decoder_layer, num_layers=2)
 
+        self.fc1 = nn.Linear(900, 2048)
+        self.fc2 = nn.Linear(2048, 1)
+
+        self.dropout = nn.Dropout(p=0.5)
         self.double()
 
     def forward(self, inputs):
-        src = self.embedding(inputs[:, 15])
-        tgt = self.embedding(inputs[15:])
+        src = self.embedding(inputs[:, :15])
+        tgt = self.embedding(inputs[:, 15:])
         src = self.transformer_encoder(src)
         out = self.transformer_decoder(tgt, src)
+
+        out = out.view(out.size(0), -1)
+        out = f.relu(self.fc1(self.dropout(out)))
+        out = self.fc2(self.dropout(out))
         return out

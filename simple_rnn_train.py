@@ -121,9 +121,9 @@ def main():
                                                      ('YES' if rank < best and acc >= 0.981 else 'NO')))
                     with open(r"model/simple_rnn_log.txt", "a+") as f:
                         f.write('Epoch: %3d | Iter: %4d / %4d | Loss: %.3f | Rank: %.3f | '
-                                'Time: %.3f | Best: %s' % (epoch, (i + 1), train_iter.__len__(),
-                                                           train_loss / train_count, rank, acc,
-                                                           ('YES' if rank < best and acc >= 0.981 else 'NO')))
+                                'Time: %.3f | Best: %s\n' % (epoch, (i + 1), train_iter.__len__(),
+                                                             train_loss / train_count, rank, acc,
+                                                             ('YES' if rank < best and acc >= 0.981 else 'NO')))
                     if rank < best and acc >= 0.981:
                         best = rank
                         torch.save(model.state_dict(), r'model/simple_rnn_model_' + str(int(best)) + r'.pkl')
