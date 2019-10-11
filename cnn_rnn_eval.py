@@ -1,4 +1,3 @@
-import tqdm
 from torchtext.data import BucketIterator
 
 from modules import *
@@ -20,9 +19,9 @@ def main():
         sort=False
         )
 
-    model = Simple(num_embeddings=len(field.vocab), embedding_dim=300).to(device)
-    model.load_state_dict(torch.load('model/model.pkl'))
-    with open('SeedCup2019_pre/result.txt', 'w+') as f:
+    model = CNNRNN(num_embeddings=len(field.vocab), embedding_dim=300).to(device)
+    model.load_state_dict(torch.load('model/cnn_rnn_model.pkl'))
+    with open('data/cnn_rnn_result.txt', 'w+') as f:
         f.write('')
 
     model.eval()
@@ -38,7 +37,7 @@ def main():
             outputs = model(inputs, 'test', field)
             day = outputs[-2]
             hour = outputs[-1]
-            with open('SeedCup2019_pre/result.txt', 'a+') as f:
+            with open('data/cnn_rnn_.txt', 'a+') as f:
                 for b in range(day.size(0)):
                     start_day = field.vocab.itos[data.create_time[b]][:2]
                     sign_day = int('%.0f' % (day[b] * 4 + 3)) + int(start_day)

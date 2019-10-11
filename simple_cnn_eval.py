@@ -19,9 +19,9 @@ def main():
         sort=False
         )
 
-    model = Simple(num_embeddings=len(field.vocab), embedding_dim=300).to(device)
-    model.load_state_dict(torch.load('model/model.pkl'))
-    with open('data/result.txt', 'w+') as f:
+    model = SimpleCNN(num_embeddings=len(field.vocab), embedding_dim=300).to(device)
+    model.load_state_dict(torch.load('model/simple_cnn_model.pkl'))
+    with open('data/simple_cnn_result.txt', 'w+') as f:
         f.write('')
 
     model.eval()
@@ -33,15 +33,13 @@ def main():
                                 data.preselling_shipped_day, data.preselling_shipped_hour,
                                 data.seller_uid_field, data.company_name, data.rvcr_prov_name,
                                 data.rvcr_city_name), dim=1)
-            outputs = model(inputs, 'test', field)
-            day = outputs[-2]
-            hour = outputs[-1]
-            with open('data/result.txt', 'a+') as f:
+            day, hour = model(inputs, 'test', field)
+            with open('data/simple_cnn_result.txt', 'a+') as f:
                 for b in range(day.size(0)):
                     start_day = field.vocab.itos[data.create_time[b]][:2]
-                    sign_day = int('%.0f' % (day[b] * 4 + 3)) + int(start_day)
+                    sign_day = int('%.0f' % (day[b] * 8 + 3)) + int(start_day)
                     sign_day = str(sign_day).zfill(2)
-                    sign_hour = ('%.0f' % (hour[b] * 5 + 15)).zfill(2)
+                    sign_hour = ('%.0f' % (hour[b] * 10 + 15)).zfill(2)
                     final = '2019-03-' + sign_day + ' ' + sign_hour
                     f.write(final + '\n')
 

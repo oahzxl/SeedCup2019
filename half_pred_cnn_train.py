@@ -1,7 +1,8 @@
 from torch import nn
 from torch import optim
 from torchtext.data import BucketIterator
-from modules.half_pred_cnn import FirstCNN
+
+from modules import *
 from utils import *
 
 
@@ -20,9 +21,9 @@ def main():
         sort=False,
         shuffle=True
         )
-    with open(r"model/log.txt", "w+") as f:
+    with open(r"model/half_pred_cnn_log.txt", "w+") as f:
         f.write('')
-    model = FirstCNN(num_embeddings=len(field.vocab), embedding_dim=300).to(device)
+    model = HalfPredCNN(num_embeddings=len(field.vocab), embedding_dim=300).to(device)
     criterion_ce = nn.CrossEntropyLoss()
     optimizer = optim.Adam((model.parameters()), lr=0.001, weight_decay=0.1)
     optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.3, patience=4, verbose=False,
@@ -83,7 +84,7 @@ def main():
                                               acc[0] / count, acc[1] / count,
                                               acc[2] / count, acc[3] / count,
                                               ('YES' if sum(acc) / count / 4 > best else 'NO')))
-            with open(r"model/log.txt", "a+") as f:
+            with open(r"model/half_pred_cnn_log.txt", "a+") as f:
                 f.write('Epoch: %3d | Loss: %.3f | Acc: %.3f | '
                         'Acc P: %.3f | Acc C: %.3f | Acc L: %.3f | '
                         'Acc W: %.3f | Best: %s\n' % (epoch, train_loss / train_count,
@@ -93,7 +94,7 @@ def main():
                                                       ('YES' if sum(acc) / count / 4 > best else 'NO')))
             if sum(acc) / count / 4 > best:
                 best = sum(acc) / count / 4
-                torch.save(model.state_dict(), r'model/model.pkl')
+                torch.save(model.state_dict(), r'model/half_pred_cnn_model.pkl')
 
             train_count = 0
             train_loss = 0

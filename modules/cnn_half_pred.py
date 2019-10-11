@@ -3,13 +3,12 @@ import torch.nn.functional as f
 from torch import nn
 from torch.nn import Module
 
-from modules.cnn import CNNCell
 from modules.restnet import ResNet
 
 
-class FirstCNN(Module):
+class HalfPredCNN(Module):
     def __init__(self, num_embeddings, embedding_dim):
-        super(FirstCNN, self).__init__()
+        super(HalfPredCNN, self).__init__()
         self.embedding = nn.Embedding(num_embeddings=num_embeddings, embedding_dim=embedding_dim)
         # self.cnn = CNNCell()   # with relu and bn
         self.cnn = ResNet(layers=[2, 2, 2, 2])

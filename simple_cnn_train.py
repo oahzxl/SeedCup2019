@@ -21,7 +21,7 @@ def main():
         shuffle=True
         )
 
-    model = Simple(num_embeddings=len(field.vocab), embedding_dim=300).to(device)
+    model = SimpleCNN(num_embeddings=len(field.vocab), embedding_dim=300).to(device)
     criterion_day = RMSELoss(gap=0, early=2, late=9)
     criterion_hour = RMSELoss(gap=0, early=2, late=2)
     optimizer = optim.Adam((model.parameters()), lr=0.001, weight_decay=0.03)
@@ -93,7 +93,7 @@ def main():
                                                      ('YES' if rank < best and acc >= 0.981 else 'NO')))
                     if rank < best and acc >= 0.981:
                         best = rank
-                        torch.save(model.state_dict(), r'model/model_' + str(int(best)) + r'.pkl')
+                        torch.save(model.state_dict(), r'model/simple_cnn_model_' + str(int(best)) + r'.pkl')
 
                     train_count = 0
                     train_loss = 0

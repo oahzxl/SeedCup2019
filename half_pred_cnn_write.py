@@ -1,7 +1,8 @@
 import os
+
 from torchtext.data import BucketIterator
 
-from modules.half_pred_cnn import FirstCNN
+from modules import *
 from utils import *
 
 
@@ -20,8 +21,8 @@ def main():
         shuffle=False
         )
     c = 0
-    model = FirstCNN(num_embeddings=len(field.vocab), embedding_dim=300).to(device)
-    model.load_state_dict(torch.load('model/model.pkl'))
+    model = HalfPredCNN(num_embeddings=len(field.vocab), embedding_dim=300).to(device)
+    model.load_state_dict(torch.load('model/half_pred_cnn_model.pkl'))
     data_path = r"data/data_test.txt"
     store_path = r"data/data_tmp1.txt"
     new_path = r"data/data_tmp2.txt"

@@ -21,13 +21,13 @@ def main():
         shuffle=True
         )
 
-    model = Simple(num_embeddings=len(field.vocab), embedding_dim=300).to(device)
+    model = SimpleRNN(num_embeddings=len(field.vocab), embedding_dim=300).to(device)
     criterion_day = RMSELoss(gap=0, early=1, late=1)
     criterion_hour = RMSELoss(gap=0, early=1, late=1)
     optimizer = optim.Adam((model.parameters()), lr=0.00001, weight_decay=0.0)
     optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.5, patience=4, verbose=False,
                                          threshold=0.000001, threshold_mode='rel', cooldown=0, min_lr=0, eps=1e-08)
-    with open(r"model/log.txt", "w+") as f:
+    with open(r"model/simple_rnn_log.txt", "w+") as f:
         f.write('')
     best = 99
     train_loss = 0
@@ -79,7 +79,7 @@ def main():
                                             data_t.seller_uid_field, data_t.company_name, data_t.rvcr_prov_name,
                                             data_t.rvcr_city_name), dim=1)
                         outputs = model(inputs, 'test', field)
-                        day = outputs[0] * 4 + 3 + outputs[2] * 4 + 3 + outputs[4] * 4 + 3 + outputs[6] * 4 + 3
+                        day = outputs[0] + 0.5 + outputs[2] + 0.5 + outputs[4] + 1 + outputs[6] + 1
                         hour = outputs[-1]
 
                         for b in range(day.size(0)):
@@ -106,14 +106,14 @@ def main():
                           'Time: %.3f | Best: %s' % (epoch, (i + 1), train_iter.__len__(),
                                                      train_loss / train_count, rank, acc,
                                                      ('YES' if rank < best and acc >= 0.981 else 'NO')))
-                    with open(r"model/log.txt", "a+") as f:
+                    with open(r"model/simple_rnn_log.txt", "a+") as f:
                         f.write('Epoch: %3d | Iter: %4d / %4d | Loss: %.3f | Rank: %.3f | '
                                 'Time: %.3f | Best: %s' % (epoch, (i + 1), train_iter.__len__(),
                                                            train_loss / train_count, rank, acc,
                                                            ('YES' if rank < best and acc >= 0.981 else 'NO')))
                     if rank < best and acc >= 0.981:
                         best = rank
-                        torch.save(model.state_dict(), r'model/model_' + str(int(best)) + r'.pkl')
+                        torch.save(model.state_dict(), r'model/simple_rnn_model_' + str(int(best)) + r'.pkl')
 
                     train_count = 0
                     train_loss = 0

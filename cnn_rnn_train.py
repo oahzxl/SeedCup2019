@@ -1,5 +1,6 @@
 from torch import optim
 from torchtext.data import BucketIterator
+
 from modules import *
 from utils import *
 
@@ -19,9 +20,9 @@ def main():
         sort=False,
         shuffle=True
         )
-    with open(r"model/log.txt", "w+") as f:
+    with open(r"model/cnn_rnn_log.txt", "w+") as f:
         f.write('')
-    model = Simple(num_embeddings=len(field.vocab), embedding_dim=300).to(device)
+    model = CNNRNN(num_embeddings=len(field.vocab), embedding_dim=300).to(device)
     criterion_day = RMSELoss(gap=0, early=1, late=8)
     criterion_hour = RMSELoss(gap=0, early=2, late=3)
     optimizer = optim.Adam((model.parameters()), lr=0.0001, weight_decay=0.06)
@@ -98,9 +99,9 @@ def main():
                                              ('YES' if rank < best and acc >= 0.982 else 'NO')))
             if rank < best and acc >= 0.982:
                 best = rank
-                torch.save(model.state_dict(), r'model/model_' + str(int(best)) + r'.pkl')
+                torch.save(model.state_dict(), r'model/cnn_rnn_model_' + str(int(best)) + r'.pkl')
 
-            with open(r"model/log.txt", "a+") as f:
+            with open(r"model/cnn_rnn_log.txt", "a+") as f:
                 f.write('Epoch: %3d | Loss: %.3f | Rank: %.3f | '
                         'Time: %.3f | Best: %s\n' % (epoch,
                                                      train_loss / train_count, rank, acc,
