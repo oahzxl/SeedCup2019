@@ -14,7 +14,7 @@ class Transformer(Module):
         decoder_layer = nn.TransformerDecoderLayer(d_model=300, nhead=2)
         self.transformer_decoder = nn.TransformerDecoder(decoder_layer, num_layers=2)
 
-        self.fc1 = nn.Linear(900, 2048)
+        self.fc1 = nn.Linear(300, 2048)
         self.fc2 = nn.Linear(2048, 1)
 
         self.dropout = nn.Dropout(p=0.5)
@@ -26,7 +26,8 @@ class Transformer(Module):
         src = self.transformer_encoder(src)
         out = self.transformer_decoder(tgt, src)
 
-        out = out.view(out.size(0), -1)
+        out = out.view(-1, out.size(2))
         out = f.relu(self.fc1(self.dropout(out)))
         out = self.fc2(self.dropout(out))
+        out = out.view(inputs.size(0), -1)
         return out

@@ -34,7 +34,7 @@ def main():
                                 data.seller_uid_field, data.company_name, data.rvcr_prov_name,
                                 data.rvcr_city_name), dim=1)
             outputs = model(inputs, 'test', field)
-            day = outputs[0] + 0.5 + outputs[2] + 0.5 + outputs[4] + 1 + outputs[6] + 1
+            day = outputs[6] * 3 + 3
             hour = outputs[-1]
             with open('data/simple_rnn_result.txt', 'a+') as f:
                 for b in range(day.size(0)):
