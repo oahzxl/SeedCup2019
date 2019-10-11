@@ -3,12 +3,13 @@ from torchtext.data import BucketIterator
 
 from modules import *
 from utils import *
+from modules.rnn_simple import SimpleRNN
 
 
 def main():
     device = "cuda" if torch.cuda.is_available() else "cpu"
-    train, test, field = dataset_reader(train=True, process=True)
-    evl, _ = dataset_reader(train=False, fields=field, process=True)
+    train, test, field = dataset_reader(train=True, process=False)
+    evl, _ = dataset_reader(train=False, fields=field, process=False)
     field.build_vocab(train, evl)
     del evl
     train_iter, test_iter = BucketIterator.splits(
@@ -20,12 +21,11 @@ def main():
         sort=False,
         shuffle=True
         )
-
     model = SimpleRNN(num_embeddings=len(field.vocab), embedding_dim=300).to(device)
     criterion_day = RMSELoss(gap=0, early=1, late=2)
     criterion_last_day = RMSELoss(gap=0, early=1, late=7)
     criterion_hour = RMSELoss(gap=0, early=1, late=1)
-    optimizer = optim.Adam((model.parameters()), lr=0.00003, weight_decay=0.03)
+    optimizer = optim.Adam(model.parameters(), lr=0.00003, weight_decay=0.03)
     optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.5, patience=4, verbose=False,
                                          threshold=0.000001, threshold_mode='rel', cooldown=0, min_lr=0, eps=1e-08)
     with open(r"model/simple_rnn_log.txt", "w+") as f:
@@ -33,19 +33,14 @@ def main():
     best = 99
     train_loss = 0
     train_count = 0
-
     for epoch in range(50):
         for i, data in enumerate(train_iter):
-
             inputs = torch.cat((data.plat_form, data.biz_type, data.create_time,
                                 data.create_hour, data.payed_day, data.payed_hour,
                                 data.cate1_id, data.cate2_id, data.cate3_id,
                                 data.preselling_shipped_day, data.preselling_shipped_hour,
                                 data.seller_uid_field, data.company_name, data.rvcr_prov_name,
-                                data.rvcr_city_name,
-                                data.shipped_day, data.shipped_hour,
-                                data.got_day, data.got_hour, data.dlved_day, data.dlved_hour), dim=1)
-
+                                data.rvcr_city_name), dim=1)
             outputs = model(inputs, 'train', field)
             # loss = (criterion_hour(outputs[0] + 0.5, data.shipped_day_label.unsqueeze(1), train=True) +
             #         criterion_hour(outputs[1] * 5 + 15, data.shipped_hour_label.unsqueeze(1), train=True) +

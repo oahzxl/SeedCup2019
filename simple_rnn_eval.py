@@ -38,11 +38,10 @@ def main():
             hour = outputs[-1]
             with open('data/simple_rnn_result.txt', 'a+') as f:
                 for b in range(day.size(0)):
-                    start_day = '2019-' + field.vocab.itos[data.create_time[b]]
-                    sign_day = int('%.0f' % day[b]) + int(start_day)
-                    sign_day = str(sign_day).zfill(2)
+                    start_day = arrow.get('2019-' + field.vocab.itos[data.create_time[b]]).timestamp
+                    sign_day = int('%.0f' % day[b])
                     sign_hour = ('%.0f' % (hour[b] * 5 + 15)).zfill(2)
-                    final = '2019-03-' + sign_day + ' ' + sign_hour
+                    final = arrow.get(start_day + sign_day * 24 * 60 * 60) + sign_hour
                     f.write(final + '\n')
 
 

@@ -38,9 +38,10 @@ class SimpleRNN(Module):
             outputs.append(hour)
 
             if i != 3:
-                day = self.embedding(self.time_to_idx(day, field, 'd', i).long()).squeeze(1)
-                hour = self.embedding(self.time_to_idx(hour, field, 'h').long()).squeeze(1)
-                inputs = torch.cat((day, hour), dim=1)
+                with torch.no_grad():
+                    day = self.embedding(self.time_to_idx(day, field, 'd', i).long()).squeeze(1)
+                    hour = self.embedding(self.time_to_idx(hour, field, 'h').long()).squeeze(1)
+                    inputs = torch.cat((day, hour), dim=1)
 
         return outputs
 
