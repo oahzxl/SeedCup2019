@@ -8,7 +8,7 @@ parser = argparse.ArgumentParser(description='Character level tweet embedding tr
 
 learn = parser.add_argument_group('Learning options')
 learn.add_argument('--lr', type=float, default=0.00003, help='initial learning rate [default: 0.0003]')
-learn.add_argument('--late', type=int, default=7.6, help='punishment of delay [default: 7.6]')
+learn.add_argument('--late', type=float, default=7.6, help='punishment of delay [default: 7.6]')
 learn.add_argument('--batch_size', type=int, default=1024, help='batch size for training [default: 1024]')
 learn.add_argument('--checkpoint', type=str, default='N', help='load latest model [default: N]')
 learn.add_argument('--process', type=str, default='N', help='preprocess data [default: N]')
