@@ -1,11 +1,13 @@
+import argparse
+
 from torch import optim
 from torchtext.data import BucketIterator
-import argparse
+
 from modules import *
 from utils import *
 
-parser = argparse.ArgumentParser(description='Character level tweet embedding training')
 
+parser = argparse.ArgumentParser(description='RNN Encoder and Decoder')
 learn = parser.add_argument_group('Learning options')
 learn.add_argument('--lr', type=float, default=0.00003, help='initial learning rate [default: 0.0003]')
 learn.add_argument('--late', type=float, default=7.6, help='punishment of delay [default: 7.6]')
@@ -43,8 +45,6 @@ def main():
     criterion_last_day = RMSELoss(gap=0, early=1, late=args.late)
     criterion_hour = RMSELoss(gap=0, early=1, late=1)
     optimizer = optim.Adam((model.parameters()), lr=args.lr, weight_decay=0.001)
-    optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.5, patience=3, verbose=False,
-                                         threshold=0.0000001, threshold_mode='rel', cooldown=0, min_lr=0, eps=1e-08)
     with open(r"model/simple_rnn_log.txt", "w+") as f:
         f.write('')
 
