@@ -12,23 +12,18 @@ class SimpleRNN(Module):
         self.encoder = nn.LSTM(input_size=300, hidden_size=300, bidirectional=True, batch_first=True)
         self.decoder = nn.LSTMCell(input_size=600, hidden_size=600)
 
-        self.fc_1 = nn.Linear(in_features=600, out_features=2048)
-        self.fc_2 = nn.Linear(in_features=2048, out_features=600)
-
-        self.fc_t_day = nn.Linear(in_features=600, out_features=2048)
-        self.fc_t_day2 = nn.Linear(in_features=2048, out_features=1)
-        self.fc_t_hour = nn.Linear(in_features=600, out_features=2048)
-        self.fc_t_hour2 = nn.Linear(in_features=2048, out_features=1)
+        self.fc_t_day = nn.Linear(in_features=600, out_features=1024)
+        self.fc_t_day2 = nn.Linear(in_features=1024, out_features=1)
+        self.fc_t_hour = nn.Linear(in_features=600, out_features=1024)
+        self.fc_t_hour2 = nn.Linear(in_features=1024, out_features=1)
 
         self.dropout = nn.Dropout(p=0.5)
         self.double()
 
     def forward(self, inputs, mode, field):
-        inputs = self.embedding(inputs[:, :15])
+        inputs = self.embedding(inputs)
         inputs, (_, _) = self.encoder(inputs)
         inputs = inputs[:, -1, :]
-        inputs = self.fc_1(f.relu(self.dropout(inputs)))
-        inputs = self.fc_2(f.relu(self.dropout(inputs)))
 
         outputs = []
         hx = torch.zeros_like(inputs)
@@ -43,11 +38,8 @@ class SimpleRNN(Module):
             outputs.append(hour)
 
             if i != 3:
-                with torch.no_grad():
-                    day = self.time_to_idx(day, field, 'd', i).long()
-                    hour = self.time_to_idx(hour, field, 'h').long()
-                day = self.embedding(day).squeeze(1)
-                hour = self.embedding(hour).squeeze(1)
+                day = self.embedding(self.time_to_idx(day, field, 'd', i).long()).squeeze(1)
+                hour = self.embedding(self.time_to_idx(hour, field, 'h').long()).squeeze(1)
                 inputs = torch.cat((day, hour), dim=1)
 
         return outputs
