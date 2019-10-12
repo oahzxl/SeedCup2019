@@ -7,7 +7,7 @@ from torchtext.data import Field, LabelField
 from utils.util import *
 
 
-def dataset_reader(train=True, fields=False, process=False):
+def dataset_reader(train=True, fields=False, process=False, stop=-1):
 
     label_field = LabelField(sequential=False, batch_first=True, use_vocab=False,
                              dtype=torch.double)
@@ -64,7 +64,7 @@ def dataset_reader(train=True, fields=False, process=False):
                 items[i] = float(items[i])
             for i in (25, 26, 27, 28, 29, 30):
                 items[i] = int(items[i])
-            if record.n > 1200000:
+            if 0 < stop < record.n:
                 break
             examples.append(Example.fromlist(items, field))
             line = f.readline()

@@ -1,19 +1,37 @@
+import argparse
+
 from torch import optim
 from torchtext.data import BucketIterator
 
 from modules import *
 from utils import *
 
+parser = argparse.ArgumentParser(description='RNN Encoder and Decoder')
+learn = parser.add_argument_group('Learning options')
+learn.add_argument('--lr', type=float, default=0.00003, help='initial learning rate [default: 0.0003]')
+learn.add_argument('--late', type=float, default=7.6, help='punishment of delay [default: 7.6]')
+learn.add_argument('--batch_size', type=int, default=1, help='batch size for training [default: 1024]')
+learn.add_argument('--checkpoint', type=str, default='N', help='load latest model [default: N]')
+learn.add_argument('--process', type=str, default='N', help='preprocess data [default: N]')
+learn.add_argument('--interval', type=int, default=1, help='test interval [default: 100]')
+
 
 def main():
+    args = parser.parse_args()
     device = "cuda" if torch.cuda.is_available() else "cpu"
-    train, test, field = dataset_reader(train=True, process=False)
-    evl, _ = dataset_reader(train=False, fields=field, process=False)
+
+    if args.process == 'Y':
+        train, test, field = dataset_reader(train=True, process=True)
+        evl, _ = dataset_reader(train=False, fields=field, process=True)
+    else:
+        train, test, field = dataset_reader(train=True, process=False, stop=3000)
+        evl, _ = dataset_reader(train=False, fields=field, process=False, stop=3000)
+
     field.build_vocab(train, evl)
     del evl
     train_iter, test_iter = BucketIterator.splits(
         (train, test),
-        batch_sizes=(128, 128),
+        batch_sizes=(args.batch_size, args.batch_size),
         device=device,
         sort_within_batch=False,
         repeat=False,
@@ -21,20 +39,23 @@ def main():
         shuffle=True
         )
 
-    model = Transformer(num_embeddings=len(field.vocab), embedding_dim=300).to(device)
-    criterion_day = RMSELoss(gap=0, early=1, late=4)
-    criterion_last_day = RMSELoss(gap=0, early=2, late=8)
+    model = Transformer(num_embeddings=len(field.vocab), embedding_dim=512, d_model=512,
+                        nhead=1, num_layers=1).to(device)
+    criterion_day = RMSELoss(gap=0, early=1, late=3)
+    criterion_last_day = RMSELoss(gap=0, early=1, late=args.late)
     criterion_hour = RMSELoss(gap=0, early=1, late=1)
-    optimizer = optim.Adam((model.parameters()), lr=0.00003, weight_decay=0.0)
-    optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.5, patience=4, verbose=False,
-                                         threshold=0.000001, threshold_mode='rel', cooldown=0, min_lr=0, eps=1e-08)
+    optimizer = optim.Adam((model.parameters()), lr=args.lr, weight_decay=0.001)
     with open(r"model/transformer_log.txt", "w+") as f:
         f.write('')
+
+    if args.checkpoint == 'Y':
+        model.load_state_dict(torch.load('model/transformer_model.pkl'))
+
     best = 99
     train_loss = 0
     train_count = 0
 
-    for epoch in range(50):
+    for epoch in range(200):
         for i, data in enumerate(train_iter):
 
             inputs = torch.cat((data.plat_form, data.biz_type, data.create_time,
@@ -48,12 +69,16 @@ def main():
                                 data.signed_day.unsqueeze(1).long(), data.signed_hour.unsqueeze(1).long()
                                 ), dim=1)
 
-            outputs = model(inputs)
+            outputs = model(inputs, train=True)
 
-            loss = (criterion_day(outputs[:, 0] * 2 + 1, data.shipped_day_label.unsqueeze(1), train=True) +
-                    criterion_day(outputs[:, 1] * 2 + 1, data.got_day_label.unsqueeze(1), train=True) +
-                    criterion_day(outputs[:, 2] * 2 + 1, data.dlved_day_label.unsqueeze(1), train=True) +
-                    4 * criterion_last_day(outputs[:, 3] * 3 + 3, data.signed_day.unsqueeze(1), train=True)
+            loss = (criterion_day(outputs[0] * 2 + 1, data.shipped_day_label.unsqueeze(1), train=True) +
+                    0.1 * criterion_hour(outputs[4] * 5 + 15, data.shipped_hour_label.unsqueeze(1), train=True) +
+                    criterion_day(outputs[1] * 2 + 1, data.got_day_label.unsqueeze(1), train=True) +
+                    0.1 * criterion_hour(outputs[5] * 5 + 15, data.got_hour_label.unsqueeze(1), train=True) +
+                    criterion_day(outputs[2] * 2 + 1, data.dlved_day_label.unsqueeze(1), train=True) +
+                    0.1 * criterion_hour(outputs[6] * 5 + 15, data.dlved_hour_label.unsqueeze(1), train=True) +
+                    6 * criterion_last_day(outputs[3] * 3 + 3, data.signed_day.unsqueeze(1), train=True) +
+                    0.3 * criterion_hour(outputs[7] * 5 + 15, data.signed_hour.unsqueeze(1), train=True)
                     )
             loss.backward()
             optimizer.step()
@@ -62,14 +87,14 @@ def main():
             train_loss += loss.item()
             train_count += 1
 
-            if (i + 1) % 100 == 0:
+            if (i + 1) % args.interval == 0:
                 model.eval()
                 with torch.no_grad():
                     rank = 0
                     acc = 0
                     count = 0
                     for j, data_t in enumerate(test_iter):
-                        if j > 10:
+                        if j > 30:
                             break
 
                         inputs = torch.cat((data_t.plat_form, data_t.biz_type, data_t.create_time,
@@ -78,8 +103,7 @@ def main():
                                             data_t.preselling_shipped_day, data_t.preselling_shipped_hour,
                                             data_t.seller_uid_field, data_t.company_name, data_t.rvcr_prov_name,
                                             data_t.rvcr_city_name), dim=1)
-                        outputs = model(inputs)
-                        # day = outputs[0] + 0.5 + outputs[2] + 0.4 + outputs[4] + 0.4 + outputs[6] * 2 + 1
+                        outputs = model(inputs, train=False)
                         day = outputs[6] * 3 + 3
                         hour = outputs[-1]
 
