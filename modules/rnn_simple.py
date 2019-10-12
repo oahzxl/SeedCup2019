@@ -13,10 +13,10 @@ class SimpleRNN(Module):
                                num_layers=2, dropout=0.1)
         self.decoder = nn.LSTMCell(input_size=600, hidden_size=600)
 
-        self.fc_t_day = nn.Linear(in_features=600, out_features=1024)
-        self.fc_t_day2 = nn.Linear(in_features=1024, out_features=1)
-        self.fc_t_hour = nn.Linear(in_features=600, out_features=1024)
-        self.fc_t_hour2 = nn.Linear(in_features=1024, out_features=1)
+        self.fc_t_day = nn.Linear(in_features=600, out_features=2048)
+        self.fc_t_day2 = nn.Linear(in_features=2048, out_features=1)
+        self.fc_t_hour = nn.Linear(in_features=600, out_features=2048)
+        self.fc_t_hour2 = nn.Linear(in_features=2048, out_features=1)
 
         self.dropout = nn.Dropout(p=0.5)
         self.double()
