@@ -9,13 +9,16 @@ class SimpleRNN(Module):
         super(SimpleRNN, self).__init__()
         self.embedding = nn.Embedding(num_embeddings=num_embeddings, embedding_dim=embedding_dim)
 
-        self.encoder = nn.LSTM(input_size=300, hidden_size=300, bidirectional=True, batch_first=True,
+        self.encoder = nn.LSTM(input_size=512, hidden_size=512, bidirectional=True, batch_first=True,
                                num_layers=2, dropout=0.1)
-        self.decoder = nn.LSTMCell(input_size=600, hidden_size=600)
+        self.decoder = nn.LSTMCell(input_size=1024, hidden_size=1024)
 
-        self.fc_t_day = nn.Linear(in_features=600, out_features=2048)
+        self.fc_1 = nn.Linear(in_features=1024, out_features=2048)
+        self.fc_2 = nn.Linear(in_features=2048, out_features=1024)
+
+        self.fc_t_day = nn.Linear(in_features=1024, out_features=2048)
         self.fc_t_day2 = nn.Linear(in_features=2048, out_features=1)
-        self.fc_t_hour = nn.Linear(in_features=600, out_features=2048)
+        self.fc_t_hour = nn.Linear(in_features=1024, out_features=2048)
         self.fc_t_hour2 = nn.Linear(in_features=2048, out_features=1)
 
         self.dropout = nn.Dropout(p=0.5)
@@ -25,6 +28,8 @@ class SimpleRNN(Module):
         inputs = self.embedding(inputs)
         inputs, (_, _) = self.encoder(inputs)
         inputs = inputs[:, -1, :]
+        inputs = self.fc_1(f.relu(self.dropout(inputs)))
+        inputs = self.fc_2(f.relu(self.dropout(inputs)))
 
         outputs = []
         hx = torch.zeros_like(inputs)

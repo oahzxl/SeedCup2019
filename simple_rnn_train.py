@@ -1,19 +1,36 @@
 from torch import optim
 from torchtext.data import BucketIterator
-
+import argparse
 from modules import *
 from utils import *
 
+parser = argparse.ArgumentParser(description='Character level tweet embedding training')
+
+learn = parser.add_argument_group('Learning options')
+learn.add_argument('--lr', type=float, default=0.00003, help='initial learning rate [default: 0.0003]')
+learn.add_argument('--late', type=int, default=7.6, help='punishment of delay [default: 7.6]')
+learn.add_argument('--batch_size', type=int, default=1024, help='batch size for training [default: 1024]')
+learn.add_argument('--checkpoint', type=str, default='N', help='load latest model [default: N]')
+learn.add_argument('--process', type=str, default='N', help='preprocess data [default: N]')
+learn.add_argument('--interval', type=int, default=100, help='test interval [default: 100]')
+
 
 def main():
+    args = parser.parse_args()
     device = "cuda" if torch.cuda.is_available() else "cpu"
-    train, test, field = dataset_reader(train=True, process=False)
-    evl, _ = dataset_reader(train=False, fields=field, process=False)
+
+    if args.process == 'Y':
+        train, test, field = dataset_reader(train=True, process=True)
+        evl, _ = dataset_reader(train=False, fields=field, process=True)
+    else:
+        train, test, field = dataset_reader(train=True, process=False)
+        evl, _ = dataset_reader(train=False, fields=field, process=False)
+
     field.build_vocab(train, evl)
     del evl
     train_iter, test_iter = BucketIterator.splits(
         (train, test),
-        batch_sizes=(1024, 1024),
+        batch_sizes=(args.batch_size, args.batch_size),
         device=device,
         sort_within_batch=False,
         repeat=False,
@@ -21,20 +38,24 @@ def main():
         shuffle=True
         )
 
-    model = SimpleRNN(num_embeddings=len(field.vocab), embedding_dim=300).to(device)
+    model = SimpleRNN(num_embeddings=len(field.vocab), embedding_dim=512).to(device)
     criterion_day = RMSELoss(gap=0, early=1, late=3)
-    criterion_last_day = RMSELoss(gap=0, early=1, late=7.5)
+    criterion_last_day = RMSELoss(gap=0, early=1, late=args.late)
     criterion_hour = RMSELoss(gap=0, early=1, late=1)
-    optimizer = optim.Adam((model.parameters()), lr=0.00003, weight_decay=0.0)
-    optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.5, patience=4, verbose=False,
+    optimizer = optim.Adam((model.parameters()), lr=args.lr, weight_decay=0.001)
+    optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.5, patience=3, verbose=False,
                                          threshold=0.0000001, threshold_mode='rel', cooldown=0, min_lr=0, eps=1e-08)
     with open(r"model/simple_rnn_log.txt", "w+") as f:
         f.write('')
+
+    if args.checkpoint == 'Y':
+        model.load_state_dict(torch.load('model/simple_rnn_model.pkl'))
+
     best = 99
     train_loss = 0
     train_count = 0
 
-    for epoch in range(50):
+    for epoch in range(200):
         for i, data in enumerate(train_iter):
 
             inputs = torch.cat((data.plat_form, data.biz_type, data.create_time,
@@ -72,16 +93,15 @@ def main():
             train_loss += loss.item()
             train_count += 1
 
-            if (i + 1) % 100 == 0:
+            if (i + 1) % args.interval == 0:
                 model.eval()
                 with torch.no_grad():
                     rank = 0
                     acc = 0
                     count = 0
                     for j, data_t in enumerate(test_iter):
-                        if j > 10:
+                        if j > 30:
                             break
-
                         inputs = torch.cat((data_t.plat_form, data_t.biz_type, data_t.create_time,
                                             data_t.create_hour, data_t.payed_day, data_t.payed_hour,
                                             data_t.cate1_id, data_t.cate2_id, data_t.cate3_id,
