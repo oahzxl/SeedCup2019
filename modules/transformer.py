@@ -52,27 +52,59 @@ class Transformer(Module):
 
         self.double()
 
-    def forward(self, inputs, train=True):
+    def forward(self, inputs, field, train=True):
         if train:
-            src = self.embedding(inputs[:, :15]).permute(1, 0, 2)
-            tgt = self.embedding(inputs[:, 15:]).view(-1, 1024)
-            tgt = self.fc_mix(tgt).view(inputs.size(0), -1, 512).permute(1, 0, 2)
+            src = self.embedding(inputs[:, :14]).permute(1, 0, 2)
             src = self.transformer_encoder(src)
+
+            tgt = self.embedding(inputs[:, 14:]).view(-1, 1024)
+            tgt = self.fc_mix(tgt).view(inputs.size(0), -1, 512).permute(1, 0, 2)
+            tgt_start = torch.zeros((1, inputs.size(0), 512), dtype=torch.double).cuda()
+            tgt = torch.cat((tgt_start, tgt), dim=0)
             out = self.transformer_decoder(tgt, src)
 
             out = out.view(-1, out.size(2))
             day = self.fc_d(out).view(inputs.size(0), -1)
             hour = self.fc_h(out).view(inputs.size(0), -1)
             out = torch.cat((day, hour), dim=1)
+            return out
 
         else:
-            src = self.embedding(inputs[:, :15])
-            tgt = self.embedding(inputs[:, 15:])
+            src = self.embedding(inputs[:, :14]).permute(1, 0, 2)
             src = self.transformer_encoder(src)
-            out = self.transformer_decoder(tgt, src)
 
-            out = out.view(-1, out.size(2))
-            out = f.relu(self.fc1(self.dropout(out)))
-            out = self.fc2(self.dropout(out))
-            out = out.view(inputs.size(0), -1)
-        return out
+            tgt_start = torch.zeros((1, inputs.size(0), 512), dtype=torch.double).cuda()
+            tgt = tgt_start
+            for i in range(4):
+                out = self.transformer_decoder(tgt, src)
+                out = out.view(-1, out.size(2))
+                day = self.fc_d(out).view(inputs.size(0), -1)
+                hour = self.fc_h(out).view(inputs.size(0), -1)
+
+                if i < 3:
+                    day = self.embedding(self.time_to_idx(day, field, 'd', i).long()).squeeze(1)
+                    hour = self.embedding(self.time_to_idx(hour, field, 'h').long()).squeeze(1)
+                    new = torch.cat((day, hour), dim=-1).view(-1, 1024)
+                    new = self.fc_mix(new).view(inputs.size(0), -1, 512).permute(1, 0, 2)
+                    tgt = torch.cat(())
+
+                else:
+                    out = torch.cat((day, hour), dim=1)
+                    return out
+
+    @staticmethod
+    def time_to_idx(time, field, mode, idx=0):
+        if mode == 'd':
+            # plus_list = [0.5, 0.4, 0.4]
+            # mul_list = [1, 1, 1]
+            plus_list = [1, 1, 1]
+            mul_list = [2, 2, 2]
+
+            time = time * mul_list[idx] + plus_list[idx]
+            for b in range(time.size(0)):
+                time[b] = field.vocab.stoi['%.0f' % time[b] + '_' + mode]
+        elif mode == 'h':
+            time = time * 5 + 15
+            for b in range(time.size(0)):
+                time[b] = field.vocab.stoi['%.0f' % time[b] + '_' + mode]
+        return time

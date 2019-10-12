@@ -10,7 +10,7 @@ parser = argparse.ArgumentParser(description='RNN Encoder and Decoder')
 learn = parser.add_argument_group('Learning options')
 learn.add_argument('--lr', type=float, default=0.00003, help='initial learning rate [default: 0.0003]')
 learn.add_argument('--late', type=float, default=7.6, help='punishment of delay [default: 7.6]')
-learn.add_argument('--batch_size', type=int, default=1, help='batch size for training [default: 1024]')
+learn.add_argument('--batch_size', type=int, default=2, help='batch size for training [default: 1024]')
 learn.add_argument('--checkpoint', type=str, default='N', help='load latest model [default: N]')
 learn.add_argument('--process', type=str, default='N', help='preprocess data [default: N]')
 learn.add_argument('--interval', type=int, default=1, help='test interval [default: 100]')
@@ -58,7 +58,7 @@ def main():
     for epoch in range(200):
         for i, data in enumerate(train_iter):
 
-            inputs = torch.cat((data.plat_form, data.biz_type, data.create_time,
+            inputs = torch.cat((data.plat_form, data.biz_type,
                                 data.create_hour, data.payed_day, data.payed_hour,
                                 data.cate1_id, data.cate2_id, data.cate3_id,
                                 data.preselling_shipped_day, data.preselling_shipped_hour,
@@ -66,19 +66,18 @@ def main():
                                 data.rvcr_city_name,
                                 data.shipped_day, data.shipped_hour, data.got_day, data.got_hour,
                                 data.dlved_day, data.dlved_hour,
-                                data.signed_day.unsqueeze(1).long(), data.signed_hour.unsqueeze(1).long()
                                 ), dim=1)
 
             outputs = model(inputs, train=True)
 
-            loss = (criterion_day(outputs[0] * 2 + 1, data.shipped_day_label.unsqueeze(1), train=True) +
-                    0.1 * criterion_hour(outputs[4] * 5 + 15, data.shipped_hour_label.unsqueeze(1), train=True) +
-                    criterion_day(outputs[1] * 2 + 1, data.got_day_label.unsqueeze(1), train=True) +
-                    0.1 * criterion_hour(outputs[5] * 5 + 15, data.got_hour_label.unsqueeze(1), train=True) +
-                    criterion_day(outputs[2] * 2 + 1, data.dlved_day_label.unsqueeze(1), train=True) +
-                    0.1 * criterion_hour(outputs[6] * 5 + 15, data.dlved_hour_label.unsqueeze(1), train=True) +
-                    6 * criterion_last_day(outputs[3] * 3 + 3, data.signed_day.unsqueeze(1), train=True) +
-                    0.3 * criterion_hour(outputs[7] * 5 + 15, data.signed_hour.unsqueeze(1), train=True)
+            loss = (criterion_day(outputs[:, 0] * 2 + 1, data.shipped_day_label.unsqueeze(1), train=True) +
+                    0.1 * criterion_hour(outputs[:, 4] * 5 + 15, data.shipped_hour_label.unsqueeze(1), train=True) +
+                    criterion_day(outputs[:, 1] * 2 + 1, data.got_day_label.unsqueeze(1), train=True) +
+                    0.1 * criterion_hour(outputs[:, 5] * 5 + 15, data.got_hour_label.unsqueeze(1), train=True) +
+                    criterion_day(outputs[:, 2] * 2 + 1, data.dlved_day_label.unsqueeze(1), train=True) +
+                    0.1 * criterion_hour(outputs[:, 6] * 5 + 15, data.dlved_hour_label.unsqueeze(1), train=True) +
+                    6 * criterion_last_day(outputs[:, 3] * 3 + 3, data.signed_day.unsqueeze(1), train=True) +
+                    0.3 * criterion_hour(outputs[:, 7] * 5 + 15, data.signed_hour.unsqueeze(1), train=True)
                     )
             loss.backward()
             optimizer.step()
@@ -93,17 +92,33 @@ def main():
                     rank = 0
                     acc = 0
                     count = 0
+                    test_loss = 0
                     for j, data_t in enumerate(test_iter):
                         if j > 30:
                             break
 
-                        inputs = torch.cat((data_t.plat_form, data_t.biz_type, data_t.create_time,
+                        inputs = torch.cat((data_t.plat_form, data_t.biz_type,
                                             data_t.create_hour, data_t.payed_day, data_t.payed_hour,
                                             data_t.cate1_id, data_t.cate2_id, data_t.cate3_id,
                                             data_t.preselling_shipped_day, data_t.preselling_shipped_hour,
                                             data_t.seller_uid_field, data_t.company_name, data_t.rvcr_prov_name,
                                             data_t.rvcr_city_name), dim=1)
                         outputs = model(inputs, train=False)
+
+                        loss = (criterion_day(outputs[:, 0] * 2 + 1, data_t.shipped_day_label.unsqueeze(1), train=True) +
+                                0.1 * criterion_hour(outputs[:, 4] * 5 + 15, data_t.shipped_hour_label.unsqueeze(1),
+                                                     train=True) +
+                                criterion_day(outputs[:, 1] * 2 + 1, data_t.got_day_label.unsqueeze(1), train=True) +
+                                0.1 * criterion_hour(outputs[:, 5] * 5 + 15, data_t.got_hour_label.unsqueeze(1),
+                                                     train=True) +
+                                criterion_day(outputs[:, 2] * 2 + 1, data_t.dlved_day_label.unsqueeze(1), train=True) +
+                                0.1 * criterion_hour(outputs[:, 5] * 5 + 15, data_t.dlved_hour_label.unsqueeze(1),
+                                                     train=True) +
+                                6 * criterion_last_day(outputs[:, 6] * 3 + 3, data_t.signed_day.unsqueeze(1), train=True) +
+                                0.3 * criterion_hour(outputs[:, 7] * 5 + 15, data_t.signed_hour.unsqueeze(1), train=True)
+                                )
+                        test_loss += loss.item()
+
                         day = outputs[6] * 3 + 3
                         hour = outputs[-1]
 
