@@ -16,10 +16,10 @@ class SimpleRNN(Module):
         self.fc_1 = nn.Linear(in_features=1024, out_features=2048)
         self.fc_2 = nn.Linear(in_features=2048, out_features=1024)
 
-        self.fc_t_day = nn.Linear(in_features=1024, out_features=2048)
-        self.fc_t_day2 = nn.Linear(in_features=2048, out_features=1)
-        self.fc_t_hour = nn.Linear(in_features=1024, out_features=2048)
-        self.fc_t_hour2 = nn.Linear(in_features=2048, out_features=1)
+        self.fc_t_day = nn.Linear(in_features=1024, out_features=128)
+        self.fc_t_day2 = nn.Linear(in_features=128, out_features=1)
+        self.fc_t_hour = nn.Linear(in_features=1024, out_features=128)
+        self.fc_t_hour2 = nn.Linear(in_features=128, out_features=1)
 
         self.dropout = nn.Dropout(p=0.5)
         self.double()

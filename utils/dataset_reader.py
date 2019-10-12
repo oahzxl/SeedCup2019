@@ -47,35 +47,58 @@ def dataset_reader(train=True, fields=False, process=False, stop=-1):
     if process:
         process_data(train, path, path_store)
 
-    examples = []
     if train:
+        train_example = []
+        test_example = []
+
         print("Loading train data")
         record = tqdm.tqdm(total=3597728)
+
+        with open(path_store, "r") as f:
+            line = f.readline()
+            while line:
+                record.update()
+                items = list(line.split(' '))
+                # process label data
+                for i in (31, 32, 33, 34, 35, 36):
+                    items[i] = float(items[i])
+                for i in (25, 26, 27, 28, 29, 30):
+                    items[i] = int(items[i])
+                if 0 < stop < record.n:
+                    break
+                if int(items[2][3:5]) < 24:
+                    train_example.append(Example.fromlist(items, field))
+                else:
+                    test_example.append(Example.fromlist(items, field))
+                line = f.readline()
+        record.close()
+
+        train_examples = Dataset(train_example, field)
+        test_examples = Dataset(test_example, field)
+        return train_examples, test_examples, regular_field
+
     else:
+        examples = []
         print("Loading test data")
         record = tqdm.tqdm(total=300000)
-    with open(path_store, "r") as f:
-        line = f.readline()
-        while line:
-            record.update()
-            items = list(line.split(' '))
-            # process label data
-            for i in (31, 32, 33, 34, 35, 36):
-                items[i] = float(items[i])
-            for i in (25, 26, 27, 28, 29, 30):
-                items[i] = int(items[i])
-            if 0 < stop < record.n:
-                break
-            examples.append(Example.fromlist(items, field))
-            line = f.readline()
-    record.close()
 
-    if train:
-        length = examples.__len__()
-        train_examples = Dataset(examples[:int(0.8 * length)], field)
-        test_examples = Dataset(examples[int(0.8 * length):], field)
-        return train_examples, test_examples, regular_field
-    else:
+        with open(path_store, "r") as f:
+            line = f.readline()
+            while line:
+                record.update()
+                items = list(line.split(' '))
+                # process label data
+                for i in (31, 32, 33, 34, 35, 36):
+                    items[i] = float(items[i])
+                for i in (25, 26, 27, 28, 29, 30):
+                    items[i] = int(items[i])
+                if 0 < stop < record.n:
+                    break
+
+                examples.append(Example.fromlist(items, field))
+                line = f.readline()
+        record.close()
+
         return Dataset(examples, field), regular_field
 
 
