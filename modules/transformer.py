@@ -75,22 +75,25 @@ class Transformer(Module):
 
             tgt_start = torch.zeros((1, inputs.size(0), 512), dtype=torch.double).cuda()
             tgt = tgt_start
+            result = []
             for i in range(4):
                 out = self.transformer_decoder(tgt, src)
-                out = out.view(-1, out.size(2))
+                out = out[-1, :, :]
+                out = out.view(-1, out.size(-1))
                 day = self.fc_d(out).view(inputs.size(0), -1)
                 hour = self.fc_h(out).view(inputs.size(0), -1)
+
+                result.append(day)
+                result.append(hour)
 
                 if i < 3:
                     day = self.embedding(self.time_to_idx(day, field, 'd', i).long()).squeeze(1)
                     hour = self.embedding(self.time_to_idx(hour, field, 'h').long()).squeeze(1)
                     new = torch.cat((day, hour), dim=-1).view(-1, 1024)
                     new = self.fc_mix(new).view(inputs.size(0), -1, 512).permute(1, 0, 2)
-                    tgt = torch.cat(())
+                    tgt = torch.cat((tgt, new))
 
-                else:
-                    out = torch.cat((day, hour), dim=1)
-                    return out
+            return result
 
     @staticmethod
     def time_to_idx(time, field, mode, idx=0):

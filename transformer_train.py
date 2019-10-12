@@ -9,11 +9,11 @@ from utils import *
 parser = argparse.ArgumentParser(description='RNN Encoder and Decoder')
 learn = parser.add_argument_group('Learning options')
 learn.add_argument('--lr', type=float, default=0.00003, help='initial learning rate [default: 0.0003]')
-learn.add_argument('--late', type=float, default=7.6, help='punishment of delay [default: 7.6]')
-learn.add_argument('--batch_size', type=int, default=2, help='batch size for training [default: 1024]')
+learn.add_argument('--late', type=float, default=8, help='punishment of delay [default: 8]')
+learn.add_argument('--batch_size', type=int, default=1024, help='batch size for training [default: 1024]')
 learn.add_argument('--checkpoint', type=str, default='N', help='load latest model [default: N]')
 learn.add_argument('--process', type=str, default='N', help='preprocess data [default: N]')
-learn.add_argument('--interval', type=int, default=1, help='test interval [default: 100]')
+learn.add_argument('--interval', type=int, default=100, help='test interval [default: 100]')
 
 
 def main():
@@ -68,7 +68,7 @@ def main():
                                 data.dlved_day, data.dlved_hour,
                                 ), dim=1)
 
-            outputs = model(inputs, train=True)
+            outputs = model(inputs, field, train=True)
 
             loss = (criterion_day(outputs[:, 0] * 2 + 1, data.shipped_day_label.unsqueeze(1), train=True) +
                     0.1 * criterion_hour(outputs[:, 4] * 5 + 15, data.shipped_hour_label.unsqueeze(1), train=True) +
@@ -94,7 +94,7 @@ def main():
                     count = 0
                     test_loss = 0
                     for j, data_t in enumerate(test_iter):
-                        if j > 30:
+                        if j > 20:
                             break
 
                         inputs = torch.cat((data_t.plat_form, data_t.biz_type,
@@ -103,19 +103,19 @@ def main():
                                             data_t.preselling_shipped_day, data_t.preselling_shipped_hour,
                                             data_t.seller_uid_field, data_t.company_name, data_t.rvcr_prov_name,
                                             data_t.rvcr_city_name), dim=1)
-                        outputs = model(inputs, train=False)
+                        outputs = model(inputs, field, train=False)
 
-                        loss = (criterion_day(outputs[:, 0] * 2 + 1, data_t.shipped_day_label.unsqueeze(1), train=True) +
-                                0.1 * criterion_hour(outputs[:, 4] * 5 + 15, data_t.shipped_hour_label.unsqueeze(1),
+                        loss = (criterion_day(outputs[0] * 2 + 1, data_t.shipped_day_label.unsqueeze(1), train=True) +
+                                0.1 * criterion_hour(outputs[1] * 5 + 15, data_t.shipped_hour_label.unsqueeze(1),
                                                      train=True) +
-                                criterion_day(outputs[:, 1] * 2 + 1, data_t.got_day_label.unsqueeze(1), train=True) +
-                                0.1 * criterion_hour(outputs[:, 5] * 5 + 15, data_t.got_hour_label.unsqueeze(1),
+                                criterion_day(outputs[2] * 2 + 1, data_t.got_day_label.unsqueeze(1), train=True) +
+                                0.1 * criterion_hour(outputs[3] * 5 + 15, data_t.got_hour_label.unsqueeze(1),
                                                      train=True) +
-                                criterion_day(outputs[:, 2] * 2 + 1, data_t.dlved_day_label.unsqueeze(1), train=True) +
-                                0.1 * criterion_hour(outputs[:, 5] * 5 + 15, data_t.dlved_hour_label.unsqueeze(1),
+                                criterion_day(outputs[4] * 2 + 1, data_t.dlved_day_label.unsqueeze(1), train=True) +
+                                0.1 * criterion_hour(outputs[5] * 5 + 15, data_t.dlved_hour_label.unsqueeze(1),
                                                      train=True) +
-                                6 * criterion_last_day(outputs[:, 6] * 3 + 3, data_t.signed_day.unsqueeze(1), train=True) +
-                                0.3 * criterion_hour(outputs[:, 7] * 5 + 15, data_t.signed_hour.unsqueeze(1), train=True)
+                                6 * criterion_last_day(outputs[6] * 3 + 3, data_t.signed_day.unsqueeze(1), train=True) +
+                                0.3 * criterion_hour(outputs[7] * 5 + 15, data_t.signed_hour.unsqueeze(1), train=True)
                                 )
                         test_loss += loss.item()
 
@@ -141,16 +141,17 @@ def main():
 
                     acc = acc / count
                     rank = (rank / count) ** 0.5
+                    test_loss = test_loss / count * day.size(0)
 
-                    print('Epoch: %3d | Iter: %4d / %4d | Loss: %.3f | Rank: %.3f | '
+                    print('Epoch: %3d | Iter: %4d / %4d | Loss: %.3f | Test Loss: %.3f | Rank: %.3f | '
                           'Time: %.3f | Best: %s' % (epoch, (i + 1), train_iter.__len__(),
-                                                     train_loss / train_count, rank, acc,
+                                                     train_loss / train_count, test_loss, rank, acc,
                                                      ('YES' if rank < best and acc >= 0.981 else 'NO')))
                     with open(r"model/transformer_log.txt", "a+") as f:
-                        f.write('Epoch: %3d | Iter: %4d / %4d | Loss: %.3f | Rank: %.3f | '
-                                'Time: %.3f | Best: %s' % (epoch, (i + 1), train_iter.__len__(),
-                                                           train_loss / train_count, rank, acc,
-                                                           ('YES' if rank < best and acc >= 0.981 else 'NO')))
+                        f.write('Epoch: %3d | Iter: %4d / %4d | Loss: %.3f | Test Loss: %.3f | Rank: %.3f | '
+                                'Time: %.3f | Best: %s\n' % (epoch, (i + 1), train_iter.__len__(),
+                                                             train_loss / train_count, test_loss, rank, acc,
+                                                             ('YES' if rank < best and acc >= 0.981 else 'NO')))
                     if rank < best and acc >= 0.981:
                         best = rank
                         torch.save(model.state_dict(), r'model/transformer_model_' + str(int(best)) + r'.pkl')
