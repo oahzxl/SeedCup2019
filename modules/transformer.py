@@ -7,8 +7,8 @@ from torch.nn import Module
 class FinalFC(Module):
     def __init__(self, d_model):
         super(FinalFC, self).__init__()
-        self.fc_1 = nn.Linear(d_model, 2048)
-        self.fc_2 = nn.Linear(2048, 1)
+        self.fc_1 = nn.Linear(d_model, 64)
+        self.fc_2 = nn.Linear(64, 1)
         self.dropout = nn.Dropout(p=0.5)
         self.double()
 
@@ -111,3 +111,14 @@ class Transformer(Module):
             for b in range(time.size(0)):
                 time[b] = field.vocab.stoi['%.0f' % time[b] + '_' + mode]
         return time
+
+    @staticmethod
+    def make_mask():
+
+        tgt_mask = torch.zeros((4, 4), dtype=torch.double)
+
+        for i in range(1, 4):
+            for j in range(i):
+                tgt_mask[i, j] = float('-inf')
+
+        return tgt_mask
