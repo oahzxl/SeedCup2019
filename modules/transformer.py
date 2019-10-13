@@ -23,7 +23,7 @@ class MixFC(Module):
         super(MixFC, self).__init__()
         self.fc_1 = nn.Linear(d_model * 2, 2048)
         self.fc_2 = nn.Linear(2048, d_model)
-        self.dropout = nn.Dropout(p=0.3)
+        self.dropout = nn.Dropout(p=0.5)
         self.double()
 
     def forward(self, inputs):
@@ -41,9 +41,9 @@ class Transformer(Module):
         self.nhead = nhead
         self.num_layers = num_layers
 
-        encoder_layer = nn.TransformerEncoderLayer(d_model=self.d_model, nhead=self.nhead)
+        encoder_layer = nn.TransformerEncoderLayer(d_model=self.d_model, nhead=self.nhead, dropout=0.5)
         self.transformer_encoder = nn.TransformerEncoder(encoder_layer, num_layers=self.num_layers)
-        decoder_layer = nn.TransformerDecoderLayer(d_model=self.d_model, nhead=self.nhead)
+        decoder_layer = nn.TransformerDecoderLayer(d_model=self.d_model, nhead=self.nhead, dropout=0.5)
         self.transformer_decoder = nn.TransformerDecoder(decoder_layer, num_layers=self.num_layers)
 
         self.fc_d = FinalFC(self.d_model)
@@ -74,7 +74,9 @@ class Transformer(Module):
             src = self.embedding(inputs[:, :14]).permute(1, 0, 2)
             src = self.transformer_encoder(src)
 
-            tgt_start = torch.zeros((1, inputs.size(0), 512), dtype=torch.double).cuda()
+            tgt_start = self.embedding(inputs[:, 8:10]).permute(1, 0, 2)
+            tgt_start = tgt_start.reshape(-1, 1024)
+            tgt_start = self.fc_mix(tgt_start).view(inputs.size(0), -1, 512).permute(1, 0, 2)
             tgt = tgt_start
             result = []
             for i in range(4):

@@ -9,8 +9,8 @@ from utils import *
 parser = argparse.ArgumentParser(description='RNN Encoder and Decoder')
 learn = parser.add_argument_group('Learning options')
 learn.add_argument('--lr', type=float, default=0.00003, help='initial learning rate [default: 0.0003]')
-learn.add_argument('--late', type=float, default=8, help='punishment of delay [default: 8]')
-learn.add_argument('--batch_size', type=int, default=1024, help='batch size for training [default: 1024]')
+learn.add_argument('--late', type=float, default=6, help='punishment of delay [default: 8]')
+learn.add_argument('--batch_size', type=int, default=16, help='batch size for training [default: 1024]')
 learn.add_argument('--checkpoint', type=str, default='N', help='load latest model [default: N]')
 learn.add_argument('--process', type=str, default='N', help='preprocess data [default: N]')
 learn.add_argument('--interval', type=int, default=100, help='test interval [default: 100]')
@@ -24,8 +24,8 @@ def main():
         train, test, field = dataset_reader(train=True, process=True)
         evl, _ = dataset_reader(train=False, fields=field, process=True)
     else:
-        train, test, field = dataset_reader(train=True, process=False, stop=1200000)
-        evl, _ = dataset_reader(train=False, fields=field, process=False)
+        train, test, field = dataset_reader(train=True, process=False, stop=50000)
+        evl, _ = dataset_reader(train=False, fields=field, process=False, stop=10000)
 
     field.build_vocab(train, evl)
     del evl
@@ -44,7 +44,7 @@ def main():
     criterion_day = RMSELoss(gap=0, early=1, late=3)
     criterion_last_day = RMSELoss(gap=0, early=1, late=args.late)
     criterion_hour = RMSELoss(gap=0, early=1, late=1)
-    optimizer = optim.Adam((model.parameters()), lr=args.lr, weight_decay=0.001)
+    optimizer = optim.Adam((model.parameters()), lr=args.lr, weight_decay=0.1)
     with open(r"model/transformer_log.txt", "w+") as f:
         f.write('')
 
@@ -54,7 +54,7 @@ def main():
     best = 99
     train_loss = 0
     train_count = 0
-
+    d = 0
     for epoch in range(200):
         for i, data in enumerate(train_iter):
 
@@ -71,13 +71,13 @@ def main():
             outputs = model(inputs, field, train=True)
 
             loss = (criterion_day(outputs[:, 0] * 2 + 1, data.shipped_day_label.unsqueeze(1), train=True) +
-                    0.1 * criterion_hour(outputs[:, 4] * 5 + 15, data.shipped_hour_label.unsqueeze(1), train=True) +
+                    0.08 * criterion_hour(outputs[:, 4] * 5 + 15, data.shipped_hour_label.unsqueeze(1), train=True) +
                     criterion_day(outputs[:, 1] * 2 + 1, data.got_day_label.unsqueeze(1), train=True) +
-                    0.1 * criterion_hour(outputs[:, 5] * 5 + 15, data.got_hour_label.unsqueeze(1), train=True) +
+                    0.08 * criterion_hour(outputs[:, 5] * 5 + 15, data.got_hour_label.unsqueeze(1), train=True) +
                     criterion_day(outputs[:, 2] * 2 + 1, data.dlved_day_label.unsqueeze(1), train=True) +
-                    0.1 * criterion_hour(outputs[:, 6] * 5 + 15, data.dlved_hour_label.unsqueeze(1), train=True) +
+                    0.08 * criterion_hour(outputs[:, 6] * 5 + 15, data.dlved_hour_label.unsqueeze(1), train=True) +
                     6 * criterion_last_day(outputs[:, 3] * 3 + 3, data.signed_day.unsqueeze(1), train=True) +
-                    0.3 * criterion_hour(outputs[:, 7] * 5 + 15, data.signed_hour.unsqueeze(1), train=True)
+                    0.2 * criterion_hour(outputs[:, 7] * 5 + 15, data.signed_hour.unsqueeze(1), train=True)
                     )
             loss.backward()
             optimizer.step()
