@@ -157,12 +157,12 @@ def process_data(train, path, path_store):
                         tmp_list.append(get_hour(data) + '_h')
                     # pre sell time
                     elif i == 9:
-                        if data != '0' and len(data) and 0 < int(day_difference(start_date, get_date(data))) < 1000:
+                        if data != '0' and len(data) and 0 < int(day_difference(start_date, get_date(data))) < 30:
                             tmp_list.append(day_difference(start_date, get_date(data)) + '_d')
                             tmp_list.append(get_hour(data) + '_h')
                         else:
-                            tmp_list.append(str(-99))
-                            tmp_list.append(str(-99))
+                            tmp_list.append(str(-100))
+                            tmp_list.append(str(-100))
                     # noise time
                     elif data == '-99':
                         tmp_list.append(str(-99))

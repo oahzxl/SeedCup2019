@@ -34,7 +34,7 @@ class SimpleRNN(Module):
 
         outputs = []
         hx = inputs
-        cx = torch.zeros_like(inputs)
+        cx = inputs
         inputs = pre_sell
         for i in range(4):
             hx, cx = self.decoder(inputs, (hx, cx))
