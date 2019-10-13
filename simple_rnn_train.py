@@ -11,10 +11,10 @@ parser = argparse.ArgumentParser(description='RNN Encoder and Decoder')
 learn = parser.add_argument_group('Learning options')
 learn.add_argument('--lr', type=float, default=0.00001, help='initial learning rate [default: 0.00001')
 learn.add_argument('--late', type=float, default=8, help='punishment of delay [default: 8')
-learn.add_argument('--batch_size', type=int, default=1024, help='batch size for training [default: 1024]')
+learn.add_argument('--batch_size', type=int, default=2, help='batch size for training [default: 1024]')
 learn.add_argument('--checkpoint', type=str, default='N', help='load latest model [default: N]')
 learn.add_argument('--process', type=str, default='N', help='preprocess data [default: N]')
-learn.add_argument('--interval', type=int, default=300, help='test interval [default: 300]')
+learn.add_argument('--interval', type=int, default=1, help='test interval [default: 300]')
 
 
 def main():
@@ -25,8 +25,8 @@ def main():
         train, test, field = dataset_reader(train=True, process=True)
         evl, _ = dataset_reader(train=False, fields=field, process=True)
     else:
-        train, test, field = dataset_reader(train=True, process=False, stop=1200000)
-        evl, _ = dataset_reader(train=False, fields=field, process=False)
+        train, test, field = dataset_reader(train=True, process=False, stop=1200)
+        evl, _ = dataset_reader(train=False, fields=field, process=False, stop=1200)
 
     field.build_vocab(train, evl)
     del evl
@@ -41,7 +41,7 @@ def main():
         )
 
     model = SimpleRNN(num_embeddings=len(field.vocab), embedding_dim=512).to(device)
-    criterion_day = RMSELoss(gap=0, early=1, late=3)
+    criterion_day = RMSELoss(gap=0, early=1, late=1)
     criterion_last_day = RMSELoss(gap=0, early=1, late=args.late)
     criterion_hour = RMSELoss(gap=0, early=1, late=1)
     optimizer = optim.Adam((model.parameters()), lr=args.lr, weight_decay=0.03)
@@ -97,10 +97,10 @@ def main():
                                             data_t.rvcr_city_name), dim=1)
                         outputs = model(inputs, 'test', field)
                         
-                        loss = (criterion_day(outputs[0] * 2 + 1, data_t.shipped_day_label.unsqueeze(1), train=False) +
-                                criterion_day(outputs[1] * 2 + 1, data_t.got_day_label.unsqueeze(1), train=False) +
-                                criterion_day(outputs[2] * 2 + 1, data_t.dlved_day_label.unsqueeze(1), train=False) +
-                                4 * criterion_last_day(outputs[3] * 3 + 3, data_t.signed_day.unsqueeze(1), train=False)
+                        loss = (criterion_day(outputs[0] * 2 + 1, data_t.shipped_day_label.unsqueeze(1), train=True) +
+                                criterion_day(outputs[1] * 2 + 1, data_t.got_day_label.unsqueeze(1), train=True) +
+                                criterion_day(outputs[2] * 2 + 1, data_t.dlved_day_label.unsqueeze(1), train=True) +
+                                4 * criterion_last_day(outputs[3] * 3 + 3, data_t.signed_day.unsqueeze(1), train=True)
                                 )
                         test_loss += loss.item()
 
