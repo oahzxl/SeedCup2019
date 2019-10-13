@@ -54,14 +54,14 @@ class Transformer(Module):
 
     def forward(self, inputs, field, train=True):
         if train:
-            src = self.embedding(inputs[:, :14]).permute(1, 0, 2)
+            src = self.embedding(inputs[:, :14]).permute(1, 0, 2).cuda()
             src = self.transformer_encoder(src)
 
             tgt = self.embedding(inputs[:, 14:]).view(-1, 1024)
             tgt = self.fc_mix(tgt).view(inputs.size(0), -1, 512).permute(1, 0, 2)
             tgt_start = torch.zeros((1, inputs.size(0), 512), dtype=torch.double).cuda()
             tgt_mask = self.make_mask()
-            tgt = torch.cat((tgt_start, tgt), dim=0)
+            tgt = torch.cat((tgt_start, tgt), dim=0).cuda()
             out = self.transformer_decoder(tgt, src, tgt_mask=tgt_mask)
 
             out = out.view(-1, out.size(2))
@@ -92,7 +92,7 @@ class Transformer(Module):
                     hour = self.embedding(self.time_to_idx(hour, field, 'h').long()).squeeze(1)
                     new = torch.cat((day, hour), dim=-1).view(-1, 1024)
                     new = self.fc_mix(new).view(inputs.size(0), -1, 512).permute(1, 0, 2)
-                    tgt = torch.cat((tgt, new))
+                    tgt = torch.cat((tgt, new)).cuda()
 
             return result
 
