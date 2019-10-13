@@ -60,8 +60,9 @@ class Transformer(Module):
             tgt = self.embedding(inputs[:, 14:]).view(-1, 1024)
             tgt = self.fc_mix(tgt).view(inputs.size(0), -1, 512).permute(1, 0, 2)
             tgt_start = torch.zeros((1, inputs.size(0), 512), dtype=torch.double).cuda()
+            tgt_mask = self.make_mask()
             tgt = torch.cat((tgt_start, tgt), dim=0)
-            out = self.transformer_decoder(tgt, src)
+            out = self.transformer_decoder(tgt, src, tgt_mask=tgt_mask)
 
             out = out.view(-1, out.size(2))
             day = self.fc_d(out).view(inputs.size(0), -1)
