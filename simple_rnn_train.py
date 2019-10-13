@@ -97,10 +97,10 @@ def main():
                                             data_t.rvcr_city_name), dim=1)
                         outputs = model(inputs, 'test', field)
                         
-                        loss = (criterion_day(outputs[0] * 2 + 1, data_t.shipped_day_label.unsqueeze(1), train=True) +
-                                criterion_day(outputs[1] * 2 + 1, data_t.got_day_label.unsqueeze(1), train=True) +
-                                criterion_day(outputs[2] * 2 + 1, data_t.dlved_day_label.unsqueeze(1), train=True) +
-                                4 * criterion_last_day(outputs[3] * 3 + 3, data_t.signed_day.unsqueeze(1), train=True)
+                        loss = (criterion_day(outputs[0] * 2 + 1, data_t.shipped_day_label.unsqueeze(1), train=False) +
+                                criterion_day(outputs[1] * 2 + 1, data_t.got_day_label.unsqueeze(1), train=False) +
+                                criterion_day(outputs[2] * 2 + 1, data_t.dlved_day_label.unsqueeze(1), train=False) +
+                                4 * criterion_last_day(outputs[3] * 3 + 3, data_t.signed_day.unsqueeze(1), train=False)
                                 )
                         test_loss += loss.item()
 

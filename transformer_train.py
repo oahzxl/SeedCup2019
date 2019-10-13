@@ -105,17 +105,17 @@ def main():
                                             data_t.rvcr_city_name), dim=1)
                         outputs = model(inputs, field, train=False)
 
-                        loss = (criterion_day(outputs[0] * 2 + 1, data_t.shipped_day_label.unsqueeze(1), train=True) +
+                        loss = (criterion_day(outputs[0] * 2 + 1, data_t.shipped_day_label.unsqueeze(1), train=False) +
                                 0.1 * criterion_hour(outputs[1] * 5 + 15, data_t.shipped_hour_label.unsqueeze(1),
                                                      train=True) +
-                                criterion_day(outputs[2] * 2 + 1, data_t.got_day_label.unsqueeze(1), train=True) +
+                                criterion_day(outputs[2] * 2 + 1, data_t.got_day_label.unsqueeze(1), train=False) +
                                 0.1 * criterion_hour(outputs[3] * 5 + 15, data_t.got_hour_label.unsqueeze(1),
                                                      train=True) +
-                                criterion_day(outputs[4] * 2 + 1, data_t.dlved_day_label.unsqueeze(1), train=True) +
+                                criterion_day(outputs[4] * 2 + 1, data_t.dlved_day_label.unsqueeze(1), train=False) +
                                 0.1 * criterion_hour(outputs[5] * 5 + 15, data_t.dlved_hour_label.unsqueeze(1),
                                                      train=True) +
-                                6 * criterion_last_day(outputs[6] * 3 + 3, data_t.signed_day.unsqueeze(1), train=True) +
-                                0.3 * criterion_hour(outputs[7] * 5 + 15, data_t.signed_hour.unsqueeze(1), train=True)
+                                6 * criterion_last_day(outputs[6] * 3 + 3, data_t.signed_day.unsqueeze(1), train=False) +
+                                0.3 * criterion_hour(outputs[7] * 5 + 15, data_t.signed_hour.unsqueeze(1), train=False)
                                 )
                         test_loss += loss.item()
 
