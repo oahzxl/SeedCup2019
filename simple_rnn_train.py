@@ -6,15 +6,14 @@ from torchtext.data import BucketIterator
 from modules import *
 from utils import *
 
-
 parser = argparse.ArgumentParser(description='RNN Encoder and Decoder')
 learn = parser.add_argument_group('Learning options')
-learn.add_argument('--lr', type=float, default=0.00001, help='initial learning rate [default: 0.00001')
+learn.add_argument('--lr', type=float, default=0.00003, help='initial learning rate [default: 0.0003]')
 learn.add_argument('--late', type=float, default=8, help='punishment of delay [default: 8')
-learn.add_argument('--batch_size', type=int, default=2, help='batch size for training [default: 1024]')
+learn.add_argument('--batch_size', type=int, default=1024, help='batch size for training [default: 1024]')
 learn.add_argument('--checkpoint', type=str, default='N', help='load latest model [default: N]')
 learn.add_argument('--process', type=str, default='N', help='preprocess data [default: N]')
-learn.add_argument('--interval', type=int, default=1, help='test interval [default: 300]')
+learn.add_argument('--interval', type=int, default=100, help='test interval [default: 100]')
 
 
 def main():
@@ -25,8 +24,8 @@ def main():
         train, test, field = dataset_reader(train=True, process=True)
         evl, _ = dataset_reader(train=False, fields=field, process=True)
     else:
-        train, test, field = dataset_reader(train=True, process=False, stop=1200)
-        evl, _ = dataset_reader(train=False, fields=field, process=False, stop=1200)
+        train, test, field = dataset_reader(train=True, process=False, stop=1200000)
+        evl, _ = dataset_reader(train=False, fields=field, process=False)
 
     field.build_vocab(train, evl)
     del evl
@@ -38,13 +37,13 @@ def main():
         repeat=False,
         sort=False,
         shuffle=True
-        )
+    )
 
     model = SimpleRNN(num_embeddings=len(field.vocab), embedding_dim=512).to(device)
-    criterion_day = RMSELoss(gap=0, early=1, late=1)
+    criterion_day = RMSELoss(gap=0, early=1, late=3)
     criterion_last_day = RMSELoss(gap=0, early=1, late=args.late)
     criterion_hour = RMSELoss(gap=0, early=1, late=1)
-    optimizer = optim.Adam((model.parameters()), lr=args.lr, weight_decay=0.03)
+    optimizer = optim.Adam((model.parameters()), lr=args.lr, weight_decay=0.01)
     with open(r"model/simple_rnn_log.txt", "w+") as f:
         f.write('')
 
@@ -66,11 +65,25 @@ def main():
                                 data.rvcr_city_name), dim=1)
 
             outputs = model(inputs, 'train', field)
-
+            # loss = (criterion_hour(outputs[0] + 0.5, data.shipped_day_label.unsqueeze(1), train=True) +
+            #         criterion_hour(outputs[1] * 5 + 15, data.shipped_hour_label.unsqueeze(1), train=True) +
+            #         criterion_hour(outputs[0] + 0.5 + outputs[2] + 0.4, data.got_day_label.unsqueeze(1), train=True) +
+            #         criterion_hour(outputs[3] * 5 + 15, data.got_hour_label.unsqueeze(1), train=True) +
+            #         criterion_hour(outputs[0] + 0.5 + outputs[2] + 0.4 + outputs[4] + 0.4,
+            #                        data.dlved_day_label.unsqueeze(1), train=True) +
+            #         criterion_hour(outputs[5] * 5 + 15, data.dlved_hour_label.unsqueeze(1), train=True) +
+            #         criterion_day(outputs[0] + 0.5 + outputs[2] + 0.4 + outputs[4] + 0.4 + outputs[6] * 2 + 1,
+            #                       data.signed_day.unsqueeze(1), train=True) +
+            #         criterion_hour(outputs[7] * 5 + 15, data.signed_hour.unsqueeze(1), train=True)
+            #         )
             loss = (criterion_day(outputs[0] * 2 + 1, data.shipped_day_label.unsqueeze(1), train=True) +
-                    criterion_day(outputs[1] * 2 + 1, data.got_day_label.unsqueeze(1), train=True) +
-                    criterion_day(outputs[2] * 2 + 1, data.dlved_day_label.unsqueeze(1), train=True) +
-                    4 * criterion_last_day(outputs[3] * 3 + 3, data.signed_day.unsqueeze(1), train=True)
+                    0.1 * criterion_hour(outputs[1] * 5 + 15, data.shipped_hour_label.unsqueeze(1), train=True) +
+                    criterion_day(outputs[2] * 2 + 1, data.got_day_label.unsqueeze(1), train=True) +
+                    0.1 * criterion_hour(outputs[3] * 5 + 15, data.got_hour_label.unsqueeze(1), train=True) +
+                    criterion_day(outputs[4] * 2 + 1, data.dlved_day_label.unsqueeze(1), train=True) +
+                    0.1 * criterion_hour(outputs[5] * 5 + 15, data.dlved_hour_label.unsqueeze(1), train=True) +
+                    6 * criterion_last_day(outputs[6] * 3 + 3, data.signed_day.unsqueeze(1), train=True) +
+                    0.3 * criterion_hour(outputs[7] * 5 + 15, data.signed_hour.unsqueeze(1), train=True)
                     )
             loss.backward()
             optimizer.step()
@@ -96,16 +109,23 @@ def main():
                                             data_t.seller_uid_field, data_t.company_name, data_t.rvcr_prov_name,
                                             data_t.rvcr_city_name), dim=1)
                         outputs = model(inputs, 'test', field)
-                        
+
                         loss = (criterion_day(outputs[0] * 2 + 1, data_t.shipped_day_label.unsqueeze(1), train=True) +
-                                criterion_day(outputs[1] * 2 + 1, data_t.got_day_label.unsqueeze(1), train=True) +
-                                criterion_day(outputs[2] * 2 + 1, data_t.dlved_day_label.unsqueeze(1), train=True) +
-                                4 * criterion_last_day(outputs[3] * 3 + 3, data_t.signed_day.unsqueeze(1), train=True)
+                                0.1 * criterion_hour(outputs[1] * 5 + 15, data_t.shipped_hour_label.unsqueeze(1),
+                                                     train=True) +
+                                criterion_day(outputs[2] * 2 + 1, data_t.got_day_label.unsqueeze(1), train=True) +
+                                0.1 * criterion_hour(outputs[3] * 5 + 15, data_t.got_hour_label.unsqueeze(1),
+                                                     train=True) +
+                                criterion_day(outputs[4] * 2 + 1, data_t.dlved_day_label.unsqueeze(1), train=True) +
+                                0.1 * criterion_hour(outputs[5] * 5 + 15, data_t.dlved_hour_label.unsqueeze(1),
+                                                     train=True) +
+                                6 * criterion_last_day(outputs[6] * 3 + 3, data_t.signed_day.unsqueeze(1), train=True) +
+                                0.3 * criterion_hour(outputs[7] * 5 + 15, data_t.signed_hour.unsqueeze(1), train=True)
                                 )
                         test_loss += loss.item()
 
                         # day = outputs[0] + 0.5 + outputs[2] + 0.4 + outputs[4] + 0.4 + outputs[6] * 2 + 1
-                        day = outputs[3] * 3 + 3
+                        day = outputs[6] * 3 + 3
                         hour = outputs[-1]
 
                         for b in range(day.size(0)):
@@ -115,7 +135,8 @@ def main():
                                 continue
                             pred_time = arrow.get("2019-03-" + ('%.0f' % (day[b] + 3)).zfill(2) +
                                                   ' ' + ('%.0f' % (hour[b] * 5 + 15)).zfill(2))
-                            sign_time = arrow.get("2019-03-" + str(int(data_t.signed_day[b]) + 3).zfill(2) + ' 15')
+                            sign_time = arrow.get("2019-03-" + str(int(data_t.signed_day[b]) + 3).zfill(2) + ' ' +
+                                                  str(int(data_t.signed_hour[b])).zfill(2))
                             rank += int((pred_time.timestamp - sign_time.timestamp) / 3600) ** 2
 
                             # time
