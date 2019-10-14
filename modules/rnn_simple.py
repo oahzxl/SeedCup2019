@@ -25,7 +25,7 @@ class SimpleRNN(Module):
         self.double()
 
     def forward(self, inputs, mode, field):
-        pre_sell = inputs[:, 8:10]
+        pre_sell = self.embedding(inputs[:, 8:10])
         inputs = self.embedding(inputs)
         inputs, (_, _) = self.encoder(inputs)
         inputs = inputs[:, -1, :]
