@@ -61,24 +61,14 @@ def main():
             inputs = torch.cat((data.plat_form, data.biz_type,
                                 data.create_hour, data.payed_day, data.payed_hour,
                                 data.cate1_id, data.cate2_id, data.cate3_id,
-                                data.preselling_shipped_day, data.preselling_shipped_hour,
+                                data.preselling_shipped_day,
                                 data.seller_uid_field, data.company_name, data.rvcr_prov_name,
-                                data.rvcr_city_name,
-                                data.shipped_day, data.shipped_hour, data.got_day, data.got_hour,
-                                data.dlved_day, data.dlved_hour,
+                                data.rvcr_city_name
                                 ), dim=1)
 
             outputs = model(inputs, field, train=True)
 
-            loss = (criterion_day(outputs[:, 0] * 2 + 1, data.shipped_day_label.unsqueeze(1), train=True) +
-                    0.08 * criterion_hour(outputs[:, 4] * 5 + 15, data.shipped_hour_label.unsqueeze(1), train=True) +
-                    criterion_day(outputs[:, 1] * 2 + 1, data.got_day_label.unsqueeze(1), train=True) +
-                    0.08 * criterion_hour(outputs[:, 5] * 5 + 15, data.got_hour_label.unsqueeze(1), train=True) +
-                    criterion_day(outputs[:, 2] * 2 + 1, data.dlved_day_label.unsqueeze(1), train=True) +
-                    0.08 * criterion_hour(outputs[:, 6] * 5 + 15, data.dlved_hour_label.unsqueeze(1), train=True) +
-                    6 * criterion_last_day(outputs[:, 3] * 3 + 3, data.signed_day.unsqueeze(1), train=True) +
-                    0.2 * criterion_hour(outputs[:, 7] * 5 + 15, data.signed_hour.unsqueeze(1), train=True)
-                    )
+            loss = criterion_last_day(outputs * 3 + 3, data.signed_day.unsqueeze(1), train=True)
             loss.backward()
             optimizer.step()
             optimizer.zero_grad()
@@ -105,30 +95,17 @@ def main():
                                             data_t.rvcr_city_name), dim=1)
                         outputs = model(inputs, field, train=False)
 
-                        loss = (criterion_day(outputs[0] * 2 + 1, data_t.shipped_day_label.unsqueeze(1), train=False) +
-                                0.1 * criterion_hour(outputs[1] * 5 + 15, data_t.shipped_hour_label.unsqueeze(1),
-                                                     train=True) +
-                                criterion_day(outputs[2] * 2 + 1, data_t.got_day_label.unsqueeze(1), train=False) +
-                                0.1 * criterion_hour(outputs[3] * 5 + 15, data_t.got_hour_label.unsqueeze(1),
-                                                     train=True) +
-                                criterion_day(outputs[4] * 2 + 1, data_t.dlved_day_label.unsqueeze(1), train=False) +
-                                0.1 * criterion_hour(outputs[5] * 5 + 15, data_t.dlved_hour_label.unsqueeze(1),
-                                                     train=True) +
-                                6 * criterion_last_day(outputs[6] * 3 + 3, data_t.signed_day.unsqueeze(1), train=False) +
-                                0.3 * criterion_hour(outputs[7] * 5 + 15, data_t.signed_hour.unsqueeze(1), train=False)
-                                )
+                        loss = criterion_last_day(outputs * 3 + 3, data_t.signed_day.unsqueeze(1), train=True)
                         test_loss += loss.item()
 
-                        day = outputs[6] * 3 + 3
-                        hour = outputs[-1]
+                        day = outputs * 3 + 3
 
                         for b in range(day.size(0)):
 
                             # rank
                             if int(data_t.signed_day[b]) < 0 or int(data_t.signed_day[b]) > 20:
                                 continue
-                            pred_time = arrow.get("2019-03-" + ('%.0f' % (day[b] + 3)).zfill(2) +
-                                                  ' ' + ('%.0f' % (hour[b] * 5 + 15)).zfill(2))
+                            pred_time = arrow.get("2019-03-" + ('%.0f' % (day[b] + 3)).zfill(2) + ' 15')
                             sign_time = arrow.get("2019-03-" + str(int(data_t.signed_day[b]) + 3).zfill(2) + ' ' +
                                                   str(int(data_t.signed_hour[b])).zfill(2))
                             rank += int((pred_time.timestamp - sign_time.timestamp) / 3600) ** 2

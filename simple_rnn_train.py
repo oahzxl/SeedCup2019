@@ -57,10 +57,16 @@ def main():
     for epoch in range(200):
         for i, data in enumerate(train_iter):
 
+            # inputs = torch.cat((data.plat_form, data.biz_type,
+            #                     data.create_hour, data.payed_day, data.payed_hour,
+            #                     data.cate1_id, data.cate2_id, data.cate3_id,
+            #                     data.preselling_shipped_day, data.preselling_shipped_hour,
+            #                     data.seller_uid_field, data.company_name, data.rvcr_prov_name,
+            #                     data.rvcr_city_name), dim=1)
             inputs = torch.cat((data.plat_form, data.biz_type,
-                                data.create_hour, data.payed_day, data.payed_hour,
-                                data.cate1_id, data.cate2_id, data.cate3_id,
-                                data.preselling_shipped_day, data.preselling_shipped_hour,
+                                data.payed_hour,
+                                data.cate3_id,
+                                data.preselling_shipped_day,
                                 data.seller_uid_field, data.company_name, data.rvcr_prov_name,
                                 data.rvcr_city_name), dim=1)
 
@@ -102,10 +108,16 @@ def main():
                     for j, data_t in enumerate(test_iter):
                         if j > 200:
                             break
+                        # inputs = torch.cat((data_t.plat_form, data_t.biz_type,
+                        #                     data_t.create_hour, data_t.payed_day, data_t.payed_hour,
+                        #                     data_t.cate1_id, data_t.cate2_id, data_t.cate3_id,
+                        #                     data_t.preselling_shipped_day, data_t.preselling_shipped_hour,
+                        #                     data_t.seller_uid_field, data_t.company_name, data_t.rvcr_prov_name,
+                        #                     data_t.rvcr_city_name), dim=1)
                         inputs = torch.cat((data_t.plat_form, data_t.biz_type,
-                                            data_t.create_hour, data_t.payed_day, data_t.payed_hour,
-                                            data_t.cate1_id, data_t.cate2_id, data_t.cate3_id,
-                                            data_t.preselling_shipped_day, data_t.preselling_shipped_hour,
+                                            data_t.payed_hour,
+                                            data_t.cate3_id,
+                                            data_t.preselling_shipped_day,
                                             data_t.seller_uid_field, data_t.company_name, data_t.rvcr_prov_name,
                                             data_t.rvcr_city_name), dim=1)
                         outputs = model(inputs, 'test', field)
@@ -161,7 +173,7 @@ def main():
                                                              ('YES' if rank < best and acc >= 0.981 else 'NO')))
                     if rank < best and acc >= 0.981:
                         best = rank
-                        torch.save(model.state_dict(), r'model/simple_rnn_model_' + str(int(best)) + r'.pkl')
+                        torch.save(model.state_dict(), r'model/simple_rnn_model.pkl')
 
                     train_count = 0
                     train_loss = 0
