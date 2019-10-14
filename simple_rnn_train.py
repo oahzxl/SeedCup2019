@@ -13,7 +13,7 @@ learn.add_argument('--late', type=float, default=8, help='punishment of delay [d
 learn.add_argument('--batch_size', type=int, default=1024, help='batch size for training [default: 1024]')
 learn.add_argument('--checkpoint', type=str, default='N', help='load latest model [default: N]')
 learn.add_argument('--process', type=str, default='N', help='preprocess data [default: N]')
-learn.add_argument('--interval', type=int, default=100, help='test interval [default: 100]')
+learn.add_argument('--interval', type=int, default=300, help='test interval [default: 300]')
 
 
 def main():
@@ -106,7 +106,7 @@ def main():
                     count = 0
                     test_loss = 0
                     for j, data_t in enumerate(test_iter):
-                        if j > 200:
+                        if j > 50:
                             break
                         # inputs = torch.cat((data_t.plat_form, data_t.biz_type,
                         #                     data_t.create_hour, data_t.payed_day, data_t.payed_hour,
