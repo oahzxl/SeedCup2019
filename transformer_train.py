@@ -100,7 +100,8 @@ def main():
                         for b in range(day.size(0)):
 
                             # rank
-                            if int(data_t.signed_day[b]) < 0 or int(data_t.signed_day[b]) > 20:
+                            if int(data_t.signed_day[b]) < 0 or int(data_t.signed_day[b]) > 20 or int(day[b] + 3) > 25\
+                                    or int(day[b] + 3) < 0:
                                 continue
                             pred_time = arrow.get("2019-03-" + ('%.0f' % (day[b] + 3)).zfill(2) + ' 15')
                             sign_time = arrow.get("2019-03-" + str(int(data_t.signed_day[b]) + 3).zfill(2) + ' ' +
