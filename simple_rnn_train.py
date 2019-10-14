@@ -21,7 +21,7 @@ def main():
     device = "cuda" if torch.cuda.is_available() else "cpu"
 
     if args.process == 'Y':
-        train, test, field = dataset_reader(train=True, process=True, stop=1200000)
+        train, test, field = dataset_reader(train=True, process=True)
         evl, _ = dataset_reader(train=False, fields=field, process=True)
     else:
         train, test, field = dataset_reader(train=True, process=False, stop=1200000)
@@ -131,7 +131,7 @@ def main():
                         for b in range(day.size(0)):
 
                             # rank
-                            if int(data_t.signed_day[b]) < 0 or int(data_t.signed_day[b]) > 27:
+                            if int(data_t.signed_day[b]) < 0 or int(data_t.signed_day[b]) > 20:
                                 continue
                             pred_time = arrow.get("2019-03-" + ('%.0f' % (day[b] + 3)).zfill(2) +
                                                   ' ' + ('%.0f' % (hour[b] * 5 + 15)).zfill(2))
