@@ -25,6 +25,7 @@ class SimpleRNN(Module):
         self.double()
 
     def forward(self, inputs, mode, field):
+        pre_sell = inputs[:, 8:10]
         inputs = self.embedding(inputs)
         inputs, (_, _) = self.encoder(inputs)
         inputs = inputs[:, -1, :]
@@ -32,7 +33,7 @@ class SimpleRNN(Module):
         inputs = self.fc_2(f.relu(self.dropout(inputs)))
 
         outputs = []
-        hx = torch.zeros_like(inputs)
+        hx = pre_sell.view(inputs.size(0), -1)
         cx = torch.zeros_like(inputs)
         for i in range(4):
             hx, cx = self.decoder(inputs, (hx, cx))
