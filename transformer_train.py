@@ -10,10 +10,10 @@ parser = argparse.ArgumentParser(description='RNN Encoder and Decoder')
 learn = parser.add_argument_group('Learning options')
 learn.add_argument('--lr', type=float, default=0.00003, help='initial learning rate [default: 0.0003]')
 learn.add_argument('--late', type=float, default=6, help='punishment of delay [default: 8]')
-learn.add_argument('--batch_size', type=int, default=16, help='batch size for training [default: 1024]')
+learn.add_argument('--batch_size', type=int, default=2, help='batch size for training [default: 1024]')
 learn.add_argument('--checkpoint', type=str, default='N', help='load latest model [default: N]')
 learn.add_argument('--process', type=str, default='N', help='preprocess data [default: N]')
-learn.add_argument('--interval', type=int, default=100, help='test interval [default: 100]')
+learn.add_argument('--interval', type=int, default=1, help='test interval [default: 100]')
 
 
 def main():
@@ -24,8 +24,8 @@ def main():
         train, test, field = dataset_reader(train=True, process=True)
         evl, _ = dataset_reader(train=False, fields=field, process=True)
     else:
-        train, test, field = dataset_reader(train=True, process=False, stop=50000)
-        evl, _ = dataset_reader(train=False, fields=field, process=False, stop=10000)
+        train, test, field = dataset_reader(train=True, process=False, stop=1200000)
+        evl, _ = dataset_reader(train=False, fields=field, process=False)
 
     field.build_vocab(train, evl)
     del evl
@@ -41,9 +41,7 @@ def main():
 
     model = Transformer(num_embeddings=len(field.vocab), embedding_dim=512, d_model=512,
                         nhead=1, num_layers=1).to(device)
-    criterion_day = RMSELoss(gap=0, early=1, late=3)
     criterion_last_day = RMSELoss(gap=0, early=1, late=args.late)
-    criterion_hour = RMSELoss(gap=0, early=1, late=1)
     optimizer = optim.Adam((model.parameters()), lr=args.lr, weight_decay=0.1)
     with open(r"model/transformer_log.txt", "w+") as f:
         f.write('')
@@ -59,7 +57,7 @@ def main():
         for i, data in enumerate(train_iter):
 
             inputs = torch.cat((data.plat_form, data.biz_type,
-                                data.create_hour, data.payed_day, data.payed_hour,
+                                data.payed_day,
                                 data.cate1_id, data.cate2_id, data.cate3_id,
                                 data.preselling_shipped_day,
                                 data.seller_uid_field, data.company_name, data.rvcr_prov_name,
@@ -88,9 +86,9 @@ def main():
                             break
 
                         inputs = torch.cat((data_t.plat_form, data_t.biz_type,
-                                            data_t.create_hour, data_t.payed_day, data_t.payed_hour,
+                                            data_t.payed_day,
                                             data_t.cate1_id, data_t.cate2_id, data_t.cate3_id,
-                                            data_t.preselling_shipped_day, data_t.preselling_shipped_hour,
+                                            data_t.preselling_shipped_day,
                                             data_t.seller_uid_field, data_t.company_name, data_t.rvcr_prov_name,
                                             data_t.rvcr_city_name), dim=1)
                         outputs = model(inputs, field, train=False)
@@ -131,7 +129,7 @@ def main():
                                                              ('YES' if rank < best and acc >= 0.981 else 'NO')))
                     if rank < best and acc >= 0.981:
                         best = rank
-                        torch.save(model.state_dict(), r'model/transformer_model_' + str(int(best)) + r'.pkl')
+                        torch.save(model.state_dict(), r'model/transformer_model.pkl')
 
                     train_count = 0
                     train_loss = 0
