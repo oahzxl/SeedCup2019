@@ -8,7 +8,7 @@ from utils import *
 
 parser = argparse.ArgumentParser(description='RNN Encoder and Decoder')
 learn = parser.add_argument_group('Learning options')
-learn.add_argument('--lr', type=float, default=0.0001, help='initial learning rate [default: 0.0003]')
+learn.add_argument('--lr', type=float, default=0.00003, help='initial learning rate [default: 0.0003]')
 learn.add_argument('--late', type=float, default=8, help='punishment of delay [default: 8]')
 learn.add_argument('--batch_size', type=int, default=1024, help='batch size for training [default: 1024]')
 learn.add_argument('--checkpoint', type=str, default='N', help='load latest model [default: N]')
@@ -39,9 +39,9 @@ def main():
         shuffle=True
         )
     model = Transformer(num_embeddings=len(field.vocab), embedding_dim=512, d_model=512,
-                        nhead=1, num_layers=1).to(device)
+                        nhead=2, num_layers=2).to(device)
     criterion_last_day = RMSELoss(gap=0, early=1, late=args.late)
-    optimizer = optim.Adam((model.parameters()), lr=args.lr, weight_decay=0.1)
+    optimizer = optim.Adam((model.parameters()), lr=args.lr, weight_decay=0.03)
     with open(r"model/transformer_log.txt", "w+") as f:
         f.write('')
 
