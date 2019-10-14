@@ -51,7 +51,7 @@ def main():
     best = 99
     train_loss = 0
     train_count = 0
-    d = 0
+
     for epoch in range(200):
         for i, data in enumerate(train_iter):
 
