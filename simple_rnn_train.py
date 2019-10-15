@@ -8,12 +8,12 @@ from utils import *
 
 parser = argparse.ArgumentParser(description='RNN Encoder and Decoder')
 learn = parser.add_argument_group('Learning options')
-learn.add_argument('--lr', type=float, default=0.00001, help='initial learning rate [default: 0.0003]')
-learn.add_argument('--late', type=float, default=7.5, help='punishment of delay [default: 8')
+learn.add_argument('--lr', type=float, default=0.00002, help='initial learning rate [default: 0.00002]')
+learn.add_argument('--late', type=float, default=7.6, help='punishment of delay [default: 8')
 learn.add_argument('--batch_size', type=int, default=1024, help='batch size for training [default: 1024]')
 learn.add_argument('--checkpoint', type=str, default='N', help='load latest model [default: N]')
 learn.add_argument('--process', type=str, default='N', help='preprocess data [default: N]')
-learn.add_argument('--interval', type=int, default=300, help='test interval [default: 300]')
+learn.add_argument('--interval', type=int, default=900, help='test interval [default: 900]')
 
 
 def main():
@@ -57,16 +57,10 @@ def main():
     for epoch in range(200):
         for i, data in enumerate(train_iter):
 
-            # inputs = torch.cat((data.plat_form, data.biz_type,
-            #                     data.create_hour, data.payed_day, data.payed_hour,
-            #                     data.cate1_id, data.cate2_id, data.cate3_id,
-            #                     data.preselling_shipped_day, data.preselling_shipped_hour,
-            #                     data.seller_uid_field, data.company_name, data.rvcr_prov_name,
-            #                     data.rvcr_city_name), dim=1)
             inputs = torch.cat((data.plat_form, data.biz_type,
-                                data.payed_hour,
-                                data.cate3_id,
-                                data.preselling_shipped_day,
+                                data.payed_day, data.payed_hour,
+                                data.cate1_id, data.cate2_id, data.cate3_id,
+                                data.preselling_shipped_day, data.preselling_shipped_hour,
                                 data.seller_uid_field, data.company_name, data.rvcr_prov_name,
                                 data.rvcr_city_name), dim=1)
 
@@ -77,7 +71,7 @@ def main():
                     0.1 * criterion_hour(outputs[3] * 5 + 15, data.got_hour_label.unsqueeze(1), train=True) +
                     criterion_day(outputs[4] * 2 + 1, data.dlved_day_label.unsqueeze(1), train=True) +
                     0.1 * criterion_hour(outputs[5] * 5 + 15, data.dlved_hour_label.unsqueeze(1), train=True) +
-                    6 * criterion_last_day(outputs[6] * 3 + 3, data.signed_day.unsqueeze(1), train=True) +
+                    4 * criterion_last_day(outputs[6] * 3 + 3, data.signed_day.unsqueeze(1), train=True) +
                     0.3 * criterion_hour(outputs[7] * 5 + 15, data.signed_hour.unsqueeze(1), train=True)
                     )
             loss.backward()
@@ -99,8 +93,8 @@ def main():
                             break
 
                         inputs = torch.cat((data_t.plat_form, data_t.biz_type,
-                                            data_t.payed_hour,
-                                            data_t.cate3_id,
+                                            data_t.payed_day, data_t.payed_hour,
+                                            data_t.cate2_id, data_t.cate3_id,
                                             data_t.preselling_shipped_day,
                                             data_t.seller_uid_field, data_t.company_name, data_t.rvcr_prov_name,
                                             data_t.rvcr_city_name), dim=1)
@@ -115,7 +109,7 @@ def main():
                                 criterion_day(outputs[4] * 2 + 1, data_t.dlved_day_label.unsqueeze(1), train=True) +
                                 0.1 * criterion_hour(outputs[5] * 5 + 15, data_t.dlved_hour_label.unsqueeze(1),
                                                      train=True) +
-                                6 * criterion_last_day(outputs[6] * 3 + 3, data_t.signed_day.unsqueeze(1), train=True) +
+                                4 * criterion_last_day(outputs[6] * 3 + 3, data_t.signed_day.unsqueeze(1), train=True) +
                                 0.3 * criterion_hour(outputs[7] * 5 + 15, data_t.signed_hour.unsqueeze(1), train=True)
                                 )
                         test_loss += loss.item()
