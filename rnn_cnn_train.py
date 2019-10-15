@@ -97,11 +97,11 @@ def main():
                         for b in range(day.size(0)):
 
                             # rank
-                            if int(data_t.signed_day[b]) < 0 or int(data_t.signed_day[b]) > 20:
+                            if not (0 <= int(data_t.signed_day[b]) <= 25) or not (0 <= day[b] <= 25):
                                 continue
-                            pred_time = arrow.get("2019-03-" + ('%.0f' % (day[b] + 3)).zfill(2) +
+                            pred_time = arrow.get("2019-03-" + ('%.0f' % (day[b] + 5)).zfill(2) +
                                                   ' 15')
-                            sign_time = arrow.get("2019-03-" + str(int(data_t.signed_day[b]) + 3).zfill(2) + ' ' +
+                            sign_time = arrow.get("2019-03-" + str(int(data_t.signed_day[b]) + 5).zfill(2) + ' ' +
                                                   str(int(data_t.signed_hour[b])).zfill(2))
                             rank += int((pred_time.timestamp - sign_time.timestamp) / 3600) ** 2
 
