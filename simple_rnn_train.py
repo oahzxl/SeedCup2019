@@ -58,7 +58,7 @@ def main():
         for i, data in enumerate(train_iter):
             inputs = torch.cat((data.plat_form, data.biz_type,
                                 data.payed_day, data.payed_hour,
-                                data.cate1_id, data.cate2_id, data.cate3_id,
+                                data.cate2_id, data.cate3_id,
                                 data.preselling_shipped_day, data.preselling_shipped_hour,
                                 data.seller_uid_field, data.company_name, data.rvcr_prov_name,
                                 data.rvcr_city_name), dim=1)
