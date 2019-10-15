@@ -14,7 +14,7 @@ learn.add_argument('--late', type=float, default=8, help='punishment of delay [d
 learn.add_argument('--batch_size', type=int, default=1024, help='batch size for training [default: 1024]')
 learn.add_argument('--checkpoint', type=str, default='N', help='load latest model [default: N]')
 learn.add_argument('--process', type=str, default='N', help='preprocess data [default: N]')
-learn.add_argument('--interval', type=int, default=300, help='test interval [default: 300]')
+learn.add_argument('--interval', type=int, default=900, help='test interval [default: 300]')
 
 
 def main():
@@ -127,7 +127,7 @@ def main():
                                                              ('YES' if rank < best and acc >= 0.981 else 'NO')))
                     if rank < best and acc >= 0.981:
                         best = rank
-                        torch.save(model.state_dict(), r'model/rnn_cnn_model.pkl')
+                        torch.save(model.state_dict(), r'model/rnn_cnn_model_' + str(int(best)) + '.pkl')
 
                     train_count = 0
                     train_loss = 0

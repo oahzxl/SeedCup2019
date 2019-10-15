@@ -10,7 +10,7 @@ parser = argparse.ArgumentParser(description='RNN Encoder and Decoder')
 learn = parser.add_argument_group('Learning options')
 learn.add_argument('--lr', type=float, default=0.00002, help='initial learning rate [default: 0.00002]')
 learn.add_argument('--late', type=float, default=8, help='punishment of delay [default: 8')
-learn.add_argument('--batch_size', type=int, default=512, help='batch size for training [default: 1024]')
+learn.add_argument('--batch_size', type=int, default=1024, help='batch size for training [default: 1024]')
 learn.add_argument('--checkpoint', type=str, default='N', help='load latest model [default: N]')
 learn.add_argument('--process', type=str, default='N', help='preprocess data [default: N]')
 learn.add_argument('--interval', type=int, default=900, help='test interval [default: 900]')
@@ -149,7 +149,7 @@ def main():
                                                              ('YES' if rank < best and acc >= 0.981 else 'NO')))
                     if rank < best and acc >= 0.981:
                         best = rank
-                        torch.save(model.state_dict(), r'model/simple_rnn_model.pkl')
+                        torch.save(model.state_dict(), r'model/simple_rnn_model_' + str(int(best)) + '.pkl')
 
                     train_count = 0
                     train_loss = 0
