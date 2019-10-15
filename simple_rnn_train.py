@@ -8,7 +8,7 @@ from utils import *
 
 parser = argparse.ArgumentParser(description='RNN Encoder and Decoder')
 learn = parser.add_argument_group('Learning options')
-learn.add_argument('--lr', type=float, default=0.00003, help='initial learning rate [default: 0.0003]')
+learn.add_argument('--lr', type=float, default=0.00001, help='initial learning rate [default: 0.0003]')
 learn.add_argument('--late', type=float, default=7.5, help='punishment of delay [default: 8')
 learn.add_argument('--batch_size', type=int, default=1024, help='batch size for training [default: 1024]')
 learn.add_argument('--checkpoint', type=str, default='N', help='load latest model [default: N]')
@@ -126,7 +126,7 @@ def main():
                         for b in range(day.size(0)):
 
                             # rank
-                            if int(data_t.signed_day[b]) < 0 or int(data_t.signed_day[b]) > 20:
+                            if not (0 <= int(data_t.signed_day[b]) <= 25) or not (0 <= day[b] <= 25):
                                 continue
                             pred_time = arrow.get("2019-03-" + ('%.0f' % (day[b] + 3)).zfill(2) +
                                                   ' ' + ('%.0f' % (hour[b] * 5 + 15)).zfill(2))
