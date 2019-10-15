@@ -1,5 +1,5 @@
 import argparse
-
+import tqdm
 from torch import optim
 from torchtext.data import BucketIterator
 
@@ -10,7 +10,7 @@ parser = argparse.ArgumentParser(description='RNN Encoder and Decoder')
 learn = parser.add_argument_group('Learning options')
 learn.add_argument('--lr', type=float, default=0.00002, help='initial learning rate [default: 0.00002]')
 learn.add_argument('--late', type=float, default=8, help='punishment of delay [default: 8')
-learn.add_argument('--batch_size', type=int, default=1024, help='batch size for training [default: 1024]')
+learn.add_argument('--batch_size', type=int, default=512, help='batch size for training [default: 1024]')
 learn.add_argument('--checkpoint', type=str, default='N', help='load latest model [default: N]')
 learn.add_argument('--process', type=str, default='N', help='preprocess data [default: N]')
 learn.add_argument('--interval', type=int, default=900, help='test interval [default: 900]')
@@ -55,8 +55,9 @@ def main():
     train_count = 0
 
     for epoch in range(200):
+        record = tqdm.tqdm(total=args.interval + 1)
         for i, data in enumerate(train_iter):
-
+            record.update()
             inputs = torch.cat((data.plat_form, data.biz_type,
                                 data.payed_day, data.payed_hour,
                                 data.cate1_id, data.cate2_id, data.cate3_id,
@@ -82,6 +83,8 @@ def main():
             train_count += 1
 
             if (i + 1) % args.interval == 0:
+                record.close()
+                record = tqdm.tqdm(total=args.interval + 1)
                 model.eval()
                 with torch.no_grad():
                     rank = 0
