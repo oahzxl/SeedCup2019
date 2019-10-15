@@ -6,14 +6,15 @@ from torchtext.data import BucketIterator
 from modules import *
 from utils import *
 
-parser = argparse.ArgumentParser(description='RNN Encoder and Decoder')
+
+parser = argparse.ArgumentParser(description='RNN + CNN')
 learn = parser.add_argument_group('Learning options')
 learn.add_argument('--lr', type=float, default=0.00003, help='initial learning rate [default: 0.0003]')
-learn.add_argument('--late', type=float, default=8, help='punishment of delay [default: 8')
+learn.add_argument('--late', type=float, default=8.3, help='punishment of delay [default: 8]')
 learn.add_argument('--batch_size', type=int, default=1024, help='batch size for training [default: 1024]')
 learn.add_argument('--checkpoint', type=str, default='N', help='load latest model [default: N]')
 learn.add_argument('--process', type=str, default='N', help='preprocess data [default: N]')
-learn.add_argument('--interval', type=int, default=100, help='test interval [default: 300]')
+learn.add_argument('--interval', type=int, default=300, help='test interval [default: 300]')
 
 
 def main():
@@ -21,7 +22,7 @@ def main():
     device = "cuda" if torch.cuda.is_available() else "cpu"
 
     if args.process == 'Y':
-        train, test, field = dataset_reader(train=True, process=True)
+        train, test, field = dataset_reader(train=True, process=True, stop=1200000)
         evl, _ = dataset_reader(train=False, fields=field, process=True)
     else:
         train, test, field = dataset_reader(train=True, process=False, stop=1200000)
@@ -42,16 +43,14 @@ def main():
     model = RNNCNN(num_embeddings=len(field.vocab), embedding_dim=512).to(device)
     criterion_last_day = RMSELoss(gap=0, early=1, late=args.late)
     optimizer = optim.Adam((model.parameters()), lr=args.lr, weight_decay=0.01)
-    with open(r"model/simple_rnn_log.txt", "w+") as f:
+    with open(r"model/rnn_cnn_log.txt", "w+") as f:
         f.write('')
-
     if args.checkpoint == 'Y':
-        model.load_state_dict(torch.load('model/simple_rnn_model.pkl'))
+        model.load_state_dict(torch.load('model/rnn_cnn_model.pkl'))
 
     best = 99
     train_loss = 0
     train_count = 0
-
     for epoch in range(200):
         for i, data in enumerate(train_iter):
 
@@ -79,7 +78,7 @@ def main():
                     count = 0
                     test_loss = 0
                     for j, data_t in enumerate(test_iter):
-                        if j > 20:
+                        if j > (args.interval / 5):
                             break
 
                         inputs = torch.cat((data_t.plat_form, data_t.biz_type,
@@ -120,7 +119,7 @@ def main():
                           'Time: %.3f | Best: %s' % (epoch, (i + 1), train_iter.__len__(),
                                                      train_loss / train_count, test_loss * day.size(0), rank, acc,
                                                      ('YES' if rank < best and acc >= 0.981 else 'NO')))
-                    with open(r"model/simple_rnn_log.txt", "a+") as f:
+                    with open(r"model/rnn_cnn_log.txt", "a+") as f:
                         f.write('Epoch: %3d | Iter: %4d / %4d | Loss: %.3f | Test Loss: %.3f | Rank: %.3f | '
                                 'Time: %.3f | Best: %s\n' % (epoch, (i + 1), train_iter.__len__(),
                                                              train_loss / train_count, test_loss * day.size(0),
@@ -128,7 +127,7 @@ def main():
                                                              ('YES' if rank < best and acc >= 0.981 else 'NO')))
                     if rank < best and acc >= 0.981:
                         best = rank
-                        torch.save(model.state_dict(), r'model/simple_rnn_model.pkl')
+                        torch.save(model.state_dict(), r'model/rnn_cnn_model.pkl')
 
                     train_count = 0
                     train_loss = 0

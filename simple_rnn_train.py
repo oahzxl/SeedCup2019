@@ -9,7 +9,7 @@ from utils import *
 parser = argparse.ArgumentParser(description='RNN Encoder and Decoder')
 learn = parser.add_argument_group('Learning options')
 learn.add_argument('--lr', type=float, default=0.00003, help='initial learning rate [default: 0.0003]')
-learn.add_argument('--late', type=float, default=8, help='punishment of delay [default: 8')
+learn.add_argument('--late', type=float, default=7.5, help='punishment of delay [default: 8')
 learn.add_argument('--batch_size', type=int, default=1024, help='batch size for training [default: 1024]')
 learn.add_argument('--checkpoint', type=str, default='N', help='load latest model [default: N]')
 learn.add_argument('--process', type=str, default='N', help='preprocess data [default: N]')
@@ -21,7 +21,7 @@ def main():
     device = "cuda" if torch.cuda.is_available() else "cpu"
 
     if args.process == 'Y':
-        train, test, field = dataset_reader(train=True, process=True)
+        train, test, field = dataset_reader(train=True, process=True, stop=1200000)
         evl, _ = dataset_reader(train=False, fields=field, process=True)
     else:
         train, test, field = dataset_reader(train=True, process=False, stop=1200000)
@@ -71,17 +71,6 @@ def main():
                                 data.rvcr_city_name), dim=1)
 
             outputs = model(inputs, 'train', field)
-            # loss = (criterion_hour(outputs[0] + 0.5, data.shipped_day_label.unsqueeze(1), train=True) +
-            #         criterion_hour(outputs[1] * 5 + 15, data.shipped_hour_label.unsqueeze(1), train=True) +
-            #         criterion_hour(outputs[0] + 0.5 + outputs[2] + 0.4, data.got_day_label.unsqueeze(1), train=True) +
-            #         criterion_hour(outputs[3] * 5 + 15, data.got_hour_label.unsqueeze(1), train=True) +
-            #         criterion_hour(outputs[0] + 0.5 + outputs[2] + 0.4 + outputs[4] + 0.4,
-            #                        data.dlved_day_label.unsqueeze(1), train=True) +
-            #         criterion_hour(outputs[5] * 5 + 15, data.dlved_hour_label.unsqueeze(1), train=True) +
-            #         criterion_day(outputs[0] + 0.5 + outputs[2] + 0.4 + outputs[4] + 0.4 + outputs[6] * 2 + 1,
-            #                       data.signed_day.unsqueeze(1), train=True) +
-            #         criterion_hour(outputs[7] * 5 + 15, data.signed_hour.unsqueeze(1), train=True)
-            #         )
             loss = (criterion_day(outputs[0] * 2 + 1, data.shipped_day_label.unsqueeze(1), train=True) +
                     0.1 * criterion_hour(outputs[1] * 5 + 15, data.shipped_hour_label.unsqueeze(1), train=True) +
                     criterion_day(outputs[2] * 2 + 1, data.got_day_label.unsqueeze(1), train=True) +
@@ -106,14 +95,9 @@ def main():
                     count = 0
                     test_loss = 0
                     for j, data_t in enumerate(test_iter):
-                        if j > 50:
+                        if j > (args.interval / 5):
                             break
-                        # inputs = torch.cat((data_t.plat_form, data_t.biz_type,
-                        #                     data_t.create_hour, data_t.payed_day, data_t.payed_hour,
-                        #                     data_t.cate1_id, data_t.cate2_id, data_t.cate3_id,
-                        #                     data_t.preselling_shipped_day, data_t.preselling_shipped_hour,
-                        #                     data_t.seller_uid_field, data_t.company_name, data_t.rvcr_prov_name,
-                        #                     data_t.rvcr_city_name), dim=1)
+
                         inputs = torch.cat((data_t.plat_form, data_t.biz_type,
                                             data_t.payed_hour,
                                             data_t.cate3_id,
@@ -136,7 +120,6 @@ def main():
                                 )
                         test_loss += loss.item()
 
-                        # day = outputs[0] + 0.5 + outputs[2] + 0.4 + outputs[4] + 0.4 + outputs[6] * 2 + 1
                         day = outputs[6] * 3 + 3
                         hour = outputs[-1]
 
