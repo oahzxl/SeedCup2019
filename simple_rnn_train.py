@@ -55,9 +55,7 @@ def main():
     train_count = 0
 
     for epoch in range(200):
-        record = tqdm.tqdm(total=args.interval + 1)
         for i, data in enumerate(train_iter):
-            record.update()
             inputs = torch.cat((data.plat_form, data.biz_type,
                                 data.payed_day, data.payed_hour,
                                 data.cate1_id, data.cate2_id, data.cate3_id,
@@ -83,8 +81,6 @@ def main():
             train_count += 1
 
             if (i + 1) % args.interval == 0:
-                record.close()
-                record = tqdm.tqdm(total=args.interval + 1)
                 model.eval()
                 with torch.no_grad():
                     rank = 0
