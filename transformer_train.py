@@ -52,7 +52,7 @@ def main():
     train_loss = 0
     train_count = 0
 
-    for epoch in range(200):
+    for epoch in range(5):
         for i, data in enumerate(train_iter):
 
             inputs = torch.cat((data.plat_form, data.biz_type,
