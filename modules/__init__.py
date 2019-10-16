@@ -6,3 +6,4 @@ from modules.rmse import RMSELoss
 from modules.rnn_simple import SimpleRNN
 from modules.transformer import Transformer
 from modules.rnn_cnn import RNNCNN
+from modules.rnn_svm import RNNSVM
