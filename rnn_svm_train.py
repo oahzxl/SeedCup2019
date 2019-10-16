@@ -91,22 +91,16 @@ def main():
                         if j > (args.interval / 5):
                             break
 
-                        # inputs = torch.cat((data_t.plat_form, data_t.biz_type,
-                        #                     data_t.payed_hour,
-                        #                     data_t.cate2_id, data_t.cate3_id,
-                        #                     data_t.preselling_shipped_day,
-                        #                     data_t.seller_uid_field, data_t.company_name,
-                        #                     data_t.lgst_company, data_t.warehouse_id,
-                        #                     data_t.rvcr_prov_name, data_t.rvcr_city_name,
-                        #                     data_t.shipped_prov_id, data_t.shipped_city_id,
-                        #                     ), dim=1)
                         inputs = torch.cat((data_t.plat_form, data_t.biz_type,
                                             data_t.payed_hour,
                                             data_t.cate2_id, data_t.cate3_id,
                                             data_t.preselling_shipped_day,
                                             data_t.seller_uid_field, data_t.company_name,
+                                            data_t.lgst_company, data_t.warehouse_id,
                                             data_t.rvcr_prov_name, data_t.rvcr_city_name,
+                                            data_t.shipped_prov_id, data_t.shipped_city_id,
                                             ), dim=1)
+
                         outputs = model(inputs, 'test', field)
 
                         loss = criterion_last_day(outputs * 3 + 3, data_t.signed_day.unsqueeze(1), train=True)
