@@ -66,7 +66,7 @@ def dataset_reader(train=True, fields=False, process=False, stop=-1):
                     items[i] = int(items[i])
                 if 0 < stop < record.n:
                     break
-                if int(items[2][-2:]) < 24:
+                if int(items[2][-4:-2]) < 24:
                     train_example.append(Example.fromlist(items, field))
                 else:
                     test_example.append(Example.fromlist(items, field))
