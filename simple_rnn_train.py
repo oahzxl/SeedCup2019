@@ -12,7 +12,7 @@ learn.add_argument('--late', type=float, default=8, help='punishment of delay [d
 learn.add_argument('--batch_size', type=int, default=1024, help='batch size for training [default: 1024]')
 learn.add_argument('--checkpoint', type=str, default='N', help='load latest model [default: N]')
 learn.add_argument('--process', type=str, default='N', help='preprocess data [default: N]')
-learn.add_argument('--interval', type=int, default=100, help='test interval [default: 900]')
+learn.add_argument('--interval', type=int, default=300, help='test interval [default: 900]')
 
 
 def main():
@@ -38,7 +38,7 @@ def main():
         shuffle=True
     )
 
-    model = SimpleRNN(num_embeddings=len(field.vocab), embedding_dim=512).to(device)
+    model = SimpleRNN(num_embeddings=len(field.vocab), embedding_dim=128).to(device)
     criterion_day = RMSELoss(gap=0, early=1, late=3)
     criterion_last_day = RMSELoss(gap=0, early=1, late=args.late)
     criterion_hour = RMSELoss(gap=0, early=1, late=1)
@@ -97,7 +97,7 @@ def main():
                                             data_t.payed_day, data_t.payed_hour,
                                             data_t.cate2_id, data_t.cate3_id,
                                             data_t.preselling_shipped_day,
-                                            data_t.seller_uid_field_t, data_t.company_name,
+                                            data_t.seller_uid_field, data_t.company_name,
                                             data_t.lgst_company, data_t.warehouse_id,
                                             data_t.rvcr_prov_name, data_t.rvcr_city_name,
                                             data_t.shipped_prov_id, data_t.shipped_city_id,

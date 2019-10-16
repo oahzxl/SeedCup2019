@@ -9,16 +9,16 @@ class SimpleRNN(Module):
         super(SimpleRNN, self).__init__()
         self.embedding = nn.Embedding(num_embeddings=num_embeddings, embedding_dim=embedding_dim)
 
-        self.encoder = nn.LSTM(input_size=512, hidden_size=512, bidirectional=True, batch_first=True,
+        self.encoder = nn.LSTM(input_size=128, hidden_size=128, bidirectional=True, batch_first=True,
                                num_layers=2, dropout=0.2)
-        self.decoder = nn.LSTMCell(input_size=1024, hidden_size=1024)
+        self.decoder = nn.LSTMCell(input_size=256, hidden_size=256)
 
-        self.fc_1 = nn.Linear(in_features=1024, out_features=2048)
-        self.fc_2 = nn.Linear(in_features=2048, out_features=1024)
+        self.fc_1 = nn.Linear(in_features=256, out_features=512)
+        self.fc_2 = nn.Linear(in_features=512, out_features=256)
 
-        self.fc_t_day = nn.Linear(in_features=1024, out_features=128)
+        self.fc_t_day = nn.Linear(in_features=256, out_features=128)
         self.fc_t_day2 = nn.Linear(in_features=128, out_features=1)
-        self.fc_t_hour = nn.Linear(in_features=1024, out_features=128)
+        self.fc_t_hour = nn.Linear(in_features=256, out_features=128)
         self.fc_t_hour2 = nn.Linear(in_features=128, out_features=1)
 
         self.dropout = nn.Dropout(p=0.5)
