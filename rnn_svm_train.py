@@ -10,7 +10,7 @@ from utils import *
 parser = argparse.ArgumentParser(description='RNN + CNN')
 learn = parser.add_argument_group('Learning options')
 learn.add_argument('--lr', type=float, default=0.00003, help='initial learning rate [default: 0.0003]')
-learn.add_argument('--late', type=float, default=8, help='punishment of delay [default: 8]')
+learn.add_argument('--late', type=float, default=7.5, help='punishment of delay [default: 8]')
 learn.add_argument('--batch_size', type=int, default=512, help='batch size for training [default: 1024]')
 learn.add_argument('--checkpoint', type=str, default='N', help='load latest model [default: N]')
 learn.add_argument('--process', type=str, default='N', help='preprocess data [default: N]')
@@ -43,10 +43,10 @@ def main():
     model = RNNSVM(num_embeddings=len(field.vocab), embedding_dim=128).to(device)
     criterion_last_day = RMSELoss(gap=0, early=1, late=args.late)
     optimizer = optim.Adam((model.parameters()), lr=args.lr, weight_decay=0.01)
-    with open(r"model/rnn_cnn_log.txt", "w+") as f:
+    with open(r"model/rnn_svm_log.txt", "w+") as f:
         f.write('')
     if args.checkpoint == 'Y':
-        model.load_state_dict(torch.load('model/rnn_cnn_model.pkl'))
+        model.load_state_dict(torch.load('model/rnn_svm_model.pkl'))
 
     best = 99
     train_loss = 0
@@ -125,7 +125,7 @@ def main():
                           'Time: %.3f | Best: %s' % (epoch, (i + 1), train_iter.__len__(),
                                                      train_loss / train_count, test_loss * day.size(0), rank, acc,
                                                      ('YES' if rank < best and acc >= 0.981 else 'NO')))
-                    with open(r"model/rnn_cnn_log.txt", "a+") as f:
+                    with open(r"model/rnn_svm_log.txt", "a+") as f:
                         f.write('Epoch: %3d | Iter: %4d / %4d | Loss: %.3f | Test Loss: %.3f | Rank: %.3f | '
                                 'Time: %.3f | Best: %s\n' % (epoch, (i + 1), train_iter.__len__(),
                                                              train_loss / train_count, test_loss * day.size(0),
@@ -133,7 +133,7 @@ def main():
                                                              ('YES' if rank < best and acc >= 0.981 else 'NO')))
                     if rank < best and acc >= 0.981:
                         best = rank
-                        torch.save(model.state_dict(), r'model/rnn_cnn_model_' + str(int(best)) + '.pkl')
+                        torch.save(model.state_dict(), r'model/rnn_svm_model_' + str(int(best)) + '.pkl')
 
                     train_count = 0
                     train_loss = 0
