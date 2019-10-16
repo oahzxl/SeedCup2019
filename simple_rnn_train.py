@@ -1,5 +1,4 @@
 import argparse
-import tqdm
 from torch import optim
 from torchtext.data import BucketIterator
 
@@ -13,7 +12,7 @@ learn.add_argument('--late', type=float, default=8, help='punishment of delay [d
 learn.add_argument('--batch_size', type=int, default=1024, help='batch size for training [default: 1024]')
 learn.add_argument('--checkpoint', type=str, default='N', help='load latest model [default: N]')
 learn.add_argument('--process', type=str, default='N', help='preprocess data [default: N]')
-learn.add_argument('--interval', type=int, default=900, help='test interval [default: 900]')
+learn.add_argument('--interval', type=int, default=100, help='test interval [default: 900]')
 
 
 def main():
@@ -59,9 +58,12 @@ def main():
             inputs = torch.cat((data.plat_form, data.biz_type,
                                 data.payed_day, data.payed_hour,
                                 data.cate2_id, data.cate3_id,
-                                data.preselling_shipped_day, data.preselling_shipped_hour,
-                                data.seller_uid_field, data.company_name, data.rvcr_prov_name,
-                                data.rvcr_city_name), dim=1)
+                                data.preselling_shipped_day,
+                                data.seller_uid_field, data.company_name,
+                                data.lgst_company, data.warehouse_id,
+                                data.rvcr_prov_name, data.rvcr_city_name,
+                                data.shipped_prov_id, data.shipped_city_id,
+                                ), dim=1)
 
             outputs = model(inputs, 'train', field)
             loss = (criterion_day(outputs[0] * 2 + 1, data.shipped_day_label.unsqueeze(1), train=True) +
@@ -95,8 +97,11 @@ def main():
                                             data_t.payed_day, data_t.payed_hour,
                                             data_t.cate2_id, data_t.cate3_id,
                                             data_t.preselling_shipped_day,
-                                            data_t.seller_uid_field, data_t.company_name, data_t.rvcr_prov_name,
-                                            data_t.rvcr_city_name), dim=1)
+                                            data_t.seller_uid_field_t, data_t.company_name,
+                                            data_t.lgst_company, data_t.warehouse_id,
+                                            data_t.rvcr_prov_name, data_t.rvcr_city_name,
+                                            data_t.shipped_prov_id, data_t.shipped_city_id,
+                                            ), dim=1)
                         outputs = model(inputs, 'test', field)
 
                         loss = (criterion_day(outputs[0] * 2 + 1, data_t.shipped_day_label.unsqueeze(1), train=True) +
