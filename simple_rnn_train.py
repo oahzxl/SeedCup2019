@@ -8,7 +8,7 @@ from utils import *
 
 parser = argparse.ArgumentParser(description='RNN Encoder and Decoder')
 learn = parser.add_argument_group('Learning options')
-learn.add_argument('--lr', type=float, default=0.00002, help='initial learning rate [default: 0.00002]')
+learn.add_argument('--lr', type=float, default=0.00003, help='initial learning rate [default: 0.00002]')
 learn.add_argument('--late', type=float, default=8, help='punishment of delay [default: 8')
 learn.add_argument('--batch_size', type=int, default=1024, help='batch size for training [default: 1024]')
 learn.add_argument('--checkpoint', type=str, default='N', help='load latest model [default: N]')
@@ -108,7 +108,7 @@ def main():
                                 criterion_day(outputs[4] * 2 + 1, data_t.dlved_day_label.unsqueeze(1), train=True) +
                                 0.1 * criterion_hour(outputs[5] * 5 + 15, data_t.dlved_hour_label.unsqueeze(1),
                                                      train=True) +
-                                4 * criterion_last_day(outputs[6] * 3 + 3, data_t.signed_day.unsqueeze(1), train=True) +
+                                6 * criterion_last_day(outputs[6] * 3 + 3, data_t.signed_day.unsqueeze(1), train=True) +
                                 0.3 * criterion_hour(outputs[7] * 5 + 15, data_t.signed_hour.unsqueeze(1), train=True)
                                 )
                         test_loss += loss.item()

@@ -29,7 +29,7 @@ def main():
         for i, data in tqdm.tqdm(enumerate(evl_iter), total=evl_iter.__len__()):
             inputs = torch.cat((data.plat_form, data.biz_type,
                                 data.payed_day,
-                                data.cate2_id, data.cate3_id,
+                                data.cate3_id,
                                 data.preselling_shipped_day,
                                 data.seller_uid_field, data.company_name, data.rvcr_prov_name,
                                 data.rvcr_city_name), dim=1)
