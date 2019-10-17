@@ -34,7 +34,7 @@ class RNNSVM(Module):
 
     def noise(self, inputs):
         for i in range(inputs.size(0)):
-            if torch.rand(size=(1, 1)) > 0.3:
+            if torch.rand(size=(1, 1)) > 0.7:
                 value = torch.randint(low=0, high=self.num_embeddings, size=(1, 1))
                 row = torch.randint(low=0, high=inputs.size(1), size=(1, 1))
                 inputs[i, int(row)] = value.squeeze(1)
