@@ -11,10 +11,10 @@ parser = argparse.ArgumentParser(description='RNN + CNN')
 learn = parser.add_argument_group('Learning options')
 learn.add_argument('--lr', type=float, default=0.00003, help='initial learning rate [default: 0.0003]')
 learn.add_argument('--late', type=float, default=8, help='punishment of delay [default: 8]')
-learn.add_argument('--batch_size', type=int, default=1024, help='batch size for training [default: 1024]')
+learn.add_argument('--batch_size', type=int, default=1, help='batch size for training [default: 1024]')
 learn.add_argument('--checkpoint', type=str, default='N', help='load latest model [default: N]')
 learn.add_argument('--process', type=str, default='N', help='preprocess data [default: N]')
-learn.add_argument('--interval', type=int, default=100, help='test interval [default: 300]')
+learn.add_argument('--interval', type=int, default=300, help='test interval [default: 300]')
 
 
 def main():
@@ -40,7 +40,7 @@ def main():
         shuffle=True
     )
 
-    model = RNNCNN(num_embeddings=len(field.vocab), embedding_dim=512).to(device)
+    model = RNNCNN(num_embeddings=len(field.vocab), embedding_dim=128).to(device)
     criterion_last_day = RMSELoss(gap=0, early=1, late=args.late)
     optimizer = optim.Adam((model.parameters()), lr=args.lr, weight_decay=0.01)
     with open(r"model/rnn_cnn_log.txt", "w+") as f:
