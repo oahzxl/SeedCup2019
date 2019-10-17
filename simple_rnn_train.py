@@ -55,12 +55,12 @@ def main():
 
     for epoch in range(200):
         for i, data in enumerate(train_iter):
-            inputs = torch.cat((data.payed_day, data.payed_hour,
-                                data.cate2_id, data.cate3_id,
-                                data.preselling_shipped_day,
-                                data.seller_uid_field, data.company_name,
-                                data.rvcr_prov_name, data.rvcr_city_name,
-                                ), dim=1)
+            inputs = torch.cat((data.plat_form, data.biz_type,
+                                data.create_hour, data.payed_day, data.payed_hour,
+                                data.cate1_id, data.cate2_id, data.cate3_id,
+                                data.preselling_shipped_day, data.preselling_shipped_hour,
+                                data.seller_uid_field, data.company_name, data.rvcr_prov_name,
+                                data.rvcr_city_name), dim=1)
 
             outputs = model(inputs, 'train', field)
             loss = (criterion_day(outputs[0] * 2 + 1, data.shipped_day_label.unsqueeze(1), train=True) +
@@ -90,12 +90,12 @@ def main():
                         if j > (args.interval / 5):
                             break
 
-                        inputs = torch.cat((data_t.payed_day, data_t.payed_hour,
-                                            data_t.cate2_id, data_t.cate3_id,
-                                            data_t.preselling_shipped_day,
-                                            data_t.seller_uid_field, data_t.company_name,
-                                            data_t.rvcr_prov_name, data_t.rvcr_city_name,
-                                            ), dim=1)
+                        inputs = torch.cat((data_t.plat_form, data_t.biz_type,
+                                            data_t.create_hour, data_t.payed_day, data_t.payed_hour,
+                                            data_t.cate1_id, data_t.cate2_id, data_t.cate3_id,
+                                            data_t.preselling_shipped_day, data_t.preselling_shipped_hour,
+                                            data_t.seller_uid_field, data_t.company_name, data_t.rvcr_prov_name,
+                                            data_t.rvcr_city_name), dim=1)
 
                         outputs = model(inputs, 'test', field)
 
