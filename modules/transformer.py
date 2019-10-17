@@ -7,14 +7,16 @@ from torch.nn import Module
 class FinalFC(Module):
     def __init__(self, d_model):
         super(FinalFC, self).__init__()
-        self.fc_1 = nn.Linear(d_model, 256)
-        self.fc_2 = nn.Linear(256, 1)
+        self.fc_1 = nn.Linear(d_model, 2048)
+        self.fc_2 = nn.Linear(2048, 512)
+        self.fc_3 = nn.Linear(512, 1)
         self.dropout = nn.Dropout(p=0.5)
         self.double()
 
     def forward(self, inputs):
         out = f.relu(self.fc_1(self.dropout(inputs)))
-        out = self.fc_2(self.dropout(out))
+        out = f.relu(self.fc_2(self.dropout(out)))
+        out = self.fc_3(self.dropout(out))
         return out
 
 
