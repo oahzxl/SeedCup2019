@@ -38,7 +38,7 @@ def main():
         sort=False,
         shuffle=True
         )
-    model = Transformer(num_embeddings=len(field.vocab), embedding_dim=64, d_model=64,
+    model = Transformer(num_embeddings=len(field.vocab), embedding_dim=256, d_model=256,
                         nhead=8, num_layers=8).to(device)
     criterion_last_day = RMSELoss(gap=0, early=1, late=args.late)
     optimizer = optim.Adam((model.parameters()), lr=args.lr, weight_decay=0.03)
