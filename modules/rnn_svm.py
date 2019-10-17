@@ -3,8 +3,6 @@ from torch import nn
 from torch.nn import Module
 import torch
 
-from modules.cnn_cell import CNNCell
-
 
 class RNNSVM(Module):
     def __init__(self, num_embeddings, embedding_dim):
@@ -22,8 +20,6 @@ class RNNSVM(Module):
         self.double()
 
     def forward(self, inputs, mode, field):
-        if mode == 'train':
-            inputs = self.noise(inputs)
         inputs = self.embedding(inputs)
         inputs, (_, _) = self.encoder(inputs)
         inputs = inputs.reshape(inputs.size(0), -1)
