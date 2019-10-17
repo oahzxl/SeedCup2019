@@ -6,8 +6,8 @@ from torch.nn import Module
 class CNNCell(Module):
     def __init__(self):
         super(CNNCell, self).__init__()
-        self.bn1 = nn.BatchNorm1d(14)
-        self.cnn1 = nn.Conv1d(in_channels=14, out_channels=64, kernel_size=3, stride=2, padding=1)
+        self.bn1 = nn.BatchNorm1d(8)
+        self.cnn1 = nn.Conv1d(in_channels=8, out_channels=64, kernel_size=3, stride=2, padding=1)
         self.cnn2 = nn.Conv1d(in_channels=64, out_channels=64, kernel_size=3, stride=2, padding=1)
         self.bn2 = nn.BatchNorm1d(64)
         self.cnn3 = nn.Conv1d(in_channels=64, out_channels=128, kernel_size=3, stride=2, padding=1)
