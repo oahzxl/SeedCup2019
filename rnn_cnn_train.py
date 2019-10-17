@@ -25,8 +25,8 @@ def main():
         train, test, field = dataset_reader(train=True, process=True, stop=1200000)
         evl, _ = dataset_reader(train=False, fields=field, process=True)
     else:
-        train, test, field = dataset_reader(train=True, process=False, stop=5000)
-        evl, _ = dataset_reader(train=False, fields=field, process=False, stop=1)
+        train, test, field = dataset_reader(train=True, process=False, stop=1200000)
+        evl, _ = dataset_reader(train=False, fields=field, process=False)
 
     field.build_vocab(train, evl)
     del evl
