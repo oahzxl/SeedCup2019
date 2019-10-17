@@ -21,7 +21,7 @@ def main():
 
     model = RNNCNN(num_embeddings=len(field.vocab), embedding_dim=512).to(device)
     model.load_state_dict(torch.load('model/rnn_cnn_model.pkl'))
-    with open('data/rnn_cnn_result.txt', 'w+') as f:
+    with open('data/rnn_svm_result.txt', 'w+') as f:
         f.write('')
 
     model.eval()
@@ -38,7 +38,7 @@ def main():
                                 ), dim=1)
             outputs = model(inputs, 'test', field)
             day = outputs * 3 + 3
-            with open('data/rnn_cnn_result.txt', 'a+') as f:
+            with open('data/rnn_svm_result.txt', 'a+') as f:
                 for b in range(day.size(0)):
                     start_day = field.vocab.itos[data.create_time[b]][:-2]
                     start_day = arrow.get(start_day).timestamp
