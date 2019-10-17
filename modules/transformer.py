@@ -20,20 +20,6 @@ class FinalFC(Module):
         return out
 
 
-class MixFC(Module):
-    def __init__(self, d_model):
-        super(MixFC, self).__init__()
-        self.fc_1 = nn.Linear(d_model * 2, 1024)
-        self.fc_2 = nn.Linear(1024, d_model)
-        self.dropout = nn.Dropout(p=0.5)
-        self.double()
-
-    def forward(self, inputs):
-        out = f.relu(self.fc_1(self.dropout(inputs)))
-        out = self.fc_2(self.dropout(out))
-        return out
-
-
 class Transformer(Module):
     def __init__(self, num_embeddings, embedding_dim, d_model, nhead, num_layers):
         super(Transformer, self).__init__()
@@ -43,7 +29,7 @@ class Transformer(Module):
         self.nhead = nhead
         self.num_layers = num_layers
 
-        encoder_layer = nn.TransformerEncoderLayer(d_model=self.d_model, nhead=self.nhead, dropout=0.3)
+        encoder_layer = nn.TransformerEncoderLayer(d_model=self.d_model, nhead=self.nhead, dropout=0.1)
         self.transformer_encoder = nn.TransformerEncoder(encoder_layer, num_layers=self.num_layers)
 
         self.fc = FinalFC(14 * self.d_model)
@@ -51,11 +37,10 @@ class Transformer(Module):
         self.double()
 
     def forward(self, inputs, field, train=True):
-        src = self.embedding(inputs).permute(1, 0, 2).cuda()
-        src = self.transformer_encoder(src)
-
-        day = self.fc(src.view(inputs.size(0), -1))
-        return day
+        inputs = self.embedding(inputs).permute(1, 0, 2)
+        inputs = self.transformer_encoder(inputs).permute(1, 0, 2)
+        inputs = self.fc(inputs.reshape(inputs.size(0), -1))
+        return inputs
 
     @staticmethod
     def time_to_idx(time, field, mode, idx=0):
