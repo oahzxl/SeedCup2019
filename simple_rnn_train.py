@@ -8,7 +8,7 @@ from utils import *
 parser = argparse.ArgumentParser(description='RNN Encoder and Decoder')
 learn = parser.add_argument_group('Learning options')
 learn.add_argument('--lr', type=float, default=0.00003, help='initial learning rate [default: 0.00002]')
-learn.add_argument('--late', type=float, default=8, help='punishment of delay [default: 8')
+learn.add_argument('--late', type=float, default=6, help='punishment of delay [default: 8')
 learn.add_argument('--batch_size', type=int, default=1024, help='batch size for training [default: 1024]')
 learn.add_argument('--checkpoint', type=str, default='N', help='load latest model [default: N]')
 learn.add_argument('--process', type=str, default='N', help='preprocess data [default: N]')

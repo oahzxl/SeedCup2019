@@ -7,19 +7,19 @@ device = "cuda" if torch.cuda.is_available() else "cpu"
 
 
 def main():
-    train, test, field = dataset_reader(train=True)
+    train, test, field = dataset_reader(train=True, stop=1200000)
     evl, _ = dataset_reader(train=False, fields=field)
     field.build_vocab(train, evl)
     _, evl_iter = BucketIterator.splits(
         (train, evl),
-        batch_sizes=(256, 256),
+        batch_sizes=(1024, 1024),
         device=device,
         sort_within_batch=False,
         repeat=False,
         sort=False
         )
 
-    model = SimpleCNN(num_embeddings=len(field.vocab), embedding_dim=300).to(device)
+    model = SimpleCNN(num_embeddings=len(field.vocab), embedding_dim=128).to(device)
     model.load_state_dict(torch.load('model/simple_cnn_model.pkl'))
     with open('data/simple_cnn_result.txt', 'w+') as f:
         f.write('')
@@ -27,20 +27,25 @@ def main():
     model.eval()
     with torch.no_grad():
         for i, data in tqdm.tqdm(enumerate(evl_iter), total=evl_iter.__len__()):
-            inputs = torch.cat((data.plat_form, data.biz_type, data.create_time,
-                                data.create_hour, data.payed_day, data.payed_hour,
-                                data.cate1_id, data.cate2_id, data.cate3_id,
-                                data.preselling_shipped_day, data.preselling_shipped_hour,
-                                data.seller_uid_field, data.company_name, data.rvcr_prov_name,
-                                data.rvcr_city_name), dim=1)
-            day, hour = model(inputs, 'test', field)
+            inputs = torch.cat((data.plat_form, data.biz_type,
+                                data.payed_hour,
+                                data.cate2_id, data.cate3_id,
+                                data.preselling_shipped_day,
+                                data.seller_uid_field, data.company_name,
+                                data.lgst_company, data.warehouse_id,
+                                data.rvcr_prov_name, data.rvcr_city_name,
+                                data.shipped_prov_id, data.shipped_city_id,
+                                ), dim=1)
+            outputs = model(inputs, 'test', field)
+            day = outputs * 3 + 3
             with open('data/simple_cnn_result.txt', 'a+') as f:
                 for b in range(day.size(0)):
-                    start_day = field.vocab.itos[data.create_time[b]][:2]
-                    sign_day = int('%.0f' % (day[b] * 8 + 3)) + int(start_day)
-                    sign_day = str(sign_day).zfill(2)
-                    sign_hour = ('%.0f' % (hour[b] * 10 + 15)).zfill(2)
-                    final = '2019-03-' + sign_day + ' ' + sign_hour
+                    start_day = '2019-' + field.vocab.itos[data.create_time[b]][:-2]
+                    start_day = arrow.get(start_day).timestamp
+                    sign_day = int('%.0f' % day[b])
+                    sign_hour = '15'
+                    final = str(arrow.get(start_day + sign_day * 24 * 60 * 60))[:10]
+                    final = final + ' ' + sign_hour
                     f.write(final + '\n')
 
 
