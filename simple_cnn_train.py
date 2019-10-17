@@ -11,10 +11,10 @@ parser = argparse.ArgumentParser(description='RNN + CNN')
 learn = parser.add_argument_group('Learning options')
 learn.add_argument('--lr', type=float, default=0.00002, help='initial learning rate [default: 0.0003]')
 learn.add_argument('--late', type=float, default=7, help='punishment of delay [default: 8]')
-learn.add_argument('--batch_size', type=int, default=512, help='batch size for training [default: 1024]')
+learn.add_argument('--batch_size', type=int, default=2, help='batch size for training [default: 1024]')
 learn.add_argument('--checkpoint', type=str, default='N', help='load latest model [default: N]')
 learn.add_argument('--process', type=str, default='N', help='preprocess data [default: N]')
-learn.add_argument('--interval', type=int, default=200, help='test interval [default: 300]')
+learn.add_argument('--interval', type=int, default=1, help='test interval [default: 300]')
 
 
 def main():
@@ -25,8 +25,8 @@ def main():
         train, test, field = dataset_reader(train=True, process=True, stop=1200000)
         evl, _ = dataset_reader(train=False, fields=field, process=True)
     else:
-        train, test, field = dataset_reader(train=True, process=False, stop=500000)
-        evl, _ = dataset_reader(train=False, fields=field, process=False)
+        train, test, field = dataset_reader(train=True, process=False, stop=5000)
+        evl, _ = dataset_reader(train=False, fields=field, process=False, stop=1)
 
     field.build_vocab(train, evl)
     del evl
@@ -40,7 +40,7 @@ def main():
         shuffle=True
     )
 
-    model = SimpleCNN(num_embeddings=len(field.vocab), embedding_dim=64).to(device)
+    model = SimpleCNN(num_embeddings=len(field.vocab), embedding_dim=32).to(device)
     criterion_last_day = RMSELoss(gap=0, early=1, late=args.late)
     optimizer = optim.Adam((model.parameters()), lr=args.lr, weight_decay=0.01)
     with open(r"model/simple_cnn_log.txt", "w+") as f:
