@@ -40,7 +40,7 @@ def main():
         shuffle=True
     )
 
-    model = SimpleCNN(num_embeddings=len(field.vocab), embedding_dim=32).to(device)
+    model = SimpleCNN(num_embeddings=len(field.vocab), embedding_dim=64).to(device)
     criterion_last_day = RMSELoss(gap=0, early=1, late=args.late)
     optimizer = optim.Adam((model.parameters()), lr=args.lr, weight_decay=0.01)
     with open(r"model/simple_cnn_log.txt", "w+") as f:
