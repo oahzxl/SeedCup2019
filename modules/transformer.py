@@ -32,7 +32,7 @@ class Transformer(Module):
         encoder_layer = nn.TransformerEncoderLayer(d_model=self.d_model, nhead=self.nhead, dropout=0.1)
         self.transformer_encoder = nn.TransformerEncoder(encoder_layer, num_layers=self.num_layers)
 
-        self.fc = FinalFC(14 * self.d_model)
+        self.fc = FinalFC(12 * self.d_model)
 
         self.double()
 
@@ -41,23 +41,6 @@ class Transformer(Module):
         inputs = self.transformer_encoder(inputs).permute(1, 0, 2)
         inputs = self.fc(inputs.reshape(inputs.size(0), -1))
         return inputs
-
-    @staticmethod
-    def time_to_idx(time, field, mode, idx=0):
-        if mode == 'd':
-            # plus_list = [0.5, 0.4, 0.4]
-            # mul_list = [1, 1, 1]
-            plus_list = [1, 1, 1]
-            mul_list = [2, 2, 2]
-
-            time = time * mul_list[idx] + plus_list[idx]
-            for b in range(time.size(0)):
-                time[b] = field.vocab.stoi['%.0f' % time[b] + '_' + mode]
-        elif mode == 'h':
-            time = time * 5 + 15
-            for b in range(time.size(0)):
-                time[b] = field.vocab.stoi['%.0f' % time[b] + '_' + mode]
-        return time
 
     @staticmethod
     def make_mask():
