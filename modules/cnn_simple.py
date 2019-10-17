@@ -40,7 +40,7 @@ class SimpleCNN(Module):
         self.embedding = nn.Embedding(num_embeddings=num_embeddings, embedding_dim=embedding_dim)
         self.cnn = ResNet([2, 2, 2, 2])
 
-        self.fc_1 = nn.Linear(in_features=4608, out_features=1024)
+        self.fc_1 = nn.Linear(in_features=3072, out_features=1024)
         self.fc_2 = nn.Linear(in_features=1024, out_features=1)
         self.dropout = nn.Dropout(p=0.5)
 
