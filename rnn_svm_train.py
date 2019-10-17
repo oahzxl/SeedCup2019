@@ -10,7 +10,7 @@ from utils import *
 parser = argparse.ArgumentParser(description='RNN + CNN')
 learn = parser.add_argument_group('Learning options')
 learn.add_argument('--lr', type=float, default=0.00001, help='initial learning rate [default: 0.0003]')
-learn.add_argument('--late', type=float, default=6.5, help='punishment of delay [default: 8]')
+learn.add_argument('--late', type=float, default=7, help='punishment of delay [default: 8]')
 learn.add_argument('--batch_size', type=int, default=1024, help='batch size for training [default: 1024]')
 learn.add_argument('--checkpoint', type=str, default='N', help='load latest model [default: N]')
 learn.add_argument('--process', type=str, default='N', help='preprocess data [default: N]')
@@ -54,21 +54,14 @@ def main():
     for epoch in range(200):
         for i, data in enumerate(train_iter):
 
-            # inputs = torch.cat((data.plat_form, data.biz_type,
-            #                     data.payed_hour,
-            #                     data.cate2_id, data.cate3_id,
-            #                     data.preselling_shipped_day,
-            #                     data.seller_uid_field, data.company_name,
-            #                     data.lgst_company, data.warehouse_id,
-            #                     data.rvcr_prov_name, data.rvcr_city_name,
-            #                     data.shipped_prov_id, data.shipped_city_id,
-            #                     ), dim=1)
             inputs = torch.cat((data.plat_form, data.biz_type,
                                 data.payed_hour,
                                 data.cate2_id, data.cate3_id,
                                 data.preselling_shipped_day,
                                 data.seller_uid_field, data.company_name,
+                                data.lgst_company, data.warehouse_id,
                                 data.rvcr_prov_name, data.rvcr_city_name,
+                                data.shipped_prov_id, data.shipped_city_id,
                                 ), dim=1)
 
             outputs = model(inputs, 'train', field)

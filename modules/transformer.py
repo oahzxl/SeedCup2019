@@ -7,8 +7,8 @@ from torch.nn import Module
 class FinalFC(Module):
     def __init__(self, d_model):
         super(FinalFC, self).__init__()
-        self.fc_1 = nn.Linear(d_model, 1024)
-        self.fc_2 = nn.Linear(1024, 1)
+        self.fc_1 = nn.Linear(d_model, 256)
+        self.fc_2 = nn.Linear(256, 1)
         self.dropout = nn.Dropout(p=0.5)
         self.double()
 
@@ -21,8 +21,8 @@ class FinalFC(Module):
 class MixFC(Module):
     def __init__(self, d_model):
         super(MixFC, self).__init__()
-        self.fc_1 = nn.Linear(d_model * 2, 2048)
-        self.fc_2 = nn.Linear(2048, d_model)
+        self.fc_1 = nn.Linear(d_model * 2, 1024)
+        self.fc_2 = nn.Linear(1024, d_model)
         self.dropout = nn.Dropout(p=0.5)
         self.double()
 
@@ -44,7 +44,7 @@ class Transformer(Module):
         encoder_layer = nn.TransformerEncoderLayer(d_model=self.d_model, nhead=self.nhead, dropout=0.3)
         self.transformer_encoder = nn.TransformerEncoder(encoder_layer, num_layers=self.num_layers)
 
-        self.fc = FinalFC(11 * self.d_model)
+        self.fc = FinalFC(14 * self.d_model)
 
         self.double()
 

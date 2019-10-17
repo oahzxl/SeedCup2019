@@ -13,8 +13,8 @@ class RNNSVM(Module):
                                num_layers=2, dropout=0.1)
 
         self.fc_1 = nn.Linear(in_features=3584, out_features=512)
-        self.fc_2 = nn.Linear(in_features=512, out_features=64)
-        self.fc_3 = nn.Linear(in_features=64, out_features=1)
+        self.fc_2 = nn.Linear(in_features=512, out_features=128)
+        self.fc_3 = nn.Linear(in_features=128, out_features=1)
         self.dropout = nn.Dropout(p=0.5)
 
         self.double()
