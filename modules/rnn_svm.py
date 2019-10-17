@@ -12,7 +12,7 @@ class RNNSVM(Module):
         self.encoder = nn.LSTM(input_size=128, hidden_size=128, bidirectional=True, batch_first=True,
                                num_layers=2, dropout=0.1)
 
-        self.fc_1 = nn.Linear(in_features=3584, out_features=512)
+        self.fc_1 = nn.Linear(in_features=2048, out_features=512)
         self.fc_2 = nn.Linear(in_features=512, out_features=128)
         self.fc_3 = nn.Linear(in_features=128, out_features=1)
         self.dropout = nn.Dropout(p=0.5)

@@ -12,7 +12,7 @@ learn.add_argument('--late', type=float, default=8, help='punishment of delay [d
 learn.add_argument('--batch_size', type=int, default=1024, help='batch size for training [default: 1024]')
 learn.add_argument('--checkpoint', type=str, default='N', help='load latest model [default: N]')
 learn.add_argument('--process', type=str, default='N', help='preprocess data [default: N]')
-learn.add_argument('--interval', type=int, default=100, help='test interval [default: 900]')
+learn.add_argument('--interval', type=int, default=300, help='test interval [default: 900]')
 
 
 def main():
