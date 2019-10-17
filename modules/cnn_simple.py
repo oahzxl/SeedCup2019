@@ -38,18 +38,18 @@ class SimpleCNN(Module):
     def __init__(self, num_embeddings, embedding_dim):
         super(SimpleCNN, self).__init__()
         self.embedding = nn.Embedding(num_embeddings=num_embeddings, embedding_dim=embedding_dim)
-        self.cnn = CNN()
+        self.cnn = ResNet([2, 2, 2, 2])
 
-        self.fc_1 = nn.Linear(in_features=1792, out_features=256)
-        self.fc_2 = nn.Linear(in_features=256, out_features=1)
+        self.fc_1 = nn.Linear(in_features=4608, out_features=1024)
+        self.fc_2 = nn.Linear(in_features=1024, out_features=1)
         self.dropout = nn.Dropout(p=0.5)
 
         self.double()
 
     def forward(self, inputs, mode, field):
         inputs = self.embedding(inputs)
+        inputs = inputs.view(inputs.size(0), 1, -1, int(inputs.size(-1) / 4))
         inputs = self.cnn(inputs)
-        inputs = inputs.reshape(inputs.size(0), -1)
         inputs = self.fc_1(self.dropout(inputs))
         inputs = self.fc_2(f.relu(self.dropout(inputs)))
         return inputs
