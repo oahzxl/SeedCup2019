@@ -14,7 +14,7 @@ learn.add_argument('--late', type=float, default=6, help='punishment of delay [d
 learn.add_argument('--batch_size', type=int, default=1024, help='batch size for training [default: 1024]')
 learn.add_argument('--checkpoint', type=str, default='N', help='load latest model [default: N]')
 learn.add_argument('--process', type=str, default='N', help='preprocess data [default: N]')
-learn.add_argument('--interval', type=int, default=300, help='test interval [default: 300]')
+learn.add_argument('--interval', type=int, default=200, help='test interval [default: 300]')
 
 
 def main():
@@ -25,7 +25,7 @@ def main():
         train, test, field = dataset_reader(train=True, process=True, stop=1200000)
         evl, _ = dataset_reader(train=False, fields=field, process=True)
     else:
-        train, test, field = dataset_reader(train=True, process=False, stop=3000000)
+        train, test, field = dataset_reader(train=True, process=False, stop=600000)
         evl, _ = dataset_reader(train=False, fields=field, process=False)
 
     field.build_vocab(train, evl)
@@ -40,7 +40,7 @@ def main():
         shuffle=True
     )
 
-    model = RNNCNN(num_embeddings=len(field.vocab), embedding_dim=128).to(device)
+    model = RNNCNN(num_embeddings=len(field.vocab), embedding_dim=64).to(device)
     criterion_last_day = RMSELoss(gap=0, early=1, late=args.late)
     optimizer = optim.Adam((model.parameters()), lr=args.lr, weight_decay=0.01)
     with open(r"model/rnn_cnn_log.txt", "w+") as f:
