@@ -8,12 +8,12 @@ from utils import *
 
 parser = argparse.ArgumentParser(description='RNN Encoder and Decoder')
 learn = parser.add_argument_group('Learning options')
-learn.add_argument('--lr', type=float, default=0.0001, help='initial learning rate [default: 0.0003]')
+learn.add_argument('--lr', type=float, default=0.00005, help='initial learning rate [default: 0.0003]')
 learn.add_argument('--late', type=float, default=8, help='punishment of delay [default: 9]')
-learn.add_argument('--batch_size', type=int, default=512, help='batch size for training [default: 1024]')
+learn.add_argument('--batch_size', type=int, default=1024, help='batch size for training [default: 1024]')
 learn.add_argument('--checkpoint', type=str, default='N', help='load latest model [default: N]')
 learn.add_argument('--process', type=str, default='N', help='preprocess data [default: N]')
-learn.add_argument('--interval', type=int, default=100, help='test interval [default: 300]')
+learn.add_argument('--interval', type=int, default=300, help='test interval [default: 300]')
 
 
 def main():
@@ -24,7 +24,7 @@ def main():
         train, test, field = dataset_reader(train=True, process=True)
         evl, _ = dataset_reader(train=False, fields=field, process=True)
     else:
-        train, test, field = dataset_reader(train=True, process=False, stop=500000)
+        train, test, field = dataset_reader(train=True, process=False, stop=1200000)
         evl, _ = dataset_reader(train=False, fields=field, process=False, stop=1)
 
     field.build_vocab(train, evl)
@@ -39,7 +39,7 @@ def main():
         shuffle=True
         )
     model = Transformer(num_embeddings=len(field.vocab), embedding_dim=128, d_model=128,
-                        nhead=2, num_layers=2).to(device)
+                        nhead=4, num_layers=4).to(device)
     criterion_last_day = RMSELoss(gap=0, early=1, late=args.late)
     optimizer = optim.Adam((model.parameters()), lr=args.lr, weight_decay=0.03)
     with open(r"model/transformer_log.txt", "w+") as f:
@@ -83,7 +83,7 @@ def main():
                     count = 0
                     test_loss = 0
                     for j, data_t in enumerate(test_iter):
-                        if j > 50:
+                        if j > (args.interval / 5):
                             break
 
                         inputs = torch.cat((data_t.plat_form, data_t.biz_type,
