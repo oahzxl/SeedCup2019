@@ -22,7 +22,8 @@ class RNNSVM(Module):
         self.double()
 
     def forward(self, inputs, mode, field):
-        inputs = self.noise(inputs)
+        if mode == 'train':
+            inputs = self.noise(inputs)
         inputs = self.embedding(inputs)
         inputs, (_, _) = self.encoder(inputs)
         inputs = inputs.reshape(inputs.size(0), -1)
