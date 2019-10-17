@@ -40,7 +40,7 @@ class RNNSVM(Module):
         self.embedding = nn.Embedding(num_embeddings=num_embeddings, embedding_dim=embedding_dim)
         self.encoder = nn.LSTM(input_size=embedding_dim, hidden_size=embedding_dim,
                                bidirectional=True, batch_first=True,
-                               num_layers=4, dropout=0.1)
+                               num_layers=3, dropout=0.1)
         self.cnn = CNN()
 
         self.fc_1_1 = nn.Linear(in_features=3584, out_features=512)

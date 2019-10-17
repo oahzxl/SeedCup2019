@@ -8,8 +8,8 @@ from modules.restnet import ResNet
 class CNN(Module):
     def __init__(self):
         super(CNN, self).__init__()
-        self.bn1 = nn.BatchNorm1d(14)
-        self.cnn1 = nn.Conv1d(in_channels=14, out_channels=64, kernel_size=3, stride=2, padding=1)
+        self.bn1 = nn.BatchNorm1d(12)
+        self.cnn1 = nn.Conv1d(in_channels=12, out_channels=64, kernel_size=3, stride=2, padding=1)
         self.cnn2 = nn.Conv1d(in_channels=64, out_channels=64, kernel_size=3, stride=2, padding=1)
         self.bn2 = nn.BatchNorm1d(64)
         self.cnn3 = nn.Conv1d(in_channels=64, out_channels=128, kernel_size=3, stride=2, padding=1)
@@ -38,18 +38,17 @@ class SimpleCNN(Module):
     def __init__(self, num_embeddings, embedding_dim):
         super(SimpleCNN, self).__init__()
         self.embedding = nn.Embedding(num_embeddings=num_embeddings, embedding_dim=embedding_dim)
-        self.cnn = ResNet([2, 2, 2, 2])
+        self.cnn = CNN()
 
-        self.fc_1 = nn.Linear(in_features=3072, out_features=1024)
-        self.fc_2 = nn.Linear(in_features=1024, out_features=1)
+        self.fc_1 = nn.Linear(in_features=768, out_features=512)
+        self.fc_2 = nn.Linear(in_features=512, out_features=1)
         self.dropout = nn.Dropout(p=0.5)
 
         self.double()
 
     def forward(self, inputs, mode, field):
         inputs = self.embedding(inputs)
-        inputs = inputs.view(inputs.size(0), 1, -1, int(inputs.size(-1) / 4))
-        inputs = self.cnn(inputs)
+        inputs = self.cnn(inputs).reshape(inputs.size(0), -1)
         inputs = self.fc_1(self.dropout(inputs))
         inputs = self.fc_2(f.relu(self.dropout(inputs)))
         return inputs
