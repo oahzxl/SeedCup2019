@@ -25,7 +25,7 @@ def main():
         train, test, field = dataset_reader(train=True, process=True, stop=1200000)
         evl, _ = dataset_reader(train=False, fields=field, process=True)
     else:
-        train, test, field = dataset_reader(train=True, process=False, stop=600000)
+        train, test, field = dataset_reader(train=True, process=False, stop=1200000)
         evl, _ = dataset_reader(train=False, fields=field, process=False, stop=1)
 
     field.build_vocab(train, evl)
@@ -40,7 +40,7 @@ def main():
         shuffle=True
     )
 
-    model = RNNSVM(num_embeddings=len(field.vocab), embedding_dim=128).to(device)
+    model = RNNSVM(num_embeddings=len(field.vocab), embedding_dim=64).to(device)
     criterion_last_day = RMSELoss(gap=0, early=1, late=args.late)
     optimizer = optim.Adam((model.parameters()), lr=args.lr, weight_decay=0.01)
     with open(r"model/rnn_svm_log.txt", "w+") as f:

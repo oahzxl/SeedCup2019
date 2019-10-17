@@ -26,10 +26,6 @@ class CNN(Module):
         inputs = self.cnn3(inputs)
         inputs = self.cnn4(inputs)
         inputs = f.relu(inputs)
-        inputs = self.bn3(inputs)
-        inputs = self.cnn5(inputs)
-        inputs = self.cnn6(inputs)
-        inputs = f.relu(inputs)
         return inputs
 
 
@@ -40,11 +36,11 @@ class RNNSVM(Module):
         self.embedding = nn.Embedding(num_embeddings=num_embeddings, embedding_dim=embedding_dim)
         self.encoder = nn.LSTM(input_size=embedding_dim, hidden_size=embedding_dim,
                                bidirectional=True, batch_first=True,
-                               num_layers=3, dropout=0.1)
+                               num_layers=2, dropout=0.2)
         self.cnn = CNN()
 
-        self.fc_1_1 = nn.Linear(in_features=3584, out_features=512)
-        self.fc_1_2 = nn.Linear(in_features=3840, out_features=512)
+        self.fc_1_1 = nn.Linear(in_features=1792, out_features=512)
+        self.fc_1_2 = nn.Linear(in_features=1152, out_features=512)
         self.fc_2 = nn.Linear(in_features=1024, out_features=256)
         self.fc_3 = nn.Linear(in_features=256, out_features=1)
         self.dropout = nn.Dropout(p=0.5)
@@ -65,12 +61,4 @@ class RNNSVM(Module):
         inputs = torch.cat((inputs1, inputs2), dim=1)
         inputs = self.fc_2(f.relu(self.dropout(inputs)))
         inputs = self.fc_3(f.relu(self.dropout(inputs)))
-        return inputs
-
-    def noise(self, inputs):
-        for i in range(inputs.size(0)):
-            if torch.rand(size=(1, 1)) > 0.7:
-                value = torch.randint(low=0, high=self.num_embeddings, size=(1, 1))
-                row = torch.randint(low=0, high=inputs.size(1), size=(1, 1))
-                inputs[i, int(row)] = value.squeeze(1)
         return inputs

@@ -11,10 +11,10 @@ parser = argparse.ArgumentParser(description='RNN + CNN')
 learn = parser.add_argument_group('Learning options')
 learn.add_argument('--lr', type=float, default=0.00002, help='initial learning rate [default: 0.0003]')
 learn.add_argument('--late', type=float, default=7, help='punishment of delay [default: 8]')
-learn.add_argument('--batch_size', type=int, default=1024, help='batch size for training [default: 1024]')
+learn.add_argument('--batch_size', type=int, default=512, help='batch size for training [default: 1024]')
 learn.add_argument('--checkpoint', type=str, default='N', help='load latest model [default: N]')
 learn.add_argument('--process', type=str, default='N', help='preprocess data [default: N]')
-learn.add_argument('--interval', type=int, default=100, help='test interval [default: 300]')
+learn.add_argument('--interval', type=int, default=200, help='test interval [default: 300]')
 
 
 def main():
@@ -25,8 +25,8 @@ def main():
         train, test, field = dataset_reader(train=True, process=True, stop=1200000)
         evl, _ = dataset_reader(train=False, fields=field, process=True)
     else:
-        train, test, field = dataset_reader(train=True, process=False, stop=600000)
-        evl, _ = dataset_reader(train=False, fields=field, process=False, stop=1)
+        train, test, field = dataset_reader(train=True, process=False, stop=1200000)
+        evl, _ = dataset_reader(train=False, fields=field, process=False)
 
     field.build_vocab(train, evl)
     del evl
@@ -42,7 +42,7 @@ def main():
 
     model = SimpleCNN(num_embeddings=len(field.vocab), embedding_dim=64).to(device)
     criterion_last_day = RMSELoss(gap=0, early=1, late=args.late)
-    optimizer = optim.Adam((model.parameters()), lr=args.lr, weight_decay=0.01)
+    optimizer = optim.Adam((model.parameters()), lr=args.lr, weight_decay=0.03)
     with open(r"model/simple_cnn_log.txt", "w+") as f:
         f.write('')
     if args.checkpoint == 'Y':
@@ -55,11 +55,13 @@ def main():
         for i, data in enumerate(train_iter):
 
             inputs = torch.cat((data.plat_form, data.biz_type,
-                                data.payed_day, data.payed_hour,
-                                data.cate1_id, data.cate2_id, data.cate3_id,
+                                data.payed_hour,
+                                data.cate2_id, data.cate3_id,
                                 data.preselling_shipped_day,
                                 data.seller_uid_field, data.company_name,
+                                data.lgst_company, data.warehouse_id,
                                 data.rvcr_prov_name, data.rvcr_city_name,
+                                data.shipped_prov_id, data.shipped_city_id,
                                 ), dim=1)
 
             outputs = model(inputs, 'train', field)
@@ -83,11 +85,13 @@ def main():
                             break
 
                         inputs = torch.cat((data_t.plat_form, data_t.biz_type,
-                                            data_t.payed_day, data_t.payed_hour,
-                                            data_t.cate1_id, data_t.cate2_id, data_t.cate3_id,
+                                            data_t.payed_hour,
+                                            data_t.cate2_id, data_t.cate3_id,
                                             data_t.preselling_shipped_day,
                                             data_t.seller_uid_field, data_t.company_name,
+                                            data_t.lgst_company, data_t.warehouse_id,
                                             data_t.rvcr_prov_name, data_t.rvcr_city_name,
+                                            data_t.shipped_prov_id, data_t.shipped_city_id,
                                             ), dim=1)
 
                         outputs = model(inputs, 'test', field)

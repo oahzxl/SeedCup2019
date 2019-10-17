@@ -1,15 +1,13 @@
 import torch.nn.functional as f
 from torch import nn
 from torch.nn import Module
-from modules.cnn_cell import CNNCell
-from modules.restnet import ResNet
 
 
 class CNN(Module):
     def __init__(self):
         super(CNN, self).__init__()
-        self.bn1 = nn.BatchNorm1d(12)
-        self.cnn1 = nn.Conv1d(in_channels=12, out_channels=64, kernel_size=3, stride=2, padding=1)
+        self.bn1 = nn.BatchNorm1d(14)
+        self.cnn1 = nn.Conv1d(in_channels=14, out_channels=64, kernel_size=3, stride=2, padding=1)
         self.cnn2 = nn.Conv1d(in_channels=64, out_channels=64, kernel_size=3, stride=2, padding=1)
         self.bn2 = nn.BatchNorm1d(64)
         self.cnn3 = nn.Conv1d(in_channels=64, out_channels=128, kernel_size=3, stride=2, padding=1)
@@ -40,15 +38,16 @@ class SimpleCNN(Module):
         self.embedding = nn.Embedding(num_embeddings=num_embeddings, embedding_dim=embedding_dim)
         self.cnn = CNN()
 
-        self.fc_1 = nn.Linear(in_features=768, out_features=512)
-        self.fc_2 = nn.Linear(in_features=512, out_features=1)
+        self.fc_1 = nn.Linear(in_features=1792, out_features=256)
+        self.fc_2 = nn.Linear(in_features=256, out_features=1)
         self.dropout = nn.Dropout(p=0.5)
 
         self.double()
 
     def forward(self, inputs, mode, field):
         inputs = self.embedding(inputs)
-        inputs = self.cnn(inputs).reshape(inputs.size(0), -1)
+        inputs = self.cnn(inputs)
+        inputs = inputs.reshape(inputs.size(0), -1)
         inputs = self.fc_1(self.dropout(inputs))
         inputs = self.fc_2(f.relu(self.dropout(inputs)))
         return inputs
