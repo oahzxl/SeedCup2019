@@ -7,7 +7,7 @@ device = "cuda" if torch.cuda.is_available() else "cpu"
 
 
 def main():
-    train, test, field = dataset_reader(train=True, stop=1200000)
+    train, test, field = dataset_reader(train=True, stop=2500000)
     evl, _ = dataset_reader(train=False, fields=field)
     field.build_vocab(train, evl)
     _, evl_iter = BucketIterator.splits(
@@ -19,7 +19,7 @@ def main():
         sort=False
         )
 
-    model = SimpleCNN(num_embeddings=len(field.vocab), embedding_dim=128).to(device)
+    model = SimpleCNN(num_embeddings=len(field.vocab), embedding_dim=32).to(device)
     model.load_state_dict(torch.load('model/simple_cnn_model.pkl'))
     with open('data/simple_cnn_result.txt', 'w+') as f:
         f.write('')
@@ -28,13 +28,11 @@ def main():
     with torch.no_grad():
         for i, data in tqdm.tqdm(enumerate(evl_iter), total=evl_iter.__len__()):
             inputs = torch.cat((data.plat_form, data.biz_type,
-                                data.payed_hour,
-                                data.cate2_id, data.cate3_id,
+                                data.payed_day, data.payed_hour,
+                                data.cate1_id, data.cate2_id, data.cate3_id,
                                 data.preselling_shipped_day,
                                 data.seller_uid_field, data.company_name,
-                                data.lgst_company, data.warehouse_id,
                                 data.rvcr_prov_name, data.rvcr_city_name,
-                                data.shipped_prov_id, data.shipped_city_id,
                                 ), dim=1)
             outputs = model(inputs, 'test', field)
             day = outputs * 3 + 3
