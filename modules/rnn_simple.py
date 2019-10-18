@@ -5,21 +5,22 @@ from torch.nn import Module
 
 
 class SimpleRNN(Module):
-    def __init__(self, num_embeddings, embedding_dim):
+    def __init__(self, num_embedding, embedding_dim):
         super(SimpleRNN, self).__init__()
-        self.embedding = nn.Embedding(num_embeddings=num_embeddings, embedding_dim=embedding_dim)
+        self.embedding = nn.Embedding(num_embeddings=num_embedding, embedding_dim=embedding_dim)
 
-        self.encoder = nn.LSTM(input_size=128, hidden_size=128, bidirectional=True, batch_first=True,
+        self.encoder = nn.LSTM(input_size=embedding_dim, hidden_size=embedding_dim,
+                               bidirectional=True, batch_first=True,
                                num_layers=2, dropout=0.1)
-        self.decoder = nn.LSTMCell(input_size=256, hidden_size=256)
+        self.decoder = nn.LSTMCell(input_size=embedding_dim * 2, hidden_size=embedding_dim * 2)
 
-        self.fc_1 = nn.Linear(in_features=256, out_features=512)
-        self.fc_2 = nn.Linear(in_features=512, out_features=256)
+        self.fc_1 = nn.Linear(in_features=embedding_dim * 2, out_features=embedding_dim * 4)
+        self.fc_2 = nn.Linear(in_features=embedding_dim * 4, out_features=embedding_dim * 2)
 
-        self.fc_t_day = nn.Linear(in_features=256, out_features=128)
-        self.fc_t_day2 = nn.Linear(in_features=128, out_features=1)
-        self.fc_t_hour = nn.Linear(in_features=256, out_features=128)
-        self.fc_t_hour2 = nn.Linear(in_features=128, out_features=1)
+        self.fc_t_day = nn.Linear(in_features=embedding_dim * 2, out_features=embedding_dim)
+        self.fc_t_day2 = nn.Linear(in_features=embedding_dim, out_features=1)
+        self.fc_t_hour = nn.Linear(in_features=embedding_dim * 2, out_features=embedding_dim)
+        self.fc_t_hour2 = nn.Linear(in_features=embedding_dim, out_features=1)
 
         self.dropout = nn.Dropout(p=0.5)
         self.double()
@@ -53,8 +54,6 @@ class SimpleRNN(Module):
     @staticmethod
     def time_to_idx(time, field, mode, idx=0):
         if mode == 'd':
-            # plus_list = [0.5, 0.4, 0.4]
-            # mul_list = [1, 1, 1]
             plus_list = [1, 1, 1]
             mul_list = [2, 2, 2]
 

@@ -19,7 +19,7 @@ def main():
         sort=False
         )
 
-    model = SimpleRNN(num_embeddings=len(field.vocab), embedding_dim=512).to(device)
+    model = SimpleRNN(embedding_dim=len(field.vocab), embedding_dim=512).to(device)
     model.load_state_dict(torch.load('model/simple_rnn_model.pkl'))
     with open('data/simple_rnn_result.txt', 'w+') as f:
         f.write('')

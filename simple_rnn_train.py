@@ -38,7 +38,7 @@ def main():
         shuffle=True
     )
 
-    model = SimpleRNN(num_embeddings=len(field.vocab), embedding_dim=128).to(device)
+    model = SimpleRNN(num_embedding=len(field.vocab), embedding_dim=128).to(device)
     criterion_day = RMSELoss(gap=0, early=1, late=3)
     criterion_last_day = RMSELoss(gap=0, early=1, late=args.late)
     criterion_hour = RMSELoss(gap=0, early=1, late=1)
@@ -87,7 +87,7 @@ def main():
                     count = 0
                     test_loss = 0
                     for j, data_t in enumerate(test_iter):
-                        if j > (args.interval / 5):
+                        if j > 1:
                             break
 
                         inputs = torch.cat((data_t.plat_form, data_t.biz_type,
