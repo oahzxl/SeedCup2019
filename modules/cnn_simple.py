@@ -6,8 +6,8 @@ from torch.nn import Module
 class CNN(Module):
     def __init__(self):
         super(CNN, self).__init__()
-        self.bn1 = nn.BatchNorm1d(16)
-        self.cnn1 = nn.Conv1d(in_channels=16, out_channels=64, kernel_size=3, stride=2, padding=1)
+        self.bn1 = nn.BatchNorm1d(12)
+        self.cnn1 = nn.Conv1d(in_channels=12, out_channels=64, kernel_size=3, stride=2, padding=1)
         self.cnn2 = nn.Conv1d(in_channels=64, out_channels=64, kernel_size=3, stride=2, padding=1)
         self.bn2 = nn.BatchNorm1d(64)
         self.cnn3 = nn.Conv1d(in_channels=64, out_channels=128, kernel_size=3, stride=2, padding=1)
@@ -38,7 +38,7 @@ class SimpleCNN(Module):
         self.embedding = nn.Embedding(num_embeddings=num_embeddings, embedding_dim=embedding_dim)
         self.cnn = CNN()
 
-        self.fc_1 = nn.Linear(in_features=1792, out_features=256)
+        self.fc_1 = nn.Linear(in_features=768, out_features=256)
         self.fc_2 = nn.Linear(in_features=256, out_features=1)
         self.dropout = nn.Dropout(p=0.5)
 
