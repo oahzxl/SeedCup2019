@@ -9,7 +9,7 @@ from utils import *
 
 parser = argparse.ArgumentParser(description='RNN + CNN')
 learn = parser.add_argument_group('Learning options')
-learn.add_argument('--lr', type=float, default=0.00003, help='initial learning rate [default: 0.0003]')
+learn.add_argument('--lr', type=float, default=0.00002, help='initial learning rate [default: 0.0003]')
 learn.add_argument('--late', type=float, default=7.5, help='punishment of delay [default: 8]')
 learn.add_argument('--batch_size', type=int, default=1024, help='batch size for training [default: 1024]')
 learn.add_argument('--checkpoint', type=str, default='N', help='load latest model [default: N]')
@@ -25,7 +25,7 @@ def main():
         train, test, field = dataset_reader(train=True, process=True, stop=1200000)
         evl, _ = dataset_reader(train=False, fields=field, process=True)
     else:
-        train, test, field = dataset_reader(train=True, process=False, stop=900000)
+        train, test, field = dataset_reader(train=True, process=False, stop=1200000)
         evl, _ = dataset_reader(train=False, fields=field, process=False)
 
     field.build_vocab(train, evl)
@@ -78,7 +78,7 @@ def main():
             count = 0
             test_loss = 0
             for j, data_t in enumerate(test_iter):
-                if j > (train_iter.__len__() / 3):
+                if j > (train_iter.__len__() / 2):
                     break
 
                 inputs = torch.cat((data_t.plat_form, data_t.biz_type,
@@ -99,7 +99,7 @@ def main():
                 for b in range(day.size(0)):
 
                     # rank
-                    if not (0 <= int(data_t.signed_day[b]) <= 25) or not (0 <= day[b] <= 25):
+                    if not (0 <= int(data_t.signed_day[b]) <= 25):
                         continue
                     pred_time = arrow.get("2019-03-" + ('%.0f' % (day[b] + 5)).zfill(2) +
                                           ' 15')
