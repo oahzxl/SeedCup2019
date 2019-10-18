@@ -10,7 +10,7 @@ class SimpleRNN(Module):
         self.embedding = nn.Embedding(num_embeddings=num_embeddings, embedding_dim=embedding_dim)
 
         self.encoder = nn.LSTM(input_size=128, hidden_size=128, bidirectional=True, batch_first=True,
-                               num_layers=2, dropout=0.2)
+                               num_layers=2, dropout=0.1)
         self.decoder = nn.LSTMCell(input_size=256, hidden_size=256)
 
         self.fc_1 = nn.Linear(in_features=256, out_features=512)
