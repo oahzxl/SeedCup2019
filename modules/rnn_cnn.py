@@ -14,7 +14,7 @@ class RNNCNN(Module):
                                num_layers=2, dropout=0.1)
         self.cnn = CNNCell()
 
-        self.fc_1 = nn.Linear(in_features=2048, out_features=512)
+        self.fc_1 = nn.Linear(in_features=3072, out_features=512)
         self.fc_2 = nn.Linear(in_features=512, out_features=1)
         self.dropout = nn.Dropout(p=0.5)
 

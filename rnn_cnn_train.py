@@ -55,13 +55,11 @@ def main():
         for i, data in enumerate(train_iter):
 
             inputs = torch.cat((data.plat_form, data.biz_type,
-                                data.payed_hour,
-                                data.cate2_id, data.cate3_id,
+                                data.payed_day, data.payed_hour,
+                                data.cate1_id, data.cate2_id, data.cate3_id,
                                 data.preselling_shipped_day,
                                 data.seller_uid_field, data.company_name,
-                                data.lgst_company, data.warehouse_id,
                                 data.rvcr_prov_name, data.rvcr_city_name,
-                                data.shipped_prov_id, data.shipped_city_id,
                                 ), dim=1)
 
             outputs = model(inputs, 'train', field)
@@ -85,13 +83,11 @@ def main():
                             break
 
                         inputs = torch.cat((data_t.plat_form, data_t.biz_type,
-                                            data_t.payed_hour,
-                                            data_t.cate2_id, data_t.cate3_id,
+                                            data_t.payed_day, data_t.payed_hour,
+                                            data_t.cate1_id, data_t.cate2_id, data_t.cate3_id,
                                             data_t.preselling_shipped_day,
                                             data_t.seller_uid_field, data_t.company_name,
-                                            data_t.lgst_company, data_t.warehouse_id,
                                             data_t.rvcr_prov_name, data_t.rvcr_city_name,
-                                            data_t.shipped_prov_id, data_t.shipped_city_id,
                                             ), dim=1)
                         outputs = model(inputs, 'test', field)
 
