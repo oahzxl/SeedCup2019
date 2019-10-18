@@ -29,12 +29,10 @@ def main():
         for i, data in tqdm.tqdm(enumerate(evl_iter), total=evl_iter.__len__()):
             inputs = torch.cat((data.plat_form, data.biz_type,
                                 data.payed_hour,
-                                data.cate2_id, data.cate3_id,
+                                data.cate1_id, data.cate2_id, data.cate3_id,
                                 data.preselling_shipped_day,
                                 data.seller_uid_field, data.company_name,
-                                data.lgst_company, data.warehouse_id,
                                 data.rvcr_prov_name, data.rvcr_city_name,
-                                data.shipped_prov_id, data.shipped_city_id,
                                 ), dim=1)
             outputs = model(inputs, 'test', field)
             day = outputs * 3 + 3

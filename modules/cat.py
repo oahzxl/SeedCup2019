@@ -7,15 +7,15 @@ import torch
 class CNN(Module):
     def __init__(self):
         super(CNN, self).__init__()
-        self.bn1 = nn.BatchNorm1d(256)
-        self.cnn1 = nn.Conv1d(in_channels=256, out_channels=256, kernel_size=3, stride=2, padding=1)
-        self.cnn2 = nn.Conv1d(in_channels=256, out_channels=512, kernel_size=2, stride=2, padding=1)
-        self.bn2 = nn.BatchNorm1d(512)
-        self.cnn3 = nn.Conv1d(in_channels=512, out_channels=512, kernel_size=2, stride=1, padding=1)
-        self.cnn4 = nn.Conv1d(in_channels=512, out_channels=1024, kernel_size=2, stride=1, padding=1)
-        self.bn3 = nn.BatchNorm1d(1024)
-        self.cnn5 = nn.Conv1d(in_channels=1024, out_channels=1024, kernel_size=2, stride=1, padding=0)
-        self.cnn6 = nn.Conv1d(in_channels=1024, out_channels=1024, kernel_size=2, stride=1, padding=0)
+        self.bn1 = nn.BatchNorm1d(14)
+        self.cnn1 = nn.Conv1d(in_channels=14, out_channels=64, kernel_size=3, stride=2, padding=1)
+        self.cnn2 = nn.Conv1d(in_channels=64, out_channels=64, kernel_size=3, stride=2, padding=1)
+        self.bn2 = nn.BatchNorm1d(64)
+        self.cnn3 = nn.Conv1d(in_channels=64, out_channels=128, kernel_size=3, stride=2, padding=1)
+        self.cnn4 = nn.Conv1d(in_channels=128, out_channels=128, kernel_size=2, stride=1, padding=1)
+        self.bn3 = nn.BatchNorm1d(128)
+        self.cnn5 = nn.Conv1d(in_channels=128, out_channels=256, kernel_size=2, stride=1, padding=0)
+        self.cnn6 = nn.Conv1d(in_channels=256, out_channels=256, kernel_size=2, stride=1, padding=0)
 
     def forward(self, inputs):
         inputs = self.bn1(inputs)
@@ -25,10 +25,6 @@ class CNN(Module):
         inputs = self.bn2(inputs)
         inputs = self.cnn3(inputs)
         inputs = self.cnn4(inputs)
-        inputs = f.relu(inputs)
-        inputs = self.bn3(inputs)
-        inputs = self.cnn5(inputs)
-        inputs = self.cnn6(inputs)
         inputs = f.relu(inputs)
         return inputs
 
@@ -40,11 +36,11 @@ class RNNSVM(Module):
         self.embedding = nn.Embedding(num_embeddings=num_embeddings, embedding_dim=embedding_dim)
         self.encoder = nn.LSTM(input_size=embedding_dim, hidden_size=embedding_dim,
                                bidirectional=True, batch_first=True,
-                               num_layers=2, dropout=0.1)
+                               num_layers=2, dropout=0.2)
         self.cnn = CNN()
 
-        self.fc_1_1 = nn.Linear(in_features=5632, out_features=512)
-        self.fc_1_2 = nn.Linear(in_features=4096, out_features=512)
+        self.fc_1_1 = nn.Linear(in_features=5120, out_features=512)
+        self.fc_1_2 = nn.Linear(in_features=1152, out_features=512)
         self.fc_2 = nn.Linear(in_features=1024, out_features=256)
         self.fc_3 = nn.Linear(in_features=256, out_features=1)
         self.dropout = nn.Dropout(p=0.5)
@@ -58,7 +54,7 @@ class RNNSVM(Module):
         inputs1 = inputs1.reshape(inputs1.size(0), -1)
         inputs1 = self.fc_1_1(self.dropout(inputs1))
 
-        inputs2 = self.cnn(inputs.permute(0, 2, 1))
+        inputs2 = self.cnn(inputs)
         inputs2 = inputs2.reshape(inputs2.size(0), -1)
         inputs2 = self.fc_1_2(self.dropout(inputs2))
 

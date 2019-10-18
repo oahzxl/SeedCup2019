@@ -19,24 +19,24 @@ def main():
         sort=False
         )
 
-    model = SimpleCNN(num_embeddings=len(field.vocab), embedding_dim=256).to(device)
-    model.load_state_dict(torch.load('model/simple_cnn_model.pkl'))
-    with open('data/simple_cnn_result.txt', 'w+') as f:
+    model = RNNSVM(num_embeddings=len(field.vocab), embedding_dim=256).to(device)
+    model.load_state_dict(torch.load('model/rnn_svm_model.pkl'))
+    with open('data/rnn_svm_result.txt', 'w+') as f:
         f.write('')
 
     model.eval()
     with torch.no_grad():
         for i, data in tqdm.tqdm(enumerate(evl_iter), total=evl_iter.__len__()):
             inputs = torch.cat((data.plat_form, data.biz_type,
-                                data.payed_day, data.payed_hour,
-                                data.cate1_id, data.cate2_id, data.cate3_id,
+                                data.payed_hour,
+                                data.cate2_id, data.cate3_id,
                                 data.preselling_shipped_day,
                                 data.seller_uid_field, data.company_name,
                                 data.rvcr_prov_name, data.rvcr_city_name,
                                 ), dim=1)
             outputs = model(inputs, 'test', field)
             day = outputs * 3 + 3
-            with open('data/simple_cnn_result.txt', 'a+') as f:
+            with open('data/rnn_svm_result.txt', 'a+') as f:
                 for b in range(day.size(0)):
                     start_day = '2019-' + field.vocab.itos[data.create_time[b]][:-2]
                     start_day = arrow.get(start_day).timestamp
