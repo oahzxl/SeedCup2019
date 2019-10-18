@@ -25,8 +25,8 @@ def main():
         train, test, field = dataset_reader(train=True, process=True, stop=1200000)
         evl, _ = dataset_reader(train=False, fields=field, process=True)
     else:
-        train, test, field = dataset_reader(train=True, process=False, stop=600000)
-        evl, _ = dataset_reader(train=False, fields=field, process=False)
+        train, test, field = dataset_reader(train=True, process=False, stop=6000)
+        evl, _ = dataset_reader(train=False, fields=field, process=False, stop=6)
 
     field.build_vocab(train, evl)
     del evl
@@ -40,7 +40,7 @@ def main():
         shuffle=True
     )
 
-    model = SimpleCNN(num_embeddings=len(field.vocab), embedding_dim=32).to(device)
+    model = SimpleCNN(num_embeddings=len(field.vocab), embedding_dim=16).to(device)
     criterion_last_day = RMSELoss(gap=0, early=1, late=args.late)
     optimizer = optim.Adam((model.parameters()), lr=args.lr, weight_decay=0.03)
     with open(r"model/simple_cnn_log.txt", "w+") as f:

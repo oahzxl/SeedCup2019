@@ -38,8 +38,8 @@ class SimpleCNN(Module):
         self.embedding = nn.Embedding(num_embeddings=num_embeddings, embedding_dim=embedding_dim)
         self.cnn = CNN()
 
-        self.fc_1 = nn.Linear(in_features=768, out_features=256)
-        self.fc_2 = nn.Linear(in_features=256, out_features=1)
+        self.fc_1 = nn.Linear(in_features=256, out_features=64)
+        self.fc_2 = nn.Linear(in_features=64, out_features=1)
         self.dropout = nn.Dropout(p=0.5)
 
         self.double()
