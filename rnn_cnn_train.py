@@ -11,7 +11,7 @@ parser = argparse.ArgumentParser(description='RNN + CNN')
 learn = parser.add_argument_group('Learning options')
 learn.add_argument('--lr', type=float, default=0.00003, help='initial learning rate [default: 0.0003]')
 learn.add_argument('--late', type=float, default=8, help='punishment of delay [default: 8]')
-learn.add_argument('--batch_size', type=int, default=512, help='batch size for training [default: 1024]')
+learn.add_argument('--batch_size', type=int, default=1024, help='batch size for training [default: 1024]')
 learn.add_argument('--checkpoint', type=str, default='N', help='load latest model [default: N]')
 learn.add_argument('--process', type=str, default='N', help='preprocess data [default: N]')
 learn.add_argument('--interval', type=int, default=300, help='test interval [default: 300]')
@@ -22,10 +22,10 @@ def main():
     device = "cuda" if torch.cuda.is_available() else "cpu"
 
     if args.process == 'Y':
-        train, test, field = dataset_reader(train=True, process=True, stop=1200000)
+        train, test, field = dataset_reader(train=True, process=True, stop=900000)
         evl, _ = dataset_reader(train=False, fields=field, process=True)
     else:
-        train, test, field = dataset_reader(train=True, process=False, stop=1200000)
+        train, test, field = dataset_reader(train=True, process=False, stop=900000)
         evl, _ = dataset_reader(train=False, fields=field, process=False)
 
     field.build_vocab(train, evl)

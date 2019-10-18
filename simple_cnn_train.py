@@ -22,10 +22,10 @@ def main():
     device = "cuda" if torch.cuda.is_available() else "cpu"
 
     if args.process == 'Y':
-        train, test, field = dataset_reader(train=True, process=True, stop=1200000)
+        train, test, field = dataset_reader(train=True, process=True, stop=900000)
         evl, _ = dataset_reader(train=False, fields=field, process=True)
     else:
-        train, test, field = dataset_reader(train=True, process=False, stop=1200000)
+        train, test, field = dataset_reader(train=True, process=False, stop=900000)
         evl, _ = dataset_reader(train=False, fields=field, process=False)
 
     field.build_vocab(train, evl)
