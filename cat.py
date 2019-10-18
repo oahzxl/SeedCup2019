@@ -19,25 +19,15 @@ def main():
         sort=False
         )
 
-    model = SimpleRNN(num_embedding=len(field.vocab), embedding_dim=256).to(device)
-    model.load_state_dict(torch.load('model/simple_rnn_model.pkl'))
     with open('data/simple_rnn_result.txt', 'w+') as f:
         f.write('')
 
-    model.eval()
     with torch.no_grad():
         for i, data in tqdm.tqdm(enumerate(evl_iter), total=evl_iter.__len__()):
-            inputs = torch.cat((data.plat_form, data.biz_type,
-                                data.payed_day, data.payed_hour,
-                                data.cate1_id, data.cate2_id, data.cate3_id,
-                                data.preselling_shipped_day,
-                                data.seller_uid_field, data.company_name,
-                                data.rvcr_prov_name, data.rvcr_city_name,
-                                ), dim=1)
 
-            outputs = model(inputs, 'test', field)
             day = outputs[6] * 3 + 3
             hour = outputs[-1]
+
             with open('data/simple_rnn_result.txt', 'a+') as f:
                 for b in range(day.size(0)):
                     start_day = field.vocab.itos[data.create_time[b]][:-2]

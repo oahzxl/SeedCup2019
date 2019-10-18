@@ -8,7 +8,7 @@ from utils import *
 parser = argparse.ArgumentParser(description='RNN Encoder and Decoder')
 learn = parser.add_argument_group('Learning options')
 learn.add_argument('--lr', type=float, default=0.00003, help='initial learning rate [default: 0.00002]')
-learn.add_argument('--late', type=float, default=7, help='punishment of delay [default: 8')
+learn.add_argument('--late', type=float, default=7.5, help='punishment of delay [default: 8')
 learn.add_argument('--batch_size', type=int, default=1024, help='batch size for training [default: 1024]')
 learn.add_argument('--checkpoint', type=str, default='N', help='load latest model [default: N]')
 learn.add_argument('--process', type=str, default='N', help='preprocess data [default: N]')
@@ -20,10 +20,10 @@ def main():
     device = "cuda" if torch.cuda.is_available() else "cpu"
 
     if args.process == 'Y':
-        train, test, field = dataset_reader(train=True, process=True, stop=1200000)
+        train, test, field = dataset_reader(train=True, process=True, stop=900000)
         evl, _ = dataset_reader(train=False, fields=field, process=True)
     else:
-        train, test, field = dataset_reader(train=True, process=False, stop=600000)
+        train, test, field = dataset_reader(train=True, process=False, stop=900000)
         evl, _ = dataset_reader(train=False, fields=field, process=False)
 
     field.build_vocab(train, evl)
@@ -38,7 +38,7 @@ def main():
         shuffle=True
     )
 
-    model = SimpleRNN(num_embedding=len(field.vocab), embedding_dim=128).to(device)
+    model = SimpleRNN(num_embedding=len(field.vocab), embedding_dim=256).to(device)
     criterion_day = RMSELoss(gap=0, early=1, late=3)
     criterion_last_day = RMSELoss(gap=0, early=1, late=args.late)
     criterion_hour = RMSELoss(gap=0, early=1, late=1)
@@ -56,11 +56,12 @@ def main():
     for epoch in range(200):
         for i, data in enumerate(train_iter):
             inputs = torch.cat((data.plat_form, data.biz_type,
-                                data.create_hour, data.payed_day, data.payed_hour,
+                                data.payed_day, data.payed_hour,
                                 data.cate1_id, data.cate2_id, data.cate3_id,
-                                data.preselling_shipped_day, data.preselling_shipped_hour,
-                                data.seller_uid_field, data.company_name, data.rvcr_prov_name,
-                                data.rvcr_city_name), dim=1)
+                                data.preselling_shipped_day,
+                                data.seller_uid_field, data.company_name,
+                                data.rvcr_prov_name, data.rvcr_city_name
+                                ), dim=1)
 
             outputs = model(inputs, 'train', field)
             loss = (criterion_day(outputs[0] * 2 + 1, data.shipped_day_label.unsqueeze(1), train=True) +
@@ -87,15 +88,16 @@ def main():
                     count = 0
                     test_loss = 0
                     for j, data_t in enumerate(test_iter):
-                        if j > 1:
+                        if j > (args.interval / 2):
                             break
 
                         inputs = torch.cat((data_t.plat_form, data_t.biz_type,
-                                            data_t.create_hour, data_t.payed_day, data_t.payed_hour,
+                                            data_t.payed_day, data_t.payed_hour,
                                             data_t.cate1_id, data_t.cate2_id, data_t.cate3_id,
-                                            data_t.preselling_shipped_day, data_t.preselling_shipped_hour,
-                                            data_t.seller_uid_field, data_t.company_name, data_t.rvcr_prov_name,
-                                            data_t.rvcr_city_name), dim=1)
+                                            data_t.preselling_shipped_day,
+                                            data_t.seller_uid_field, data_t.company_name,
+                                            data_t.rvcr_prov_name, data_t.rvcr_city_name
+                                            ), dim=1)
 
                         outputs = model(inputs, 'test', field)
 

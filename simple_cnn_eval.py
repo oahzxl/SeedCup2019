@@ -38,13 +38,8 @@ def main():
             day = outputs * 3 + 3
             with open('data/simple_cnn_result.txt', 'a+') as f:
                 for b in range(day.size(0)):
-                    start_day = '2019-' + field.vocab.itos[data.create_time[b]][:-2]
-                    start_day = arrow.get(start_day).timestamp
-                    sign_day = int('%.0f' % day[b])
-                    sign_hour = '15'
-                    final = str(arrow.get(start_day + sign_day * 24 * 60 * 60))[:10]
-                    final = final + ' ' + sign_hour
-                    f.write(final + '\n')
+                    sign_day = str(float(day[b]))
+                    f.write(sign_day + '\n')
 
 
 if __name__ == '__main__':
