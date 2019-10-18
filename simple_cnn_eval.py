@@ -7,7 +7,7 @@ device = "cuda" if torch.cuda.is_available() else "cpu"
 
 
 def main():
-    train, test, field = dataset_reader(train=True, stop=2500000)
+    train, test, field = dataset_reader(train=True, stop=900000)
     evl, _ = dataset_reader(train=False, fields=field)
     field.build_vocab(train, evl)
     _, evl_iter = BucketIterator.splits(
