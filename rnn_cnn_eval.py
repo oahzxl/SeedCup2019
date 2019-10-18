@@ -7,7 +7,7 @@ device = "cuda" if torch.cuda.is_available() else "cpu"
 
 
 def main():
-    train, test, field = dataset_reader(train=True, stop=1200000)
+    train, test, field = dataset_reader(train=True, stop=900000)
     evl, _ = dataset_reader(train=False, fields=field)
     field.build_vocab(train, evl)
     _, evl_iter = BucketIterator.splits(
@@ -19,7 +19,7 @@ def main():
         sort=False
         )
 
-    model = RNNCNN(num_embeddings=len(field.vocab), embedding_dim=128).to(device)
+    model = RNNCNN(num_embeddings=len(field.vocab), embedding_dim=256).to(device)
     model.load_state_dict(torch.load('model/rnn_cnn_model.pkl'))
     with open('data/rnn_cnn_result.txt', 'w+') as f:
         f.write('')

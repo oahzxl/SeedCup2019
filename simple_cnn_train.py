@@ -10,7 +10,7 @@ from utils import *
 parser = argparse.ArgumentParser(description='RNN + CNN')
 learn = parser.add_argument_group('Learning options')
 learn.add_argument('--lr', type=float, default=0.00002, help='initial learning rate [default: 0.0003]')
-learn.add_argument('--late', type=float, default=7.5, help='punishment of delay [default: 8]')
+learn.add_argument('--late', type=float, default=7.8, help='punishment of delay [default: 8]')
 learn.add_argument('--batch_size', type=int, default=1024, help='batch size for training [default: 1024]')
 learn.add_argument('--checkpoint', type=str, default='N', help='load latest model [default: N]')
 learn.add_argument('--process', type=str, default='N', help='preprocess data [default: N]')
@@ -22,7 +22,7 @@ def main():
     device = "cuda" if torch.cuda.is_available() else "cpu"
 
     if args.process == 'Y':
-        train, test, field = dataset_reader(train=True, process=True, stop=1200000)
+        train, test, field = dataset_reader(train=True, process=True, stop=900000)
         evl, _ = dataset_reader(train=False, fields=field, process=True)
     else:
         train, test, field = dataset_reader(train=True, process=False, stop=900000)
@@ -78,8 +78,6 @@ def main():
             count = 0
             test_loss = 0
             for j, data_t in enumerate(test_iter):
-                if j > (train_iter.__len__() / 2):
-                    break
 
                 inputs = torch.cat((data_t.plat_form, data_t.biz_type,
                                     data_t.payed_day, data_t.payed_hour,
